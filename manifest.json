@@ -1,7 +1,7 @@
 {
   "name": "TABBI: Tipp-ArbeitsBlätter-Bibliothek",
   "short_name": "TABBI",
-  "description": "Tablet Arbeitsblatt Bibliothek für Louis (1. Klasse)",
+  "description": "Tablet Arbeitsblatt Bibliothek für Erstklässler",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

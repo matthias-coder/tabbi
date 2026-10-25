@@ -1,7 +1,7 @@
 # TABBI: Tipp-ArbeitsBlätter-Bibliothek (System-Regeln & Architektur)
 
 ## 1. Projektvision & Eiserne Grundregel
-TABBI ist eine statische Web-App (PWA auf GitHub Pages) für einen Erstklässler (Louis), der mit Unterstützung einer Teilhabeassistentin Schul-Arbeitsblätter digital ausfüllt.
+TABBI ist eine statische Web-App (PWA auf GitHub Pages) für einen Erstklässler, der mit Unterstützung einer Teilhabeassistentin Schul-Arbeitsblätter digital ausfüllt.
 - **Ziel:** Motorische Entlastung (Tippen statt Schreiben/Ausmalen), **KEINE kognitive Hilfe**.
 - **Eiserne Grundregel:** Die digitale Fassung darf nichts verraten, einschränken oder erleichtern, was auf dem Papier-Arbeitsblatt offen ist. Vor jeder UI-Entscheidung prüfen: *"Sieht oder erfährt das Kind hier etwas, das es auf dem Blatt selbst herausfinden müsste?"*
 

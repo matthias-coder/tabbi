@@ -1,7 +1,7 @@
 # TABBI: Tipp-ArbeitsBlätter-Bibliothek
 
 > **Digitale, barrierearme Arbeitsblätter für die Grundschule (Klasse 1)**  
-> Entwickelt für Louis zur motorischen Entlastung (Tippen statt Schreiben/Ausmalen) mit Begleitung einer Teilhabeassistentin – lauffähig als PWA direkt im Browser / GitHub Pages ohne Backend oder Build-Step.
+> Entwickelt für ein Kind (1. Klasse) zur motorischen Entlastung (Tippen statt Schreiben/Ausmalen) mit Begleitung einer Teilhabeassistentin – lauffähig als PWA direkt im Browser / GitHub Pages ohne Backend oder Build-Step.
 
 ---
 
