@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zehner und Einer – Zahlen bis 20 entdecken</title>
+  <link rel="stylesheet" href="../css/tabbi.css">
+</head>
+<body
+  data-blatt-id="007_zahlen_bis_20_zehner_und_einer"
+  data-titel="Zehner &amp; Einer (Zahlen bis 20)"
+  data-beschreibung="Punkte im Zwanzigerfeld ablesen, in die Z/E-Stellenwerttafel eintragen (10 + Einer) und selbst Zahlen bis 20 legen."
+  data-icon="🔟🔵"
+  data-kategorie="10-20"
+  data-numpad-max="20"
+>
+
+  <!-- Sticky Kopfzeile -->
+  <header class="blatt-header print-hide">
+    <div class="blatt-header-links">
+      <a href="../index.html" id="btn-zurueck" class="ui-btn" aria-label="Zurück zur Übersicht">
+        ⬅️ Übersicht
+      </a>
+    </div>
+
+    <div class="blatt-titel-gruppe">
+      <h1 class="blatt-titel">Zehner und Einer (bis 20)</h1>
+      <p class="blatt-untertitel">Zwanzigerfeld, Stellenwerttafel (Z | E) &amp; Plusaufgabe</p>
+    </div>
+
+    <div class="blatt-header-rechts">
+      <button type="button" id="btn-reset" class="ui-btn" aria-label="Blatt leeren">
+        🗑️ Löschen
+      </button>
+      <button type="button" id="btn-print" class="ui-btn ui-btn-print" aria-label="Als PDF speichern oder drucken">
+        🖨️ PDF / Drucken
+      </button>
+    </div>
+  </header>
+
+  <!-- Tabs: Ablesen vs. Selber legen -->
+  <section class="steuerung-leiste print-hide" aria-label="Aufgabenauswahl">
+    <div class="tab-gruppe" role="tablist">
+      <button type="button" class="tab-btn aktiv" data-tab="ablesen" role="tab">
+        👀 Zwanzigerfeld ablesen (Z | E)
+      </button>
+      <button type="button" class="tab-btn" data-tab="legen" role="tab">
+        🔵🔴 Punkte selber legen (11–20)
+      </button>
+    </div>
+  </section>
+
+  <main class="blatt-inhalt">
+
+    <div class="druck-kopf">
+      <span>Name: Louis</span>
+      <span>Arbeitsblatt: Zehner und Einer (Zahlen bis 20)</span>
+      <span>Datum: _______________</span>
+    </div>
+
+    <!-- ====================================================================
+         TAB 1: ZWANZIGERFELD ABLESEN -> STELLENWERTTAFEL (Z | E) + RECHNUNG
+         ==================================================================== -->
+    <section class="tab-panel aktiv" data-tab-panel="ablesen" aria-label="Zwanzigerfeld ablesen">
+      <div class="aufgaben-sektion">
+        <div class="aufgaben-kopf">
+          <span class="aufgaben-nr">1</span>
+          <h2 class="aufgaben-titel">Wie viele Zehner (Z) und Einer (E) sind es? Schreibe auch die Plusaufgabe!</h2>
+        </div>
+
+        <div id="ze-ablesen-container"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB 2: PUNKTE IM ZWANZIGERFELD SELBER LEGEN (11 bis 20)
+         ==================================================================== -->
+    <section class="tab-panel" data-tab-panel="legen" aria-label="Punkte selber legen">
+      <div class="aufgaben-sektion">
+        <div class="aufgaben-kopf">
+          <span class="aufgaben-nr">2</span>
+          <h2 class="aufgaben-titel">Tippe die Punkte im Zwanzigerfeld an (oben 10 blaue, unten rote Einer) und rechne!</h2>
+        </div>
+
+        <div id="ze-legen-container"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav id="numpad" class="print-hide" aria-label="Ziffernblock"></nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const B = window.TabbiBausteine;
+      if (!B) return;
+
+      function baueAufgaben(ablesenZahlen, legenZahlen) {
+        const ablesenContainer = document.getElementById('ze-ablesen-container');
+        if (ablesenContainer) {
+          ablesenContainer.innerHTML = ablesenZahlen
+            .map((zahl, idx) => {
+              const blau = 10;
+              const rot = zahl - 10;
+              return (
+                `<div class="zwanziger-aufgabe-zeile fokus-kandidat">` +
+                  B.erstelleVorgabeZwanzigerfeldHTML(blau, rot) +
+                  `<div class="stellenwert-tafel">` +
+                    `<div class="stellenwert-kopf zehner">Z</div>` +
+                    `<div class="stellenwert-kopf einer">E</div>` +
+                    `<div class="stellenwert-zelle"><div class="luecke" data-id="ze_ab_${idx}_z"></div></div>` +
+                    `<div class="stellenwert-zelle"><div class="luecke" data-id="ze_ab_${idx}_e"></div></div>` +
+                  `</div>` +
+                  B.erstelleGleichungHTML(`10 + _ = _`, `ze_ab_gl_${idx}`) +
+                `</div>`
+              );
+            })
+            .join('');
+        }
+
+        const legenContainer = document.getElementById('ze-legen-container');
+        if (legenContainer) {
+          legenContainer.innerHTML = legenZahlen
+            .map((zahl, idx) => {
+              return (
+                `<div class="zwanziger-aufgabe-zeile fokus-kandidat">` +
+                  `<div class="einkreisen-zielzahl" style="width:68px;height:68px;font-size:2.1rem;">${zahl}</div>` +
+                  B.erstelleInteraktivesZwanzigerfeldHTML(`ze_leg_${idx}`) +
+                  B.erstelleGleichungHTML(`10 + _ = ${zahl}`, `ze_leg_gl_${idx}`) +
+                `</div>`
+              );
+            })
+            .join('');
+        }
+      }
+
+      baueAufgaben([14, 12, 17, 15, 19, 11, 16, 20], [13, 15, 18, 11, 16, 20]);
+
+      window.addEventListener('tabbi:neu-wuerfeln', () => {
+        const pool1 = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20].sort(() => Math.random() - 0.5).slice(0, 8);
+        const pool2 = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20].sort(() => Math.random() - 0.5).slice(0, 6);
+        baueAufgaben(pool1, pool2);
+      });
+    });
+  </script>
+  <script src="../js/tabbi-core.js"></script>
+</body>
+</html>

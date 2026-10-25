@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rechnen über die 10 &amp; Zahlenmauern (bis 20)</title>
+  <link rel="stylesheet" href="../css/tabbi.css">
+</head>
+<body
+  data-blatt-id="010_zehneruebergang_und_zahlenmauern_20"
+  data-titel="Rechnen über die 10 &amp; Zahlenmauern"
+  data-beschreibung="Schrittweise über die 10 rechnen ('Erst bis zur 10, dann weiter') mit Zwanzigerfeld sowie Zahlenmauern bis 20."
+  data-icon="🧱🔟"
+  data-kategorie="10-20"
+  data-numpad-max="20"
+>
+
+  <!-- Sticky Kopfzeile -->
+  <header class="blatt-header print-hide">
+    <div class="blatt-header-links">
+      <a href="../index.html" id="btn-zurueck" class="ui-btn" aria-label="Zurück zur Übersicht">
+        ⬅️ Übersicht
+      </a>
+    </div>
+
+    <div class="blatt-titel-gruppe">
+      <h1 class="blatt-titel">Rechnen über die 10 &amp; Zahlenmauern</h1>
+      <p class="blatt-untertitel">Erst bis zur 10 rechnen • Zahlenmauern bis 20</p>
+    </div>
+
+    <div class="blatt-header-rechts">
+      <button type="button" id="btn-reset" class="ui-btn" aria-label="Blatt leeren">
+        🗑️ Löschen
+      </button>
+      <button type="button" id="btn-print" class="ui-btn ui-btn-print" aria-label="Als PDF speichern oder drucken">
+        🖨️ PDF / Drucken
+      </button>
+    </div>
+  </header>
+
+  <!-- Tabs: Erst bis zur 10 vs. Zahlenmauern -->
+  <section class="steuerung-leiste print-hide" aria-label="Aufgabenauswahl">
+    <div class="tab-gruppe" role="tablist">
+      <button type="button" class="tab-btn aktiv" data-tab="zehnerstopp" role="tab">
+        🛑 Erst bis zur 10 (Zehnerübergang)
+      </button>
+      <button type="button" class="tab-btn" data-tab="mauern" role="tab">
+        🧱 Zahlenmauern bis 20
+      </button>
+    </div>
+  </section>
+
+  <main class="blatt-inhalt">
+
+    <div class="druck-kopf">
+      <span>Name: Louis</span>
+      <span>Arbeitsblatt: Rechnen über die 10 &amp; Zahlenmauern</span>
+      <span>Datum: _______________</span>
+    </div>
+
+    <!-- ====================================================================
+         TAB 1: ERST BIS ZUR 10, DANN WEITER (MIT ZWANZIGERFELD)
+         ==================================================================== -->
+    <section class="tab-panel aktiv" data-tab-panel="zehnerstopp" aria-label="Erst bis zur 10">
+      <div class="aufgaben-sektion">
+        <div class="aufgaben-kopf">
+          <span class="aufgaben-nr">1</span>
+          <h2 class="aufgaben-titel">Stopp bei der 10: Lege am Zwanzigerfeld (Blau &amp; Rot) und rechne in zwei Schritten!</h2>
+        </div>
+
+        <div id="zehnerstopp-container"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB 2: ZAHLENMAUERN BIS 20
+         ==================================================================== -->
+    <section class="tab-panel" data-tab-panel="mauern" aria-label="Zahlenmauern">
+      <div class="aufgaben-sektion">
+        <div class="aufgaben-kopf">
+          <span class="aufgaben-nr">2</span>
+          <h2 class="aufgaben-titel">Zahlenmauern: Immer zwei Steine nebeneinander ergeben den Stein darüber!</h2>
+        </div>
+
+        <div class="zahlenmauern-grid">
+          <div data-baustein="zahlenmauer" data-steine="_; _,_; 3,4,5" data-prefix="zm_1"></div>
+          <div data-baustein="zahlenmauer" data-steine="_; _,_; 5,2,6" data-prefix="zm_2"></div>
+          <div data-baustein="zahlenmauer" data-steine="_; _,_; 4,5,6" data-prefix="zm_3"></div>
+          <div data-baustein="zahlenmauer" data-steine="_; _,_; 6,3,7" data-prefix="zm_4"></div>
+          <div data-baustein="zahlenmauer" data-steine="18; 10,_; 6,4,_" data-prefix="zm_5"></div>
+          <div data-baustein="zahlenmauer" data-steine="20; _,9; 7,_,5" data-prefix="zm_6"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav id="numpad" class="print-hide" aria-label="Ziffernblock"></nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const B = window.TabbiBausteine;
+      if (!B) return;
+
+      function baueZehnerstopp(aufgaben) {
+        const container = document.getElementById('zehnerstopp-container');
+        if (!container) return;
+        container.innerHTML = aufgaben
+          .map(
+            ({ a, b }, idx) =>
+              `<div class="zehneruebergang-karte fokus-kandidat">` +
+                `<div class="schritt-box">` +
+                  `<span class="schritt-hinweis">Hauptaufgabe:</span>` +
+                  B.erstelleGleichungHTML(`${a} + ${b} = _`, `zu_${idx}_haupt`) +
+                  `<span class="schritt-hinweis" style="margin-top:4px;">1. Schritt (bis zur 10) &amp; 2. Schritt:</span>` +
+                  `<div style="display:flex;flex-wrap:wrap;gap:12px;">` +
+                    B.erstelleGleichungHTML(`${a} + _ = 10`, `zu_${idx}_s1`) +
+                    B.erstelleGleichungHTML(`10 + _ = _`, `zu_${idx}_s2`) +
+                  `</div>` +
+                `</div>` +
+                B.erstelleInteraktivesZwanzigerfeldHTML(`zu_${idx}_zf`) +
+              `</div>`
+          )
+          .join('');
+      }
+
+      baueZehnerstopp([
+        { a: 8, b: 5 },
+        { a: 7, b: 6 },
+        { a: 9, b: 4 },
+        { a: 6, b: 7 },
+        { a: 8, b: 6 },
+        { a: 7, b: 5 }
+      ]);
+
+      window.addEventListener('tabbi:neu-wuerfeln', () => {
+        const allePaare = [];
+        for (let a = 6; a <= 9; a++) {
+          for (let b = 11 - a; b <= 9; b++) {
+            allePaare.push({ a, b });
+          }
+        }
+        allePaare.sort(() => Math.random() - 0.5);
+        baueZehnerstopp(allePaare.slice(0, 6));
+      });
+    });
+  </script>
+  <script src="../js/tabbi-core.js"></script>
+</body>
+</html>

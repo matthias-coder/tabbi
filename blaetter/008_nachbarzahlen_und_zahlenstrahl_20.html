@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zahlenreihe &amp; Nachbarzahlen bis 20</title>
+  <link rel="stylesheet" href="../css/tabbi.css">
+</head>
+<body
+  data-blatt-id="008_nachbarzahlen_und_zahlenstrahl_20"
+  data-titel="Zahlenreihe &amp; Nachbarzahlen (bis 20)"
+  data-beschreibung="Zahlenreihen vorwärts und rückwärts bis 20 ausfüllen, Vorgänger und Nachfolger bestimmen und Zahlen der Größe nach ordnen."
+  data-icon="🔢↔️"
+  data-kategorie="10-20"
+  data-numpad-max="20"
+>
+
+  <!-- Sticky Kopfzeile -->
+  <header class="blatt-header print-hide">
+    <div class="blatt-header-links">
+      <a href="../index.html" id="btn-zurueck" class="ui-btn" aria-label="Zurück zur Übersicht">
+        ⬅️ Übersicht
+      </a>
+    </div>
+
+    <div class="blatt-titel-gruppe">
+      <h1 class="blatt-titel">Zahlenreihe &amp; Nachbarzahlen</h1>
+      <p class="blatt-untertitel">Orientierung im Zahlenraum bis 20</p>
+    </div>
+
+    <div class="blatt-header-rechts">
+      <button type="button" id="btn-reset" class="ui-btn" aria-label="Blatt leeren">
+        🗑️ Löschen
+      </button>
+      <button type="button" id="btn-print" class="ui-btn ui-btn-print" aria-label="Als PDF speichern oder drucken">
+        🖨️ PDF / Drucken
+      </button>
+    </div>
+  </header>
+
+  <main class="blatt-inhalt">
+
+    <div class="druck-kopf">
+      <span>Name: Louis</span>
+      <span>Arbeitsblatt: Zahlenreihe &amp; Nachbarzahlen bis 20</span>
+      <span>Datum: _______________</span>
+    </div>
+
+    <!-- Aufgabe 1: Zahlenreihen vorwärts und rückwärts vervollständigen -->
+    <section class="aufgaben-sektion" aria-label="Aufgabe 1">
+      <div class="aufgaben-kopf">
+        <span class="aufgaben-nr">1</span>
+        <h2 class="aufgaben-titel">Welche Zahlen fehlen in der Zahlenreihe?</h2>
+      </div>
+
+      <div id="zahlenreihen-container" style="display:flex;flex-direction:column;gap:16px;"></div>
+    </section>
+
+    <!-- Aufgabe 2: Vorgänger und Nachfolger (Nachbarzahlen) -->
+    <section class="aufgaben-sektion" aria-label="Aufgabe 2">
+      <div class="aufgaben-kopf">
+        <span class="aufgaben-nr">2</span>
+        <h2 class="aufgaben-titel">Nachbarzahlen: Wie heißen Vorgänger (−1) und Nachfolger (+1)?</h2>
+      </div>
+
+      <div class="nachbarzahlen-grid" data-baustein="nachbarzahlen" data-zahlen="12,15,18,11,19,14,16,13,17" data-prefix="nb20"></div>
+    </section>
+
+    <!-- Aufgabe 3: Zahlen der Größe nach ordnen -->
+    <section class="aufgaben-sektion" aria-label="Aufgabe 3">
+      <div class="aufgaben-kopf">
+        <span class="aufgaben-nr">3</span>
+        <h2 class="aufgaben-titel">Ordne die Zahlen der Größe nach (beginne mit der kleinsten Zahl)!</h2>
+      </div>
+
+      <!-- Sortier-Aufgaben Container -->
+      <div id="sortier-container" style="display:flex;flex-direction:column;gap:18px;"></div>
+    </section>
+
+  </main>
+
+  <nav id="numpad" class="print-hide" aria-label="Ziffernblock"></nav>
+
+  <script>
+    (function () {
+      function baueZahlenreihen(reihen) {
+        const container = document.getElementById('zahlenreihen-container');
+        if (!container) return;
+
+        container.innerHTML = reihen
+          .map((r, rIdx) => {
+            const zellen = r
+              .filter((x) => x !== '')
+              .map((val, cIdx) => {
+                const inhalt =
+                  val === '_'
+                    ? `<div class="luecke" data-id="zr_${rIdx}_${cIdx}"></div>`
+                    : `<div class="vorgabe">${val}</div>`;
+                return `<div class="schreib-zelle">${inhalt}</div>`;
+              })
+              .join('');
+            return `<div class="schreib-streifen fokus-kandidat"><div class="schreib-reihe">${zellen}</div></div>`;
+          })
+          .join('');
+      }
+
+      function baueSortierAufgaben(listen) {
+        const sortContainer = document.getElementById('sortier-container');
+        if (!sortContainer) return;
+        sortContainer.innerHTML = listen
+          .map(
+            (zahlen, sIdx) =>
+              `<div class="zwanziger-aufgabe-zeile fokus-kandidat">` +
+                `<div style="font-size:1.35rem;font-weight:700;background:#eff6ff;padding:8px 16px;border-radius:10px;border:2px solid #93c5fd;">` +
+                  zahlen.join(' &nbsp;•&nbsp; ') +
+                `</div>` +
+                `<div class="gleichung-zeile">` +
+                  `<div class="gleichung-box"><div class="luecke" data-id="ord_${sIdx}_1"></div></div><span>&lt;</span>` +
+                  `<div class="gleichung-box"><div class="luecke" data-id="ord_${sIdx}_2"></div></div><span>&lt;</span>` +
+                  `<div class="gleichung-box"><div class="luecke" data-id="ord_${sIdx}_3"></div></div><span>&lt;</span>` +
+                  `<div class="gleichung-box"><div class="luecke" data-id="ord_${sIdx}_4"></div></div><span>&lt;</span>` +
+                  `<div class="gleichung-box"><div class="luecke" data-id="ord_${sIdx}_5"></div></div>` +
+                `</div>` +
+              `</div>`
+          )
+          .join('');
+      }
+
+      baueZahlenreihen([
+        ['10', '11', '_', '13', '_', '15', '16', '_', '18', '_', '20'],
+        ['9', '_', '11', '_', '13', '14', '_', '16', '_', '18', '_'],
+        ['20', '19', '_', '17', '_', '15', '_', '13', '12', '_', '10'],
+        ['_', '12', '13', '_', '_', '16', '17', '_', '_', '20', '']
+      ]);
+      baueSortierAufgaben([
+        [16, 11, 19, 13, 20],
+        [15, 18, 10, 12, 17]
+      ]);
+
+      window.addEventListener('tabbi:neu-wuerfeln', () => {
+        // Zufällige Lücken in den Zahlenreihen erzeugen
+        const erzeugeReihe = (start, schritt, laenge) => {
+          const arr = [];
+          for (let i = 0; i < laenge; i++) {
+            const z = start + i * schritt;
+            const istLuecke = i > 0 && i < laenge - 1 && Math.random() < 0.48;
+            arr.push(istLuecke ? '_' : String(z));
+          }
+          return arr;
+        };
+        baueZahlenreihen([
+          erzeugeReihe(10, 1, 11),
+          erzeugeReihe(8, 1, 11),
+          erzeugeReihe(20, -1, 11),
+          erzeugeReihe(19, -1, 10)
+        ]);
+
+        const alleBis20 = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+        const s1 = [...alleBis20].sort(() => Math.random() - 0.5).slice(0, 5);
+        const s2 = [...alleBis20].sort(() => Math.random() - 0.5).slice(0, 5);
+        baueSortierAufgaben([s1, s2]);
+      });
+    })();
+  </script>
+  <script src="../js/tabbi-core.js"></script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Fische zählen &amp; Punktebilder (0–10)</title>
+  <link rel="stylesheet" href="../css/tabbi.css">
+</head>
+<body
+  data-blatt-id="003_punktebilder_und_fische"
+  data-titel="Fische zählen &amp; Punktebilder"
+  data-beschreibung="Fische im Aquarium zählen und Zehnerstreifen-Punktebilder den Zahlen in den Luftblasen zuordnen."
+  data-icon="🐟🫧"
+  data-kategorie="1-10"
+  data-numpad-max="10"
+>
+
+  <!-- Sticky Kopfzeile -->
+  <header class="blatt-header print-hide">
+    <div class="blatt-header-links">
+      <a href="../index.html" id="btn-zurueck" class="ui-btn" aria-label="Zurück zur Übersicht">
+        ⬅️ Übersicht
+      </a>
+    </div>
+
+    <div class="blatt-titel-gruppe">
+      <h1 class="blatt-titel">Fische zählen &amp; Punktebilder</h1>
+      <p class="blatt-untertitel" id="aktueller-bereich-text">Unterwasser-Mathe (0 bis 10)</p>
+    </div>
+
+    <div class="blatt-header-rechts">
+      <button type="button" id="btn-reset" class="ui-btn" aria-label="Blatt leeren">
+        🗑️ Löschen
+      </button>
+      <button type="button" id="btn-print" class="ui-btn ui-btn-print" aria-label="Als PDF speichern oder drucken">
+        🖨️ PDF / Drucken
+      </button>
+    </div>
+  </header>
+
+  <!-- Auswahl-Leiste: Tabs (Fische zählen vs. Punktebilder) -->
+  <section class="steuerung-leiste print-hide" aria-label="Aufgabenauswahl">
+    <div class="tab-gruppe" role="tablist">
+      <button type="button" class="tab-btn aktiv" data-tab="fische" role="tab">
+        🐟 Fische zählen
+      </button>
+      <button type="button" class="tab-btn" data-tab="punktebilder" role="tab">
+        🫧 Punktebilder (Zehnerstreifen)
+      </button>
+    </div>
+  </section>
+
+  <main class="blatt-inhalt">
+
+    <div class="druck-kopf">
+      <span>Name: Louis</span>
+      <span>Arbeitsblatt: Fische zählen &amp; Punktebilder</span>
+      <span>Datum: _______________</span>
+    </div>
+
+    <!-- ====================================================================
+         TAB 1: FISCHE ZÄHLEN (Vorlage PXL_20261025_110337011.MP.jpg)
+         6 Unterwasser-Becken mit 2, 7, 5, 4, 8, 9 Fischen.
+         Tipp-Hilfe: Louis kann jeden Fisch beim Zählen antippen (wird blau umrandet).
+         ==================================================================== -->
+    <section class="tab-panel aktiv" data-tab-panel="fische" aria-label="Fische zählen">
+      <div class="aufgaben-sektion">
+        <div class="aufgaben-kopf">
+          <span class="aufgaben-nr">1</span>
+          <h2 class="aufgaben-titel">Zähle die Fische in jedem Bild (Tipp: Du kannst gezählte Fische antippen!)</h2>
+        </div>
+
+        <div id="aquarium-container" class="aquarium-grid">
+          <!-- Wird unten sauber mit den 6 Becken (2, 7, 5, 4, 8, 9 Fischen) aufgebaut -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB 2: PUNKTEBILDER VERBINDEN / ZUORDNEN (Vorlage PXL_20261025_110245415.jpg)
+         9 Zehnerstreifen mit ausgefüllten Punkten -> Zahl in die U-Boot-Blase tippen!
+         ==================================================================== -->
+    <section class="tab-panel" data-tab-panel="punktebilder" aria-label="Punktebilder">
+      <div class="aufgaben-sektion">
+        <div class="aufgaben-kopf">
+          <span class="aufgaben-nr">2</span>
+          <h2 class="aufgaben-titel">Wie viele Punkte sind im Zehnerstreifen? Tippe die Zahl in die Luftblase!</h2>
+        </div>
+
+        <div data-baustein="punktebilder" data-werte="2,5,8,1,6,10,0,9,3" data-prefix="pb_streifen"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav id="numpad" class="print-hide" aria-label="Ziffernblock"></nav>
+
+  <script>
+    // Baut die 6 Aquarium-Bilder auf (beim ersten Laden die Originalzahlen 2,7,5,4,8,9,
+    // bei "🎲 Neu würfeln" neue Zufallsanzahlen 1..9!)
+    (function () {
+      const allePositionen = [
+        [14, 14], [46, 15], [72, 16],
+        [20, 40], [50, 42], [74, 44],
+        [16, 68], [46, 68], [72, 68]
+      ];
+
+      function baueAquarien(anzahlen) {
+        const container = document.getElementById('aquarium-container');
+        if (!container) return;
+
+        container.innerHTML = anzahlen
+          .map((anzahl, bIdx) => {
+            const gemischtePos = [...allePositionen].sort(() => Math.random() - 0.5).slice(0, anzahl);
+            const fischeHTML = gemischtePos
+              .map(
+                ([left, top], i) =>
+                  `<button type="button" class="zaehl-item" data-id="aq_b${bIdx + 1}_f${i}" ` +
+                  `aria-label="Fisch ${i + 1}">${i % 2 === 0 ? '🐟' : '🐠'}</button>`
+              )
+              .join('');
+
+            return (
+              `<div class="aquarium-aufgabe fokus-kandidat">` +
+                `<div class="aquarium-becken">${fischeHTML}</div>` +
+                `<div class="zaehl-luecke-box" style="width:62px;height:62px;">` +
+                  `<div class="luecke" data-id="aq_b${bIdx + 1}_luecke"></div>` +
+                `</div>` +
+              `</div>`
+            );
+          })
+          .join('');
+      }
+
+      baueAquarien([2, 7, 5, 4, 8, 9]);
+
+      window.addEventListener('tabbi:neu-wuerfeln', (e) => {
+        const min = (e.detail && e.detail.min) || 1;
+        const max = Math.min(9, (e.detail && e.detail.max) || 9);
+        const pool = [];
+        for (let i = 0; i < 6; i++) {
+          pool.push(Math.floor(Math.random() * (max - min + 1)) + min);
+        }
+        baueAquarien(pool);
+      });
+    })();
+  </script>
+  <script src="../js/tabbi-core.js"></script>
+</body>
+</html>

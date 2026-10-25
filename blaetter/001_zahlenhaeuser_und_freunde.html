@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zahlenhäuser (1–10)</title>
+  <link rel="stylesheet" href="../css/tabbi.css">
+</head>
+<body
+  data-blatt-id="001_zahlenhaeuser_und_freunde"
+  data-titel="Zahlenhäuser (1 bis 10)"
+  data-beschreibung="Zahlenhäuser für die Zahlen 1 bis 10 (nicht aufsteigend sortiert, mehrere Einzelzahlen frei wählbar)."
+  data-icon="🏠"
+  data-kategorie="1-10"
+  data-numpad-max="10"
+>
+
+  <!-- Sticky Kopfzeile -->
+  <header class="blatt-header print-hide">
+    <div class="blatt-header-links">
+      <a href="../index.html" id="btn-zurueck" class="ui-btn" aria-label="Zurück zur Übersicht">
+        ⬅️ Übersicht
+      </a>
+    </div>
+
+    <div class="blatt-titel-gruppe">
+      <h1 class="blatt-titel">🏠 Zahlenhäuser</h1>
+      <p class="blatt-untertitel" id="aktueller-bereich-text">Zahlen 1 bis 10 (zufällig gemischt)</p>
+    </div>
+
+    <div class="blatt-header-rechts">
+      <button type="button" id="btn-reset" class="ui-btn" aria-label="Blatt leeren">
+        🗑️ Löschen
+      </button>
+      <button type="button" id="btn-print" class="ui-btn ui-btn-print" aria-label="Als PDF speichern oder drucken">
+        🖨️ PDF / Drucken
+      </button>
+    </div>
+  </header>
+
+  <section class="steuerung-leiste print-hide" aria-label="Ansichts- und Zahlenauswahl"></section>
+
+  <!-- Hauptinhalt des Arbeitsblatts -->
+  <main class="blatt-inhalt">
+
+    <!-- Kopfzeile speziell für den Ausdruck / PDF-Export -->
+    <div class="druck-kopf">
+      <span>Name: Louis</span>
+      <span>Arbeitsblatt: Zahlenhäuser</span>
+      <span>Datum: _______________</span>
+    </div>
+
+    <!-- ====================================================================
+         ZAHLENHÄUSER (Zahlen 1 bis 10 – bewusst NICHT aufsteigend sortiert!)
+         Auch innerhalb jedes Hauses sind die Zerlegungs-Etagen bunt gemischt.
+         ==================================================================== -->
+    <section aria-label="Zahlenhäuser">
+      <div class="haeuser-grid" id="haeuser-container">
+
+        <!-- Haus 4 (Exakt wie in deinem Beispielbild!) -->
+        <div class="zahlenhaus" data-zahl="4" data-dach="4" data-prefix="zh_4"
+             data-etagen="_:4, 1:_, _:1, _:0, _:2"></div>
+
+        <!-- Haus 2 -->
+        <div class="zahlenhaus" data-zahl="2" data-dach="2" data-prefix="zh_2"
+             data-etagen="_:2, 2:_, 1:_"></div>
+
+        <!-- Haus 5 -->
+        <div class="zahlenhaus" data-zahl="5" data-dach="5" data-prefix="zh_5"
+             data-etagen="2:_, _:4, 5:_, _:2, _:5, 4:_"></div>
+
+        <!-- Haus 1 -->
+        <div class="zahlenhaus" data-zahl="1" data-dach="1" data-prefix="zh_1"
+             data-etagen="_:1, 1:_"></div>
+
+        <!-- Haus 3 -->
+        <div class="zahlenhaus" data-zahl="3" data-dach="3" data-prefix="zh_3"
+             data-etagen="_:2, 3:_, _:0, 2:_"></div>
+
+        <!-- Haus 8 -->
+        <div class="zahlenhaus" data-zahl="8" data-dach="8" data-prefix="zh_8"
+             data-etagen="3:_, _:6, 8:_, _:4, 5:_, _:7, 0:_, _:2, 6:_"></div>
+
+        <!-- Haus 6 -->
+        <div class="zahlenhaus" data-zahl="6" data-dach="6" data-prefix="zh_6"
+             data-etagen="2:_, _:5, 6:_, _:3, 0:_, _:2, 4:_"></div>
+
+        <!-- Haus 10 -->
+        <div class="zahlenhaus" data-zahl="10" data-dach="10" data-prefix="zh_10"
+             data-etagen="4:_, _:7, 10:_, _:5, 2:_, _:9, 8:_, _:3, 0:_, _:1, 6:_"></div>
+
+        <!-- Haus 7 -->
+        <div class="zahlenhaus" data-zahl="7" data-dach="7" data-prefix="zh_7"
+             data-etagen="4:_, _:7, 2:_, _:5, 6:_, _:3, 7:_, _:1"></div>
+
+        <!-- Haus 9 -->
+        <div class="zahlenhaus" data-zahl="9" data-dach="9" data-prefix="zh_9"
+             data-etagen="3:_, _:7, 9:_, _:5, 2:_, _:9, 8:_, _:3, 4:_, _:1"></div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <nav id="numpad" class="print-hide" aria-label="Ziffernblock"></nav>
+
+  <script src="../js/tabbi-core.js"></script>
+</body>
+</html>

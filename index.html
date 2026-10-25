@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TABBI: Tipp-ArbeitsBlätter-Bibliothek</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/tabbi.css">
+</head>
+<body>
+
+  <!-- Kopfzeile der Testbibliothek mit prominentem Button "➕ Arbeitsblatt erstellen" -->
+  <header class="bib-header">
+    <div class="bib-header-inner">
+      <div class="bib-brand">
+        <div class="bib-logo" aria-hidden="true">T</div>
+        <div>
+          <h1 class="bib-titel">TABBI: Arbeitsblatt-Bibliothek</h1>
+          <p class="bib-sub">Alle erstellten Arbeitsblätter mit Erstellungsdatum • Antippen zum Ausfüllen oder Drucken</p>
+        </div>
+      </div>
+
+      <button type="button" id="btn-lehrer-erstellen" class="bib-erstellen-hauptbtn" title="Für Lehrkräfte: 3 Sekunden gedrückt halten">
+        🔒 ➕ Arbeitsblatt erstellen <small style="font-size:0.82rem;opacity:0.9;font-weight:400;">(3 Sek. halten)</small>
+      </button>
+    </div>
+  </header>
+
+  <main class="bib-container">
+
+    <!-- Bestätigungs-Banner nach dem Speichern eines neuen Arbeitsblatts -->
+    <div id="gespeichert-banner" class="bib-gespeichert-banner" style="display:none;" role="status">
+      <span>✅ <strong>Neues Arbeitsblatt wurde mit heutigem Erstellungsdatum in der Bibliothek gespeichert!</strong></span>
+    </div>
+
+    <!-- FACH-FILTER (Vorbereitet für Mathematik & Deutsch) + STATUS-FILTER -->
+    <div class="bib-toolbar">
+      <nav class="bib-filter-leiste" aria-label="Fach wählen" style="margin-bottom:0;">
+        <button type="button" class="bib-filter-btn aktiv" data-fach="alle" id="tab-fach-alle">
+          🌟 Alle Fächer
+        </button>
+        <button type="button" class="bib-filter-btn" data-fach="mathe" id="tab-fach-mathe">
+          🔢 Mathematik
+        </button>
+        <button type="button" class="bib-filter-btn" data-fach="deutsch" id="tab-fach-deutsch">
+          🔤 Deutsch <span class="bib-bald-badge">🔜 Bald</span>
+        </button>
+      </nav>
+
+      <nav class="bib-subfilter-leiste" aria-label="Bearbeitungsstatus filtern" style="margin-bottom:0;">
+        <span class="bib-subfilter-label">Status:</span>
+        <button type="button" class="bib-subfilter-btn aktiv" data-status="alle">
+          Alle zeigen
+        </button>
+        <button type="button" class="bib-subfilter-btn" data-status="neu">
+          ⚪ Noch offen
+        </button>
+        <button type="button" class="bib-subfilter-btn" data-status="angefangen">
+          ✏️ Angefangen / Fertig
+        </button>
+      </nav>
+    </div>
+
+    <!-- Kachel-Grid der gespeicherten Arbeitsblätter / Tests -->
+    <div id="kachel-grid" class="bib-kachel-grid" role="list">
+      <!-- Wird dynamisch aus TabbiTestbibliothek gerendert -->
+    </div>
+
+  </main>
+
+  <script src="js/tabbi-core.js"></script>
+  <script src="js/blaetter-katalog.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      const grid = document.getElementById('kachel-grid');
+      let aktuellesFach = 'alle';
+      let aktuellerStatus = 'alle';
+
+      // Prüfen, ob gerade ein neues Blatt gespeichert wurde (?gespeichert=test_...)
+      const urlParams = new URLSearchParams(window.location.search);
+      const neuGespeicherteId = urlParams.get('gespeichert');
+      if (neuGespeicherteId) {
+        const banner = document.getElementById('gespeichert-banner');
+        if (banner) {
+          banner.style.display = 'flex';
+          setTimeout(() => {
+            banner.style.display = 'none';
+          }, 5000);
+        }
+      }
+
+      /**
+       * Rendert alle gespeicherten Arbeitsblätter aus der Testbibliothek (neueste zuerst)
+       */
+      function rendereTestbibliothek() {
+        grid.innerHTML = '';
+
+        const alleTests = window.TabbiTestbibliothek
+          ? window.TabbiTestbibliothek.holeAlleTests()
+          : [];
+
+        // Zähler auf den Fach-Tabs aktualisieren
+        const anzahlMathe = alleTests.filter((t) => (t.fach || 'mathe') === 'mathe').length;
+        const anzahlDeutsch = alleTests.filter((t) => t.fach === 'deutsch').length;
+        const btnAlle = document.getElementById('tab-fach-alle');
+        const btnMathe = document.getElementById('tab-fach-mathe');
+        if (btnAlle) btnAlle.textContent = `🌟 Alle Fächer (${alleTests.length})`;
+        if (btnMathe) btnMathe.textContent = `🔢 Mathematik (${anzahlMathe})`;
+
+        // Spezial-Hinweis wenn der Reiter "🔤 Deutsch" gewählt ist und noch keine Deutsch-Blätter existieren
+        if (aktuellesFach === 'deutsch' && anzahlDeutsch === 0) {
+          grid.innerHTML =
+            `<div class="bib-leer-box">` +
+              `<div style="font-size:3rem;margin-bottom:8px;">🔤</div>` +
+              `<h2 style="margin:0 0 8px 0;color:#1e293b;">Fachbereich Deutsch ist vorbereitet</h2>` +
+              `<p style="margin:0 0 18px 0;color:#475569;max-width:560px;">` +
+                `Die Buchstaben-Tastatur (A–Z + ÄÖÜ) ist bereits im System integriert. ` +
+                `Sobald Deutsch-Arbeitsblätter erstellt werden, erscheinen sie hier mit Erstellungsdatum.` +
+              `</p>` +
+              `<button type="button" class="bib-erstellen-hauptbtn">` +
+                `🔒 ➕ Mathematik-Arbeitsblatt erstellen (3 Sek. halten)` +
+              `</button>` +
+            `</div>`;
+          aktiviereLehrerButtons();
+          return;
+        }
+
+        const gefiltert = alleTests.filter((test) => {
+          const fach = test.fach || 'mathe';
+          if (aktuellesFach !== 'alle' && fach !== aktuellesFach) return false;
+
+          if (aktuellerStatus !== 'alle') {
+            const fortschritt = window.TabbiTestbibliothek.holeTestFortschritt(test);
+            if (aktuellerStatus === 'neu' && fortschritt.angefangen) return false;
+            if (aktuellerStatus === 'angefangen' && !fortschritt.angefangen) return false;
+          }
+          return true;
+        });
+
+        if (gefiltert.length === 0) {
+          grid.innerHTML =
+            `<div class="bib-leer-box">` +
+              `<div style="font-size:3rem;margin-bottom:8px;">📋</div>` +
+              `<h2 style="margin:0 0 8px 0;color:#1e293b;">Keine Arbeitsblätter in dieser Ansicht</h2>` +
+              `<p style="margin:0 0 18px 0;color:#475569;">` +
+                `Halte oben <strong>„🔒 ➕ Arbeitsblatt erstellen“</strong> 3 Sekunden lang gedrückt, um als Lehrkraft ein neues Arbeitsblatt anzulegen.` +
+              `</p>` +
+              `<button type="button" class="bib-erstellen-hauptbtn">` +
+                `🔒 ➕ Neues Arbeitsblatt erstellen (3 Sek. halten)` +
+              `</button>` +
+            `</div>`;
+          aktiviereLehrerButtons();
+          return;
+        }
+
+        gefiltert.forEach((test) => {
+          const fortschritt = window.TabbiTestbibliothek.holeTestFortschritt(test);
+          const zielUrl = `blaetter/011_click_und_mix.html?testId=${encodeURIComponent(test.id)}`;
+          const druckUrl = `${zielUrl}&print=1`;
+
+          const kachel = document.createElement('div');
+          const istNeuGespeichert = test.id === neuGespeicherteId;
+          kachel.className = istNeuGespeichert
+            ? 'bib-kachel bib-kachel-neu-highlight'
+            : 'bib-kachel';
+          kachel.setAttribute('role', 'listitem');
+
+          let statusText = '⚪ Neu';
+          let statusKlasse = 'bib-status-badge';
+          if (fortschritt.fertig) {
+            statusText =
+              fortschritt.gesamt > 0
+                ? `🏁 ${fortschritt.anzahl} / ${fortschritt.gesamt} fertig`
+                : `🏁 Fertig`;
+            statusKlasse = 'bib-status-badge fertig';
+          } else if (fortschritt.angefangen) {
+            statusText =
+              fortschritt.gesamt > 0
+                ? `✏️ ${fortschritt.anzahl} / ${fortschritt.gesamt} ausgefüllt`
+                : `✏️ ${fortschritt.anzahl} eingetragen`;
+            statusKlasse = 'bib-status-badge angefangen';
+          }
+
+          const fachLabel = test.fach === 'deutsch' ? '🔤 Deutsch' : '🔢 Mathe';
+          const fachKlasse = test.fach === 'deutsch' ? 'bib-fach-badge deutsch' : 'bib-fach-badge mathe';
+          const datumText = test.erstelltDatumText || 'Heute';
+
+          const tagsHTML = (test.tags || [])
+            .map((t) => `<span class="bib-tag">${t}</span>`)
+            .join('');
+
+          const resetEingabenBtnHTML = fortschritt.angefangen
+            ? `<button type="button" class="bib-aktion-btn wuerfeln" data-leeren-id="${test.id}" title="Nur die blauen Kind-Eingaben auf diesem Blatt leeren">🔄 Eingaben leeren</button>`
+            : '';
+
+          kachel.innerHTML =
+            `<a href="${zielUrl}" style="text-decoration:none;color:inherit;display:block;">` +
+              `<div class="bib-kachel-meta">` +
+                `<span class="${fachKlasse}">${fachLabel}</span>` +
+                `<span class="bib-datum-badge">📅 ${datumText}</span>` +
+              `</div>` +
+              `<div class="bib-kachel-top">` +
+                `<div class="bib-kachel-icon" aria-hidden="true">${test.icon || '📄'}</div>` +
+                `<span class="${statusKlasse}">${statusText}</span>` +
+              `</div>` +
+              `<h2 class="bib-kachel-titel">${test.titel}</h2>` +
+              `<div class="bib-kachel-tags">${tagsHTML}</div>` +
+            `</a>` +
+            `<div class="bib-kachel-aktionen">` +
+              `<a href="${zielUrl}" class="bib-aktion-btn oeffnen">${
+                fortschritt.angefangen ? '▶️ Weiterarbeiten' : '▶️ Öffnen'
+              }</a>` +
+              `<a href="${druckUrl}" class="bib-aktion-btn drucken" title="Arbeitsblatt als PDF speichern oder drucken">🖨️ Drucken</a>` +
+              resetEingabenBtnHTML +
+              `<button type="button" class="bib-aktion-btn reset" data-loeschen-id="${test.id}" title="Arbeitsblatt aus der Bibliothek löschen">🗑️ Löschen</button>` +
+            `</div>`;
+
+          /**
+           * Zwei-Tipp-Schutz mit Doppeltipp-Sperre (2. Tipp zählt erst nach 700 ms)
+           * + Lehrer-Freigabe (Einmaleins-Aufgabe), da Löschen eine reine Lehrer-Funktion ist.
+           */
+          const richteGeschuetztenLehrerButtonEin = (btn, warnText, normalText, aktion) => {
+            if (!btn) return;
+            let timer = null;
+            let ersterTipp = 0;
+            btn.addEventListener('click', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (btn.classList.contains('zwei-tipp-aktiv')) {
+                if (Date.now() - ersterTipp < 700) return; // versehentlicher Doppeltipp
+                if (timer) clearTimeout(timer);
+                btn.classList.remove('zwei-tipp-aktiv');
+                btn.textContent = normalText;
+                const ausfuehren = () => {
+                  aktion();
+                  rendereTestbibliothek();
+                };
+                if (window.TabbiLehrerGate && window.TabbiLehrerGate.mitFreigabe) {
+                  window.TabbiLehrerGate.mitFreigabe(ausfuehren);
+                } else {
+                  ausfuehren();
+                }
+                return;
+              }
+              ersterTipp = Date.now();
+              btn.classList.add('zwei-tipp-aktiv');
+              btn.textContent = warnText;
+              timer = setTimeout(() => {
+                btn.classList.remove('zwei-tipp-aktiv');
+                btn.textContent = normalText;
+              }, 3000);
+            });
+          };
+
+          // 1. "🔄 Eingaben leeren" (leert nur Louis' Antworten, behält das Blatt)
+          richteGeschuetztenLehrerButtonEin(
+            kachel.querySelector('[data-leeren-id]'),
+            'Eingaben leeren?',
+            '🔄 Eingaben leeren',
+            () => window.TabbiTestbibliothek.leereTestEingaben(test.id)
+          );
+
+          // 2. "🗑️ Löschen" (entfernt das Arbeitsblatt komplett aus der Bibliothek)
+          richteGeschuetztenLehrerButtonEin(
+            kachel.querySelector('[data-loeschen-id]'),
+            'Blatt löschen?',
+            '🗑️ Löschen',
+            () => window.TabbiTestbibliothek.loescheTest(test.id)
+          );
+
+          grid.appendChild(kachel);
+        });
+
+        aktiviereLehrerButtons();
+      }
+
+      /**
+       * Bindet den 3-Sekunden-Halteschutz + Einmaleins-Aufgabe (z. B. 3 × 7, 8 × 6)
+       * an alle "Arbeitsblatt erstellen"-Buttons.
+       */
+      function aktiviereLehrerButtons() {
+        if (!window.TabbiLehrerGate) return;
+        document.querySelectorAll('.bib-erstellen-hauptbtn').forEach((btn) => {
+          window.TabbiLehrerGate.bindeDreiSekundenButton(btn, () => {
+            window.location.href = 'blaetter/011_click_und_mix.html?modus=erstellen';
+          });
+        });
+      }
+
+      // Fach-Filter binden
+      document.querySelectorAll('.bib-filter-btn[data-fach]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          aktuellesFach = btn.getAttribute('data-fach');
+          document.querySelectorAll('.bib-filter-btn[data-fach]').forEach((b) =>
+            b.classList.toggle('aktiv', b === btn)
+          );
+          rendereTestbibliothek();
+        });
+      });
+
+      // Status-Filter binden
+      document.querySelectorAll('.bib-subfilter-btn[data-status]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          aktuellerStatus = btn.getAttribute('data-status');
+          document.querySelectorAll('.bib-subfilter-btn[data-status]').forEach((b) =>
+            b.classList.toggle('aktiv', b === btn)
+          );
+          rendereTestbibliothek();
+        });
+      });
+
+      window.addEventListener('pageshow', rendereTestbibliothek);
+      rendereTestbibliothek();
+
+      // Offline-Service-Worker registrieren
+      if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      }
+    })();
+  </script>
+</body>
+</html>

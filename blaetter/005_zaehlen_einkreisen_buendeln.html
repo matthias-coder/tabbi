@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zählen &amp; Einkreisen / Mengen bündeln</title>
+  <link rel="stylesheet" href="../css/tabbi.css">
+</head>
+<body
+  data-blatt-id="005_zaehlen_einkreisen_buendeln"
+  data-titel="Zählen &amp; Mengen bündeln"
+  data-beschreibung="Immer so viele Meerestiere wie die Zahl vorne angibt mit verschiedenen Farben bündeln / einkreisen."
+  data-icon="🐚⭕"
+  data-kategorie="1-10"
+  data-numpad-max="10"
+>
+
+  <!-- Sticky Kopfzeile -->
+  <header class="blatt-header print-hide">
+    <div class="blatt-header-links">
+      <a href="../index.html" id="btn-zurueck" class="ui-btn" aria-label="Zurück zur Übersicht">
+        ⬅️ Übersicht
+      </a>
+    </div>
+
+    <div class="blatt-titel-gruppe">
+      <h1 class="blatt-titel">Zählen &amp; Mengen bündeln</h1>
+      <p class="blatt-untertitel">Wähle eine Farbe und tippe immer ein Bündel in derselben Farbe an!</p>
+    </div>
+
+    <div class="blatt-header-rechts">
+      <button type="button" id="btn-reset" class="ui-btn" aria-label="Blatt leeren">
+        🗑️ Löschen
+      </button>
+      <button type="button" id="btn-print" class="ui-btn ui-btn-print" aria-label="Als PDF speichern oder drucken">
+        🖨️ PDF / Drucken
+      </button>
+    </div>
+  </header>
+
+  <!-- Auswahl-Leiste: Blatt 1 ("Zählen und Einkreisen") vs. Blatt 2 ("Mengen bündeln") -->
+  <section class="steuerung-leiste print-hide" aria-label="Aufgabenauswahl">
+    <div class="tab-gruppe" role="tablist">
+      <button type="button" class="tab-btn aktiv" data-tab="einkreisen" role="tab">
+        🐚 Zählen &amp; Einkreisen (10er-Reihen)
+      </button>
+      <button type="button" class="tab-btn" data-tab="buendeln" role="tab">
+        🦀 Mengen bündeln (Große Reihen)
+      </button>
+    </div>
+  </section>
+
+  <main class="blatt-inhalt">
+
+    <div class="druck-kopf">
+      <span>Name: Louis</span>
+      <span>Arbeitsblatt: Zählen und Einkreisen / Mengen bündeln</span>
+      <span>Datum: _______________</span>
+    </div>
+
+    <!-- Farb-Palette zum einfachen Bündeln:
+         1. Bündel z.B. Blau, 2. Bündel Rot, 3. Bündel Grün, 4. Bündel Gelb, 5. Bündel Lila -->
+    <div class="farb-palette print-hide" role="toolbar" aria-label="Farbstifte für die Bündel">
+      <span style="font-weight:700;margin-right:6px;">Stiftfarbe für dein Bündel:</span>
+      <button type="button" class="farb-pinsel-btn aktiv" data-farbe="farbe-blau" style="background:#dbeafe;border-color:#2563eb;color:#1e3a8a;">
+        🔵 Blau
+      </button>
+      <button type="button" class="farb-pinsel-btn" data-farbe="farbe-rot" style="background:#fee2e2;border-color:#dc2626;color:#991b1b;">
+        🔴 Rot
+      </button>
+      <button type="button" class="farb-pinsel-btn" data-farbe="farbe-gruen" style="background:#dcfce7;border-color:#16a34a;color:#14532d;">
+        🟢 Grün
+      </button>
+      <button type="button" class="farb-pinsel-btn" data-farbe="farbe-gelb" style="background:#fef08a;border-color:#ca8a04;color:#713f12;">
+        🟡 Gelb
+      </button>
+      <button type="button" class="farb-pinsel-btn" data-farbe="farbe-lila" style="background:#f3e8ff;border-color:#9333ea;color:#581c87;">
+        🟣 Lila
+      </button>
+      <button type="button" class="farb-pinsel-btn" data-farbe="radierer" style="background:#f1f5f9;border-color:#64748b;color:#334155;">
+        ⚪ Radierer
+      </button>
+    </div>
+
+    <!-- ====================================================================
+         TAB 1: ZÄHLEN UND EINKREISEN (Vorlage PXL_20261025_110302800.jpg)
+         Zielzahlen: 2 (Muscheln), 8 (Delfine), 3 (Seesterne), 10 (Seepferdchen), 4 (Robben)
+         Jeweils 10 Tiere pro Reihe + rechts optional ein Lückenfeld für "Wie viele Bündel?"
+         ==================================================================== -->
+    <section class="tab-panel aktiv" data-tab-panel="einkreisen" aria-label="Zählen und Einkreisen">
+      <div class="aufgaben-sektion">
+        <div class="aufgaben-kopf">
+          <span class="aufgaben-nr">1</span>
+          <h2 class="aufgaben-titel">Immer so viele Tiere wie die Zahl vorne angibt in einer Farbe markieren!</h2>
+        </div>
+
+        <div class="einkreisen-zeile" data-ziel="2" data-symbol="🐚" data-gesamt="10" data-prefix="ek1_z2"></div>
+        <div class="einkreisen-zeile" data-ziel="8" data-symbol="🐬" data-gesamt="10" data-prefix="ek1_z8"></div>
+        <div class="einkreisen-zeile" data-ziel="3" data-symbol="⭐" data-gesamt="10" data-prefix="ek1_z3"></div>
+        <div class="einkreisen-zeile" data-ziel="10" data-symbol="🐴" data-gesamt="10" data-prefix="ek1_z10"></div>
+        <div class="einkreisen-zeile" data-ziel="4" data-symbol="🦭" data-gesamt="10" data-prefix="ek1_z4"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB 2: MENGEN BÜNDELN (Vorlage PXL_20261025_110327667.jpg)
+         Zielzahlen: 4 (Krabben), 2 (Fische), 7 (Muscheln), 5 (Kugelfische), 8 (Hummer)
+         ==================================================================== -->
+    <section class="tab-panel" data-tab-panel="buendeln" aria-label="Mengen bündeln">
+      <div class="aufgaben-sektion">
+        <div class="aufgaben-kopf">
+          <span class="aufgaben-nr">2</span>
+          <h2 class="aufgaben-titel">Mengen bündeln: Markiere immer passende Bündel!</h2>
+        </div>
+
+        <div class="einkreisen-zeile" data-ziel="4" data-symbol="🦀" data-gesamt="12" data-prefix="ek2_z4"></div>
+        <div class="einkreisen-zeile" data-ziel="2" data-symbol="🐠" data-gesamt="12" data-prefix="ek2_z2"></div>
+        <div class="einkreisen-zeile" data-ziel="7" data-symbol="🐚" data-gesamt="14" data-prefix="ek2_z7"></div>
+        <div class="einkreisen-zeile" data-ziel="5" data-symbol="🐡" data-gesamt="12" data-prefix="ek2_z5"></div>
+        <div class="einkreisen-zeile" data-ziel="8" data-symbol="🦞" data-gesamt="14" data-prefix="ek2_z8"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav id="numpad" class="print-hide" aria-label="Ziffernblock"></nav>
+
+  <script src="../js/tabbi-core.js"></script>
+</body>
+</html>

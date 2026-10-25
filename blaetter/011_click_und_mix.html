@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TABBI – Arbeitsblatt</title>
+  <link rel="stylesheet" href="../css/tabbi.css">
+</head>
+<body
+  data-blatt-id="011_click_und_mix"
+  data-titel="➕ Arbeitsblatt erstellen &amp; Vorschau"
+  data-beschreibung="Lehrkraft wählt Fach, Aufgabentyp und Zahlenraum – prüft die Live-Vorschau und speichert das Arbeitsblatt mit Erstellungsdatum in der Bibliothek."
+  data-icon="➕📄"
+  data-kategorie="alle"
+  data-numpad-max="10"
+>
+
+  <!-- Sticky Kopfzeile -->
+  <header class="blatt-header print-hide">
+    <div class="blatt-header-links">
+      <a href="../index.html" id="btn-zurueck" class="ui-btn" aria-label="Zurück zur Bibliothek">
+        ⬅️ Bibliothek
+      </a>
+    </div>
+
+    <div class="blatt-titel-gruppe">
+      <h1 class="blatt-titel" id="haupt-blatt-titel">➕ Neues Arbeitsblatt erstellen</h1>
+      <p class="blatt-untertitel" id="aktueller-bereich-text">1. Einstellungen wählen ➔ 2. Unten in der Live-Vorschau prüfen ➔ 3. In Bibliothek speichern</p>
+    </div>
+
+    <div class="blatt-header-rechts">
+      <button type="button" id="btn-reset" class="ui-btn" aria-label="Eingaben leeren">
+        🗑️ Löschen
+      </button>
+      <button type="button" id="btn-print" class="ui-btn ui-btn-print" aria-label="Als PDF speichern oder drucken">
+        🖨️ PDF / Drucken
+      </button>
+    </div>
+  </header>
+
+  <main class="blatt-inhalt">
+
+    <!-- ====================================================================
+         LEHRKRAFT-KONFIGURATOR (Nur beim Erstellen sichtbar, im gespeicherten Test & Druck ausgeblendet!)
+         ==================================================================== -->
+    <section id="erstellen-konfigurator" class="mix-konfigurator print-hide" aria-label="Arbeitsblatt erstellen">
+
+      <!-- SCHRITT 1: FACH WÄHLEN (Mathematik vs. Deutsch) -->
+      <div class="mix-konfig-zeile" style="border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px;">
+        <div class="mix-konfig-gruppe" style="flex: 1 1 100%;">
+          <span class="mix-konfig-label">1. Fach auswählen:</span>
+          <div class="mix-chip-leiste" id="mix-fach-wahl">
+            <button type="button" class="mix-chip fach-chip aktiv" data-fach="mathe">
+              🔢 Mathematik (1. Klasse)
+            </button>
+            <button type="button" class="mix-chip fach-chip" data-fach="deutsch">
+              🔤 Deutsch (🔜 Bald verfügbar • Buchstaben-Tastatur bereit)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HINWEIS-BOX FÜR DEUTSCH (Wird eingeblendet, wenn "🔤 Deutsch" gewählt wird) -->
+      <div id="deutsch-vorschau-box" style="display:none; background:#eff6ff; border:2px solid #93c5fd; border-radius:14px; padding:16px; margin-bottom:12px;">
+        <h2 style="margin:0 0 6px 0; font-size:1.15rem; color:#1e3a8a;">🔤 Fachbereich Deutsch (Vorbereitet für Erweiterung)</h2>
+        <p style="margin:0 0 10px 0; font-size:0.95rem; color:#334155;">
+          Das System und die <strong>Buchstaben-Tastatur (A–Z + ÄÖÜ)</strong> sind bereits fertig integriert.
+          Die Deutsch-Aufgabentypen (Anlaute, Silben, Wörter) folgen in Kürze. Du kannst unten schon die Buchstaben-Tastatur live ausprobieren!
+        </p>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <span style="font-weight:700; color:#1e293b;">Buchstaben-Tastatur testen:</span>
+          <div class="luecke" data-id="deutsch_demo_1" data-tastatur="buchstaben" style="width:58px;height:52px;"></div>
+          <div class="luecke" data-id="deutsch_demo_2" data-tastatur="buchstaben" style="width:58px;height:52px;"></div>
+          <div class="luecke" data-id="deutsch_demo_3" data-tastatur="buchstaben" style="width:58px;height:52px;"></div>
+          <div class="luecke" data-id="deutsch_demo_4" data-tastatur="buchstaben" style="width:58px;height:52px;"></div>
+          <button type="button" class="mix-chip aktiv" id="btn-zurueck-zu-mathe" style="margin-left:auto;">
+            🔢 Zurück zu Mathematik-Aufgaben
+          </button>
+        </div>
+      </div>
+
+      <!-- MATHE-EINSTELLUNGEN -->
+      <div id="mathe-konfig-bereich">
+
+        <!-- SCHRITT 2: AUFGABENTYP(EN) WÄHLEN -->
+        <div class="mix-konfig-zeile" style="border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px;">
+          <div class="mix-konfig-gruppe" style="flex: 1 1 100%;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+              <span class="mix-konfig-label">2. Aufgabentyp(en) wählen (einzeln oder mehrere kombinieren):</span>
+              <div style="display:flex; gap:6px;">
+                <button type="button" class="bcm-chip" id="btn-alle-typen-aus" style="font-size:0.8rem;padding:4px 10px;">Nur 1 Typ wählen</button>
+                <button type="button" class="bcm-chip" id="btn-bunter-mix" style="font-size:0.8rem;padding:4px 10px;">🎲 Bunter Mix (3 Typen)</button>
+              </div>
+            </div>
+
+            <div class="mix-chip-leiste" id="mix-typen-wahl" style="margin-top:4px;">
+              <button type="button" class="mix-chip aktiv" data-mix-typ="zahlenhaus">🏠 Zahlenhäuser</button>
+              <button type="button" class="mix-chip" data-mix-typ="zahlenfreunde">🔵🔴 Zahlenfreunde (2×5)</button>
+              <button type="button" class="mix-chip" data-mix-typ="finger">✋ Fingerbilder (L/R)</button>
+              <button type="button" class="mix-chip" data-mix-typ="wuerfel_tuerme">🎲 Würfel &amp; Türme</button>
+              <button type="button" class="mix-chip" data-mix-typ="punkte">🫧 Punktebilder / 20er</button>
+              <button type="button" class="mix-chip" data-mix-typ="aquarium">🐟 Fische im Aquarium</button>
+              <button type="button" class="mix-chip" data-mix-typ="strichlisten">🦀 Strichlisten</button>
+              <button type="button" class="mix-chip" data-mix-typ="buendeln">🐚 Mengen bündeln</button>
+              <button type="button" class="mix-chip" data-mix-typ="seifenblasen">🔗 Mengen verbinden (Bild ↔ Zahl)</button>
+              <button type="button" class="mix-chip" data-mix-typ="nachbarn">↔️ Nachbarzahlen</button>
+              <button type="button" class="mix-chip" data-mix-typ="rechnen">➕➖ Plus &amp; Minus</button>
+              <button type="button" class="mix-chip" data-mix-typ="zwerg_riese">🧙‍♂️🦣 Zwerg &amp; Riese</button>
+              <button type="button" class="mix-chip" data-mix-typ="zahlenmauern">🧱 Zahlenmauern</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCHRITT 3: ZAHLENBEREICH ODER EINZELZAHLEN (MEHRFACHWAHL) -->
+        <div class="mix-konfig-zeile" style="border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px;">
+          <div class="mix-konfig-gruppe" style="flex: 1 1 100%;">
+            <span class="mix-konfig-label">3. Zahlenraum (Schnellwahl) oder Einzelzahlen antippen (Mehrfachwahl):</span>
+            <div class="mix-chip-leiste" id="mix-bereich-wahl">
+              <button type="button" class="mix-chip" data-mix-bereich="1-5">1️⃣–5️⃣ Zahlen 1–5</button>
+              <button type="button" class="mix-chip" data-mix-bereich="5-10">5️⃣–🔟 Zahlen 5–10</button>
+              <button type="button" class="mix-chip aktiv" data-mix-bereich="1-10">📚 Zahlen 1–10</button>
+              <button type="button" class="mix-chip" data-mix-bereich="10-20">🔟–2️⃣0️⃣ Zahlen 10–20</button>
+              <button type="button" class="mix-chip" data-mix-bereich="1-20">🌟 Alle 1–20</button>
+            </div>
+            <div class="mix-chip-leiste" id="mix-einzelzahlen-wahl" style="margin-top:6px;">
+              <!-- Wird mit den Zahlen-Chips 1 bis 20 befüllt -->
+            </div>
+          </div>
+        </div>
+
+        <!-- SCHRITT 4: AUFGABENZAHL, SEITEN & ART DES ARBEITSBLATTS -->
+        <div class="mix-konfig-zeile" style="margin-bottom: 0;">
+          <div class="mix-konfig-gruppe">
+            <span class="mix-konfig-label">4. Aufgaben pro DIN-A4-Seite:</span>
+            <div class="mix-chip-leiste" id="mix-anzahl-wahl">
+              <button type="button" class="mix-chip" data-mix-anzahl="2">2 Aufgaben (Groß)</button>
+              <button type="button" class="mix-chip aktiv" data-mix-anzahl="3">3 Aufgaben (Optimal)</button>
+              <button type="button" class="mix-chip" data-mix-anzahl="4">4 Aufgaben</button>
+            </div>
+          </div>
+
+          <div class="mix-konfig-gruppe">
+            <span class="mix-konfig-label">5. Seitenanzahl:</span>
+            <div class="mix-chip-leiste" id="mix-seiten-wahl">
+              <button type="button" class="mix-chip aktiv" data-mix-seiten="1">📄 1 Seite</button>
+              <button type="button" class="mix-chip" data-mix-seiten="2">📄📄 2 Seiten</button>
+              <button type="button" class="mix-chip" data-mix-seiten="3">📄📄📄 3 Seiten</button>
+            </div>
+          </div>
+
+          <div class="mix-konfig-gruppe">
+            <span class="mix-konfig-label">6. Kennzeichnung in Bibliothek:</span>
+            <div class="mix-chip-leiste" id="mix-praefix-wahl">
+              <button type="button" class="mix-chip aktiv" data-mix-praefix="">📄 Standard</button>
+              <button type="button" class="mix-chip" data-mix-praefix="Übungsblatt: ">📋 Übungsblatt</button>
+              <button type="button" class="mix-chip" data-mix-praefix="Wochenplan: ">⭐ Wochenplan</button>
+              <button type="button" class="mix-chip" data-mix-praefix="Lerncheck: ">🎯 Lerncheck</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         LIVE-VORSCHAU-AKTIONSLEISTE (Lehrkraft kann hier würfeln & in Bibliothek speichern!)
+         ==================================================================== -->
+    <section id="vorschau-aktionen-leiste" class="vorschau-aktionen-leiste print-hide" aria-label="Vorschau prüfen und speichern">
+      <div class="vorschau-info">
+        <span class="vorschau-badge">👁️ LIVE-VORSCHAU</span>
+        <strong id="vorschau-titel-anzeige">🏠 Zahlenhäuser (Zahlen 1 bis 10)</strong>
+        <span id="vorschau-felder-anzeige" style="color:#475569;font-size:0.9rem;"></span>
+      </div>
+      <div class="vorschau-buttons">
+        <button type="button" id="btn-mix-neu" class="vorschau-btn-wuerfeln">
+          🎲 Andere Zahlen würfeln
+        </button>
+        <button type="button" id="btn-in-bibliothek-speichern" class="vorschau-btn-speichern">
+          💾 In Bibliothek speichern
+        </button>
+      </div>
+    </section>
+
+    <!-- Steuerungsleiste für Einzel-Ansicht (Fokus-Modus) & evtl. Farbpalette -->
+    <section class="steuerung-leiste print-hide" aria-label="Ansichtsmodus"></section>
+
+    <!-- Container für die generierten oder gespeicherten DIN-A4-Druckseiten -->
+    <div id="mix-seiten-container"></div>
+
+  </main>
+
+  <nav id="numpad" class="print-hide" aria-label="Ziffernblock"></nav>
+
+  <script src="../js/tabbi-core.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      const params = new URLSearchParams(window.location.search);
+      const gespeicherteTestId = params.get('testId');
+      const sollDirektDrucken = params.get('print') === '1';
+
+      let aktuellesFach = 'mathe';
+      let bereich = '1-10';
+      let ausgewaehlteZahlen = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      let anzahlProSeite = '3';
+      let seitenAnzahl = 1;
+      let titelPraefix = '';
+
+      const TYP_META = {
+        zahlenhaus: { icon: '🏠', kurz: 'Zahlenhäuser', voll: 'Zahlenhäuser' },
+        zahlenfreunde: { icon: '🔵🔴', kurz: 'Zahlenfreunde', voll: 'Zahlenfreunde (2×5)' },
+        finger: { icon: '✋', kurz: 'Fingerbilder', voll: 'Fingerbilder (L/R)' },
+        wuerfel_tuerme: { icon: '🎲', kurz: 'Würfel & Türme', voll: 'Würfel & Steckwürfel-Türme' },
+        punkte: { icon: '🫧', kurz: 'Punktebilder', voll: 'Punktebilder & Zwanzigerfeld' },
+        aquarium: { icon: '🐟', kurz: 'Fische zählen', voll: 'Fische im Aquarium zählen' },
+        strichlisten: { icon: '🦀', kurz: 'Strichlisten', voll: 'Zählen mit Strichlisten' },
+        buendeln: { icon: '🐚', kurz: 'Mengen bündeln', voll: 'Mengen einkreisen & bündeln' },
+        seifenblasen: { icon: '🔗', kurz: 'Mengen verbinden', voll: 'Gleiche Mengen verbinden' },
+        nachbarn: { icon: '↔️', kurz: 'Nachbarzahlen', voll: 'Nachbarzahlen' },
+        rechnen: { icon: '➕➖', kurz: 'Plus & Minus', voll: 'Plus- & Minusaufgaben' },
+        zwerg_riese: { icon: '🧙‍♂️', kurz: 'Zwerg & Riese', voll: 'Zwergen- & Riesenaufgaben' },
+        zahlenmauern: { icon: '🧱', kurz: 'Zahlenmauern', voll: 'Zahlenmauern' }
+      };
+
+      // ======================================================================
+      // MODUS A: GESPEICHERTES ARBEITSBLATT AUS DER TESTBIBLIOTHEK ÖFFNEN
+      // ======================================================================
+      if (gespeicherteTestId && window.TabbiTestbibliothek) {
+        const testEintrag = window.TabbiTestbibliothek.holeTest(gespeicherteTestId);
+        if (testEintrag) {
+          // Konfigurator & Vorschau-Leiste komplett ausblenden (Blatt ist für das Kind eingefroren!)
+          const konfigEl = document.getElementById('erstellen-konfigurator');
+          const vorschauEl = document.getElementById('vorschau-aktionen-leiste');
+          if (konfigEl) konfigEl.style.display = 'none';
+          if (vorschauEl) vorschauEl.style.display = 'none';
+
+          // Titel & Erstellungsdatum im Header setzen
+          const h1 = document.getElementById('haupt-blatt-titel');
+          const sub = document.getElementById('aktueller-bereich-text');
+          if (h1) h1.textContent = `${testEintrag.icon || '📄'} ${testEintrag.titel}`;
+          if (sub) {
+            sub.textContent = `📅 Erstellt am ${testEintrag.erstelltDatumText} • ${testEintrag.zahlenText || ''}`;
+          }
+          document.title = `TABBI – ${testEintrag.titel}`;
+
+          // Tastatur / Numpad passend zum gespeicherten Test einstellen
+          const numpadMax = testEintrag.numpadMax || 10;
+          document.body.setAttribute('data-numpad-max', String(numpadMax));
+          if (testEintrag.tastaturTyp === 'buchstaben') {
+            document.body.setAttribute('data-tastatur', 'buchstaben');
+          }
+
+          // Eingefrorenes HTML in den Seiten-Container einsetzen
+          const seitenContainer = document.getElementById('mix-seiten-container');
+          seitenContainer.innerHTML = testEintrag.html;
+
+          // Bausteine aufbauen & gespeicherte Kind-Eingaben laden
+          const initialisiereGespeichertenTest = () => {
+            if (!window.tabbiApp) return;
+            window.tabbiApp.numpadMax = numpadMax;
+            window.tabbiApp.tastaturModus = testEintrag.tastaturTyp || 'zahlen';
+            window.tabbiApp.rendereNumpadTasten(document.getElementById('numpad'));
+            window.tabbiApp.aktualisiereDynamischesBlatt();
+            window.tabbiApp.setzeHeutigesDruckDatum();
+            window.tabbiApp.ladeStand();
+            window.tabbiApp.fokussiereErsteLeereLuecke();
+            window.tabbiApp.aktualisiereGesamtFelderStatistik();
+
+            if (sollDirektDrucken) {
+              setTimeout(() => window.print(), 350);
+            }
+          };
+
+          if (window.tabbiApp) {
+            initialisiereGespeichertenTest();
+          } else {
+            document.addEventListener('DOMContentLoaded', initialisiereGespeichertenTest);
+          }
+          return;
+        }
+      }
+
+      // ======================================================================
+      // MODUS B: NEUES ARBEITSBLATT ERSTELLEN (MIT LIVE-VORSCHAU)
+      // ======================================================================
+      if (window.TabbiLehrerGate && !window.TabbiLehrerGate.istFreigeschaltet()) {
+        window.TabbiLehrerGate.oeffneMatheGate(
+          () => {},
+          () => {
+            window.location.href = '../index.html';
+          }
+        );
+      }
+      function baueEinzelzahlenChips() {
+        const container = document.getElementById('mix-einzelzahlen-wahl');
+        if (!container) return;
+        let html = '';
+        for (let z = 1; z <= 20; z++) {
+          const aktiv = ausgewaehlteZahlen.has(z) ? 'aktiv' : '';
+          html += `<button type="button" class="mix-chip ${aktiv}" data-mix-einzelzahl="${z}" style="min-width:44px;padding:6px 12px;">${z}</button>`;
+        }
+        container.innerHTML = html;
+      }
+
+      function setzeZahlenAusBereich(bereichStr) {
+        const [min, max] = bereichStr.split('-').map((n) => parseInt(n, 10));
+        ausgewaehlteZahlen.clear();
+        for (let z = min; z <= max; z++) ausgewaehlteZahlen.add(z);
+        baueEinzelzahlenChips();
+      }
+
+      function randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function shuffleNichtAufsteigend(arr) {
+        const copy = [...arr];
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        if (copy.length >= 3 && copy[0] < copy[1] && copy[1] < copy[2]) {
+          [copy[0], copy[1]] = [copy[1], copy[0]];
+        }
+        return copy;
+      }
+
+      function zieheAusZahlenPool(count, minLimit = 1, maxLimit = 20) {
+        let basisPool = Array.from(ausgewaehlteZahlen).filter(
+          (z) => z >= minLimit && z <= maxLimit
+        );
+        if (basisPool.length === 0) {
+          const fallbackMax = Math.min(maxLimit, Math.max(minLimit, 10));
+          for (let z = minLimit; z <= fallbackMax; z++) basisPool.push(z);
+        }
+
+        const ergebnis = [];
+        let pool = [];
+        while (ergebnis.length < count) {
+          if (pool.length === 0) {
+            pool = shuffleNichtAufsteigend(basisPool);
+            if (ergebnis.length > 0 && pool.length > 1 && pool[0] === ergebnis[ergebnis.length - 1]) {
+              [pool[0], pool[1]] = [pool[1], pool[0]];
+            }
+          }
+          ergebnis.push(pool.shift());
+        }
+
+        if (ergebnis.length >= 3 && ergebnis[0] < ergebnis[1] && ergebnis[1] < ergebnis[2]) {
+          [ergebnis[0], ergebnis[1]] = [ergebnis[1], ergebnis[0]];
+        }
+        return ergebnis;
+      }
+
+      /**
+       * Erzeugt einen Aufgabenblock für jeden der 13 Mathe-Aufgabentypen!
+       */
+      function erzeugeAufgabenBlock(typ, min, max, blockPrefix) {
+        const B = window.TabbiBausteine;
+
+        // 1. ZAHLENHÄUSER (3 Häuser nebeneinander, nicht aufsteigend sortiert)
+        if (typ === 'zahlenhaus') {
+          const dachZahlen = zieheAusZahlenPool(3, 1, 20);
+          const haeuserHTML = dachZahlen
+            .map((dach, hIdx) => {
+              const alleZerlegungen = [];
+              for (let a = 0; a <= dach; a++) alleZerlegungen.push(a);
+              const auswahl = shuffleNichtAufsteigend(alleZerlegungen).slice(0, Math.min(4, dach + 1));
+              const etagenStr = auswahl
+                .map((linksZahl) => {
+                  const rechtsZahl = dach - linksZahl;
+                  return Math.random() < 0.5 ? `${linksZahl}:_` : `_:${rechtsZahl}`;
+                })
+                .join(', ');
+              return `<div class="zahlenhaus" data-dach="${dach}" data-prefix="${blockPrefix}_zh_${hIdx}" data-etagen="${etagenStr}"></div>`;
+            })
+            .join('');
+
+          return {
+            titel: `Zahlenhäuser ergänzen`,
+            html: `<div class="haeuser-grid" style="gap:24px;">${haeuserHTML}</div>`
+          };
+        }
+
+        // 2. ZAHLENFREUNDE (Zahlenhaus + 2×5 Zehnerstreifen)
+        if (typ === 'zahlenfreunde') {
+          const dach = zieheAusZahlenPool(1, 1, 10)[0];
+          const etagenAnzahl = Math.min(4, dach + 1);
+          return {
+            titel: `Zahlenfreunde (Dachzahl ${dach}): Punkte antippen (Blau &amp; Rot) und eintragen`,
+            html: `<div class="zahlenfreund-block" data-dach="${dach}" data-etagen-anzahl="${etagenAnzahl}" data-prefix="${blockPrefix}_zf"></div>`
+          };
+        }
+
+        // 3. FINGERBILDER (Linke & Rechte Hand)
+        if (typ === 'finger') {
+          const zahlen = zieheAusZahlenPool(7, 1, 10);
+          const werteMitHand = zahlen.map((z) => {
+            if (z <= 5) {
+              const seite = Math.random() < 0.5 ? 'L' : 'R';
+              return `${seite}${z}`;
+            }
+            return String(z);
+          });
+          return {
+            titel: `Wie viele Finger sind es?`,
+            html: `<div class="zaehl-karten-reihe" data-baustein="finger" data-werte="${werteMitHand.join(',')}" data-prefix="${blockPrefix}_fg"></div>`
+          };
+        }
+
+        // 4. WÜRFELBILDER & STECKWÜRFEL-TÜRME
+        if (typ === 'wuerfel_tuerme') {
+          const istTurm = Math.random() < 0.45 && max <= 6;
+          if (istTurm) {
+            const zahlen = zieheAusZahlenPool(8, 1, 5);
+            return {
+              titel: `Steckwürfel-Türme zählen`,
+              html: `<div class="zaehl-karten-reihe" data-baustein="tuerme" data-werte="${zahlen.join(',')}" data-prefix="${blockPrefix}_tm"></div>`
+            };
+          } else {
+            const zahlen = zieheAusZahlenPool(7, 1, 10);
+            return {
+              titel: `Würfelbilder erkennen`,
+              html: `<div class="zaehl-karten-reihe" data-baustein="wuerfel" data-werte="${zahlen.join(',')}" data-prefix="${blockPrefix}_wf"></div>`
+            };
+          }
+        }
+
+        // 5. PUNKTEBILDER / ZWANZIGERFELD
+        if (typ === 'punkte') {
+          if (max <= 10) {
+            const zahlen = zieheAusZahlenPool(3, 0, 10);
+            return {
+              titel: `Punkte im Zehnerstreifen zählen`,
+              html: `<div data-baustein="punktebilder" data-werte="${zahlen.join(',')}" data-prefix="${blockPrefix}_pb"></div>`
+            };
+          } else {
+            const zahlen = zieheAusZahlenPool(2, 11, 20);
+            const zeilenHTML = zahlen
+              .map((zahl, idx) => {
+                return (
+                  `<div class="zwanziger-aufgabe-zeile" style="margin-bottom:10px;padding:10px 14px;">` +
+                    B.erstelleVorgabeZwanzigerfeldHTML(10, zahl - 10) +
+                    `<div class="stellenwert-tafel">` +
+                      `<div class="stellenwert-kopf zehner">Z</div>` +
+                      `<div class="stellenwert-kopf einer">E</div>` +
+                      `<div class="stellenwert-zelle"><div class="luecke" data-id="${blockPrefix}_ze_${idx}_z"></div></div>` +
+                      `<div class="stellenwert-zelle"><div class="luecke" data-id="${blockPrefix}_ze_${idx}_e"></div></div>` +
+                    `</div>` +
+                    B.erstelleGleichungHTML(`10 + _ = _`, `${blockPrefix}_zegl_${idx}`) +
+                  `</div>`
+                );
+              })
+              .join('');
+            return {
+              titel: `Zwanzigerfeld: Zehner (Z) und Einer (E)`,
+              html: zeilenHTML
+            };
+          }
+        }
+
+        // 6. FISCHE IM AQUARIUM ZÄHLEN
+        if (typ === 'aquarium') {
+          const anzahlen = zieheAusZahlenPool(3, 1, 10);
+          const tierArten = ['fisch', 'seestern', 'krabbe'];
+          const aquarienHTML = anzahlen
+            .map((anz, aIdx) => {
+              const tierTyp = tierArten[aIdx % tierArten.length];
+              const svgHTML = B.erstelleTierSVG(tierTyp);
+              let fische = '';
+              for (let f = 0; f < anz; f++) {
+                fische += `<button type="button" class="zaehl-item" data-id="${blockPrefix}_aq_${aIdx}_f${f}" aria-label="Meerestier ${f + 1}">${svgHTML}</button>`;
+              }
+              return (
+                `<div class="aquarium-aufgabe">` +
+                  `<div class="aquarium-becken">${fische}</div>` +
+                  `<div class="aquarium-antwort">` +
+                    `<span class="vorgabe" style="font-size:1.1rem;">Anzahl:</span>` +
+                    `<div class="luecke" data-id="${blockPrefix}_aq_${aIdx}_l"></div>` +
+                  `</div>` +
+                `</div>`
+              );
+            })
+            .join('');
+          return {
+            titel: `Meerestiere im Aquarium zählen (antippen zum Abhaken)`,
+            html: `<div class="aquarium-grid">${aquarienHTML}</div>`
+          };
+        }
+
+        // 7. ZÄHLEN MIT STRICHLISTEN (Unterwasser-Suchbild mit großen Schulbuch-SVG-Kacheln)
+        if (typ === 'strichlisten') {
+          const tiere = [
+            { typ: 'krabbe', name: 'Krabbe' },
+            { typ: 'seestern', name: 'Seestern' },
+            { typ: 'fisch', name: 'Fisch' }
+          ];
+          const anzahlen = zieheAusZahlenPool(3, 1, 8);
+          const alleItems = [];
+          tiere.forEach((tier, tIdx) => {
+            const n = anzahlen[tIdx];
+            for (let i = 0; i < n; i++) {
+              alleItems.push({ typ: tier.typ, name: tier.name, id: `${blockPrefix}_sl_w_${tIdx}_${i}` });
+            }
+          });
+          const gemischteItems = shuffleNichtAufsteigend(alleItems);
+          const wimmelHTML = gemischteItems
+            .map(
+              (it) =>
+                `<button type="button" class="zaehl-item" data-id="${it.id}" aria-label="${it.name}">${B.erstelleTierSVG(it.typ)}</button>`
+            )
+            .join('');
+
+          const spaltenHTML = tiere
+            .map((tier, tIdx) => {
+              const strichId = `${blockPrefix}_sl_s_${tIdx}`;
+              return (
+                `<div class="strichlisten-spalte">` +
+                  `<div class="strichlisten-kopf" aria-label="${tier.name}">${B.erstelleTierSVG(tier.typ)}</div>` +
+                  `<div class="strichlisten-striche-box">` +
+                    `<div class="striche-anzeige" data-id="${strichId}" data-anzahl="0"></div>` +
+                    `<div class="strich-buttons print-hide">` +
+                      `<button type="button" class="strich-btn plus" data-strich-id="${strichId}" data-delta="1">+ |</button>` +
+                      `<button type="button" class="strich-btn minus" data-strich-id="${strichId}" data-delta="-1">−</button>` +
+                    `</div>` +
+                  `</div>` +
+                  `<div class="strichlisten-zahl-box">` +
+                    `<div class="luecke" data-id="${blockPrefix}_sl_z_${tIdx}"></div>` +
+                  `</div>` +
+                `</div>`
+              );
+            })
+            .join('');
+
+          return {
+            titel: `Meerestiere zählen (antippen zum Abhaken), Strichliste machen und Zahl eintragen`,
+            html:
+              `<div class="wimmelbild-box">${wimmelHTML}</div>` +
+              `<div class="strichlisten-tabelle">${spaltenHTML}</div>`
+          };
+        }
+
+        // 8. MENGEN EINKREISEN & BÜNDELN
+        if (typ === 'buendeln') {
+          const ziele = zieheAusZahlenPool(2, 2, 8);
+          const symbole = ['🐚', '⭐', '🦀', '🐠'];
+          const zeilenHTML = ziele
+            .map((ziel, zIdx) => {
+              const sym = symbole[zIdx % symbole.length];
+              const gesamt = Math.min(12, Math.max(ziel + 3, ziel * 2));
+              return (
+                `<div class="einkreisen-zeile" data-ziel="${ziel}" data-gesamt="${gesamt}" data-symbol="${sym}" data-prefix="${blockPrefix}_bd_${zIdx}"></div>`
+              );
+            })
+            .join('');
+          return {
+            titel: `Immer so viele wie die Zahl vorne angibt mit derselben Farbe antippen (bündeln)`,
+            html: `<div style="display:flex;flex-direction:column;gap:10px;">${zeilenHTML}</div>`
+          };
+        }
+
+        // 9. GLEICHE MENGEN VERBINDEN (Links Symbole im Kreis ↔ Rechts Zahlen im Kreis + ✔ / ✖ Bestätigung)
+        if (typ === 'seifenblasen') {
+          // 3 verschiedene Zahlen ziehen, damit jede Zahl eindeutig einem Symbol zugeordnet werden kann
+          const eindeutigPool = Array.from(ausgewaehlteZahlen).filter((z) => z >= 1 && z <= 10);
+          let werte = shuffleNichtAufsteigend(
+            eindeutigPool.length >= 3 ? eindeutigPool : [2, 3, 5, 6, 4]
+          ).slice(0, 3);
+
+          const linksSpecs = werte.map((w, idx) => {
+            if (w <= 5) {
+              const seite = idx % 2 === 0 ? 'L' : 'R';
+              return `F:${seite}${w}`;
+            }
+            return Math.random() < 0.5 ? `F:${w}` : `W:${w}`;
+          });
+
+          // Rechte Zahlen mischen, sodass sie gegenüber versetzt stehen (wie im Arbeitsblatt!)
+          let rechtsZahlen = shuffleNichtAufsteigend(werte);
+          if (rechtsZahlen.length >= 2 && rechtsZahlen[0] === werte[0]) {
+            const first = rechtsZahlen.shift();
+            rechtsZahlen.push(first);
+          }
+
+          return {
+            titel: `Gleiche Mengen verbinden (Links Bild antippen ➔ Rechts Zahl antippen ➔ ✔)`,
+            html: `<div data-baustein="zuordnung" data-links="${linksSpecs.join(',')}" data-rechts="${rechtsZahlen.join(',')}" data-prefix="${blockPrefix}_zo"></div>`
+          };
+        }
+
+        // 10. NACHBARZAHLEN (Vorgänger & Nachfolger)
+        if (typ === 'nachbarn') {
+          const zahlen = zieheAusZahlenPool(3, 1, 19);
+          return {
+            titel: `Nachbarzahlen: Vorgänger (−1) und Nachfolger (+1)`,
+            html: `<div class="nachbarzahlen-grid" data-baustein="nachbarzahlen" data-zahlen="${zahlen.join(',')}" data-prefix="${blockPrefix}_nb"></div>`
+          };
+        }
+
+        // 11. ZWERGEN- & RIESENAUFGABEN
+        if (typ === 'zwerg_riese') {
+          const paareHTML = [];
+          for (let i = 0; i < 3; i++) {
+            const istPlus = i % 2 === 0;
+            if (istPlus) {
+              const a = randInt(1, 6);
+              const b = randInt(1, 9 - a);
+              paareHTML.push(
+                `<div class="zwerg-riese-karte" style="padding:10px 14px;">` +
+                  `<div style="margin-bottom:6px;font-weight:700;color:#475569;">🧙‍♂️ Zwerg &amp; 🦣 Riese:</div>` +
+                  B.erstelleGleichungHTML(`${a} + ${b} = _`, `${blockPrefix}_zr_${i}_z`) +
+                  `<div style="height:6px;"></div>` +
+                  B.erstelleGleichungHTML(`${10 + a} + ${b} = _`, `${blockPrefix}_zr_${i}_r`) +
+                `</div>`
+              );
+            } else {
+              const a = randInt(3, 9);
+              const b = randInt(1, a - 1);
+              paareHTML.push(
+                `<div class="zwerg-riese-karte" style="padding:10px 14px;">` +
+                  `<div style="margin-bottom:6px;font-weight:700;color:#475569;">🧙‍♂️ Zwerg &amp; 🦣 Riese:</div>` +
+                  B.erstelleGleichungHTML(`${a} - ${b} = _`, `${blockPrefix}_zr_${i}_z`) +
+                  `<div style="height:6px;"></div>` +
+                  B.erstelleGleichungHTML(`${10 + a} - ${b} = _`, `${blockPrefix}_zr_${i}_r`) +
+                `</div>`
+              );
+            }
+          }
+          return {
+            titel: `Zwergen- und Riesenaufgaben berechnen`,
+            html: `<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:12px;">${paareHTML.join('')}</div>`
+          };
+        }
+
+        // 12. ZAHLENMAUERN
+        if (typ === 'zahlenmauern') {
+          const zielSummen = zieheAusZahlenPool(2, 4, Math.max(6, max));
+          const mauernHTML = zielSummen
+            .map((maxBasisSumme, mIdx) => {
+              const b = randInt(1, Math.max(1, Math.floor(maxBasisSumme / 4)));
+              const a = randInt(0, Math.max(1, Math.floor((maxBasisSumme - 2 * b) / 2)));
+              const c = Math.max(0, maxBasisSumme - 2 * b - a);
+              return `<div data-baustein="zahlenmauer" data-steine="_; _,_; ${a},${b},${c}" data-prefix="${blockPrefix}_zm_${mIdx}"></div>`;
+            })
+            .join('');
+          return {
+            titel: `Zahlenmauern berechnen`,
+            html: `<div class="zahlenmauern-grid" style="grid-template-columns:repeat(2, minmax(220px, 1fr));gap:16px;">${mauernHTML}</div>`
+          };
+        }
+
+        // 13. RECHNEN (Plus & Minus)
+        const zielZahlen = zieheAusZahlenPool(4, 2, Math.max(2, max));
+        const gleichungen = zielZahlen.map((ziel, g) => {
+          const istPlus = Math.random() < 0.6;
+          if (istPlus) {
+            const summe = Math.max(2, ziel);
+            const a = randInt(1, summe - 1);
+            const b = summe - a;
+            return B.erstelleGleichungHTML(`${a} + ${b} = _`, `${blockPrefix}_gl_${g}`);
+          } else {
+            const start = Math.max(2, ziel);
+            const abzug = randInt(1, start);
+            return B.erstelleGleichungHTML(`${start} - ${abzug} = _`, `${blockPrefix}_gl_${g}`);
+          }
+        });
+        return {
+          titel: `Kopfrechnen (Plus &amp; Minus)`,
+          html: `<div style="display:flex;flex-wrap:wrap;gap:12px;">${gleichungen.join('')}</div>`
+        };
+      }
+
+      /**
+       * Ermittelt die aktuell gewählten Aufgabentypen und bildet automatisch einen sprechenden Titel + Icon + Tags
+       */
+      function ermittleAktuelleMetadaten() {
+        const aktiveTypButtons = Array.from(
+          document.querySelectorAll('#mix-typen-wahl .mix-chip.aktiv')
+        );
+        let aktiveTypen = aktiveTypButtons.map((b) => b.getAttribute('data-mix-typ'));
+        if (aktiveTypen.length === 0) {
+          aktiveTypen = ['zahlenhaus'];
+        }
+
+        const zahlenArr = Array.from(ausgewaehlteZahlen).sort((a, b) => a - b);
+        const min = zahlenArr.length > 0 ? zahlenArr[0] : 1;
+        const max = zahlenArr.length > 0 ? zahlenArr[zahlenArr.length - 1] : 10;
+
+        // Prüfen, ob die gewählten Zahlen eine lückenlose Reihe min..max bilden
+        const istLueckenlos = zahlenArr.length === max - min + 1;
+        const zahlenText = istLueckenlos
+          ? `Zahlen ${min} bis ${max}`
+          : `Zahlen: ${zahlenArr.join(', ')}`;
+
+        let icon = '📄';
+        let typHauptname = '';
+        if (aktiveTypen.length === 1) {
+          const m = TYP_META[aktiveTypen[0]] || { icon: '📄', voll: 'Mathe-Aufgaben' };
+          icon = m.icon;
+          typHauptname = m.voll;
+        } else if (aktiveTypen.length === 2) {
+          const m1 = TYP_META[aktiveTypen[0]] || { icon: '🔢', kurz: 'Aufgaben' };
+          const m2 = TYP_META[aktiveTypen[1]] || { icon: '🎲', kurz: 'Mix' };
+          icon = m1.icon + m2.icon;
+          typHauptname = `${m1.kurz} & ${m2.kurz}`;
+        } else {
+          icon = '🎲🔢';
+          const kurzeNamen = aktiveTypen
+            .slice(0, 3)
+            .map((t) => (TYP_META[t] ? TYP_META[t].kurz : t));
+          typHauptname = `Mathe-Mix (${kurzeNamen.join(', ')})`;
+        }
+
+        const vollerTitel = `${titelPraefix}${typHauptname} (${zahlenText})`;
+        const tags = [
+          '🔢 Mathematik',
+          ...aktiveTypen.slice(0, 3).map((t) => (TYP_META[t] ? `${TYP_META[t].icon} ${TYP_META[t].kurz}` : t)),
+          zahlenText,
+          `${seitenAnzahl} ${seitenAnzahl === 1 ? 'Druckseite' : 'Druckseiten'}`
+        ];
+
+        return {
+          aktiveTypen,
+          min,
+          max,
+          zahlenText,
+          icon,
+          titel: vollerTitel,
+          tags
+        };
+      }
+
+      /**
+       * Erstellt die Live-Vorschau für das aktuell konfigurierte Arbeitsblatt
+       */
+      function generiereZufallsBlatt() {
+        const meta = ermittleAktuelleMetadaten();
+        const { aktiveTypen, min, max, zahlenText, icon, titel } = meta;
+
+        // Numpad automatisch auf 0-20 umschalten, wenn Zahlenraum > 10 oder Zwerg/Riese aktiv ist
+        const braucht20 = max > 10 || aktiveTypen.includes('zwerg_riese');
+        const neuesMax = braucht20 ? 20 : 10;
+        document.body.setAttribute('data-numpad-max', String(neuesMax));
+        if (window.tabbiApp && aktuellesFach === 'mathe') {
+          window.tabbiApp.tastaturModus = 'zahlen';
+          window.tabbiApp.numpadMax = neuesMax;
+          window.tabbiApp.rendereNumpadTasten(document.getElementById('numpad'));
+        }
+
+        const seitenContainer = document.getElementById('mix-seiten-container');
+        let gesamtHTML = '';
+        let globaleAufgabenNr = 1;
+
+        for (let s = 1; s <= seitenAnzahl; s++) {
+          const bloeckeAufSeite = parseInt(anzahlProSeite, 10) || 3;
+
+          const gemischteTypen = [];
+          while (gemischteTypen.length < bloeckeAufSeite) {
+            gemischteTypen.push(...shuffleNichtAufsteigend(aktiveTypen));
+          }
+
+          let seitenBloeckeHTML = '';
+          for (let b = 0; b < bloeckeAufSeite; b++) {
+            const typ = gemischteTypen[b];
+            const blockPrefix = `mix_s${s}_b${b}`;
+            const blockDaten = erzeugeAufgabenBlock(typ, min, max, blockPrefix);
+
+            seitenBloeckeHTML +=
+              `<div class="mix-aufgaben-block fokus-kandidat">` +
+                `<h2 class="mix-block-titel">` +
+                  `<span class="aufgaben-nr">${globaleAufgabenNr}</span>` +
+                  `<span>${blockDaten.titel}</span>` +
+                `</h2>` +
+                blockDaten.html +
+              `</div>`;
+
+            globaleAufgabenNr++;
+          }
+
+          const seitenTitelZusatz = seitenAnzahl > 1 ? ` (Blatt ${s} von ${seitenAnzahl})` : '';
+          gesamtHTML +=
+            `<article class="druck-seite" aria-label="Arbeitsblatt Seite ${s}">` +
+              `<div class="druck-seite-kopf">` +
+                `<span>Name: Louis</span>` +
+                `<span>${titel}${seitenTitelZusatz}</span>` +
+                `<span>Datum: _______________</span>` +
+              `</div>` +
+              seitenBloeckeHTML +
+            `</article>`;
+        }
+
+        seitenContainer.innerHTML = gesamtHTML;
+
+        // Vorschau-Titel & Felder-Zähler aktualisieren
+        const vorschauTitelEl = document.getElementById('vorschau-titel-anzeige');
+        if (vorschauTitelEl) {
+          vorschauTitelEl.textContent = `${icon} ${titel}`;
+        }
+
+        if (window.tabbiApp) {
+          window.tabbiApp.leereBlatt();
+          window.tabbiApp.aktualisiereDynamischesBlatt();
+          window.tabbiApp.setzeHeutigesDruckDatum();
+          window.tabbiApp.aktualisiereGesamtFelderStatistik();
+        }
+
+        const lueckenAnzahl = document.querySelectorAll('#mix-seiten-container .luecke').length;
+        const zuordnungAnzahl = document.querySelectorAll('#mix-seiten-container .zuordnung-knoten.links').length;
+        const einkreisZeilenAnzahl = document.querySelectorAll('#mix-seiten-container .einkreisen-zeile').length;
+        const blasenAnzahl = document.querySelectorAll('#mix-seiten-container .mengen-blase').length;
+        const gesamtFelder =
+          lueckenAnzahl + zuordnungAnzahl + einkreisZeilenAnzahl > 0
+            ? lueckenAnzahl + zuordnungAnzahl + einkreisZeilenAnzahl
+            : blasenAnzahl;
+        const felderAnzeige = document.getElementById('vorschau-felder-anzeige');
+        if (felderAnzeige) {
+          felderAnzeige.textContent = `• ${gesamtFelder} Eingabefelder auf ${seitenAnzahl} ${seitenAnzahl === 1 ? 'DIN-A4-Seite' : 'DIN-A4-Seiten'}`;
+        }
+      }
+
+      // ======================================================================
+      // EVENT-LISTENER FÜR DEN KONFIGURATOR & DIE LIVE-VORSCHAU
+      // ======================================================================
+
+      // 1. Fach-Umschaltung (Mathematik vs. Deutsch)
+      document.getElementById('mix-fach-wahl').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-fach]');
+        if (!btn) return;
+        aktuellesFach = btn.getAttribute('data-fach');
+        document
+          .querySelectorAll('#mix-fach-wahl .fach-chip')
+          .forEach((b) => b.classList.toggle('aktiv', b === btn));
+
+        const deutschBox = document.getElementById('deutsch-vorschau-box');
+        const matheBereich = document.getElementById('mathe-konfig-bereich');
+        if (aktuellesFach === 'deutsch') {
+          deutschBox.style.display = 'block';
+          matheBereich.style.display = 'none';
+          if (window.tabbiApp) {
+            window.tabbiApp.tastaturModus = 'buchstaben';
+            window.tabbiApp.rendereNumpadTasten(document.getElementById('numpad'));
+            const demoLuecke = document.querySelector('[data-id="deutsch_demo_1"]');
+            if (demoLuecke) window.tabbiApp.setzeAktiveLuecke(demoLuecke, false);
+          }
+        } else {
+          deutschBox.style.display = 'none';
+          matheBereich.style.display = 'block';
+          if (window.tabbiApp) {
+            window.tabbiApp.tastaturModus = 'zahlen';
+            window.tabbiApp.rendereNumpadTasten(document.getElementById('numpad'));
+            window.tabbiApp.fokussiereErsteLeereLuecke();
+          }
+        }
+      });
+
+      document.getElementById('btn-zurueck-zu-mathe').addEventListener('click', () => {
+        const matheBtn = document.querySelector('#mix-fach-wahl [data-fach="mathe"]');
+        if (matheBtn) matheBtn.click();
+      });
+
+      // 2. Aufgabentypen-Auswahl
+      document.getElementById('mix-typen-wahl').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-mix-typ]');
+        if (!btn) return;
+        const aktive = document.querySelectorAll('#mix-typen-wahl .mix-chip.aktiv');
+        if (btn.classList.contains('aktiv') && aktive.length <= 1) {
+          // Mindestens 1 Aufgabentyp bleibt aktiv
+          return;
+        }
+        btn.classList.toggle('aktiv');
+        generiereZufallsBlatt();
+      });
+
+      document.getElementById('btn-alle-typen-aus').addEventListener('click', () => {
+        const alle = document.querySelectorAll('#mix-typen-wahl .mix-chip');
+        let ersterGefunden = false;
+        alle.forEach((b) => {
+          if (b.classList.contains('aktiv') && !ersterGefunden) {
+            ersterGefunden = true;
+          } else {
+            b.classList.remove('aktiv');
+          }
+        });
+        if (!ersterGefunden && alle[0]) alle[0].classList.add('aktiv');
+        generiereZufallsBlatt();
+      });
+
+      document.getElementById('btn-bunter-mix').addEventListener('click', () => {
+        const alle = Array.from(document.querySelectorAll('#mix-typen-wahl .mix-chip'));
+        alle.forEach((b) => b.classList.remove('aktiv'));
+        const zufallsDrei = shuffleNichtAufsteigend(alle).slice(0, 3);
+        zufallsDrei.forEach((b) => b.classList.add('aktiv'));
+        generiereZufallsBlatt();
+      });
+
+      // 3. Zahlenbereich & Einzelzahlen
+      document.getElementById('mix-bereich-wahl').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-mix-bereich]');
+        if (!btn) return;
+        bereich = btn.getAttribute('data-mix-bereich');
+        document
+          .querySelectorAll('#mix-bereich-wahl .mix-chip')
+          .forEach((b) => b.classList.toggle('aktiv', b === btn));
+        setzeZahlenAusBereich(bereich);
+        generiereZufallsBlatt();
+      });
+
+      document.getElementById('mix-einzelzahlen-wahl').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-mix-einzelzahl]');
+        if (!btn) return;
+        const z = parseInt(btn.getAttribute('data-mix-einzelzahl'), 10);
+        if (ausgewaehlteZahlen.has(z)) {
+          if (ausgewaehlteZahlen.size > 1) {
+            ausgewaehlteZahlen.delete(z);
+            btn.classList.remove('aktiv');
+          }
+        } else {
+          ausgewaehlteZahlen.add(z);
+          btn.classList.add('aktiv');
+        }
+        document
+          .querySelectorAll('#mix-bereich-wahl .mix-chip')
+          .forEach((b) => b.classList.remove('aktiv'));
+        generiereZufallsBlatt();
+      });
+
+      // 4. Aufgaben pro Seite, Seitenanzahl & Präfix
+      document.getElementById('mix-anzahl-wahl').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-mix-anzahl]');
+        if (!btn) return;
+        anzahlProSeite = btn.getAttribute('data-mix-anzahl');
+        document
+          .querySelectorAll('#mix-anzahl-wahl .mix-chip')
+          .forEach((b) => b.classList.toggle('aktiv', b === btn));
+        generiereZufallsBlatt();
+      });
+
+      document.getElementById('mix-seiten-wahl').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-mix-seiten]');
+        if (!btn) return;
+        seitenAnzahl = parseInt(btn.getAttribute('data-mix-seiten'), 10);
+        document
+          .querySelectorAll('#mix-seiten-wahl .mix-chip')
+          .forEach((b) => b.classList.toggle('aktiv', b === btn));
+        generiereZufallsBlatt();
+      });
+
+      document.getElementById('mix-praefix-wahl').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-mix-praefix]');
+        if (!btn) return;
+        titelPraefix = btn.getAttribute('data-mix-praefix') || '';
+        document
+          .querySelectorAll('#mix-praefix-wahl .mix-chip')
+          .forEach((b) => b.classList.toggle('aktiv', b === btn));
+        generiereZufallsBlatt();
+      });
+
+      // 5. "🎲 Andere Zahlen würfeln" in der Live-Vorschau
+      document.getElementById('btn-mix-neu').addEventListener('click', () => {
+        generiereZufallsBlatt();
+      });
+
+      // 6. "💾 In Bibliothek speichern": Speichert das exakt angezeigte Vorschaublatt mit Erstellungsdatum!
+      document.getElementById('btn-in-bibliothek-speichern').addEventListener('click', () => {
+        if (!window.TabbiTestbibliothek) return;
+        const meta = ermittleAktuelleMetadaten();
+        const seitenContainer = document.getElementById('mix-seiten-container');
+
+        // Alle eventuell in der Vorschau eingetippten Probeeingaben vor dem Einfrieren säubern
+        if (window.tabbiApp) {
+          window.tabbiApp.leereBlatt();
+        }
+
+        const lueckenAnzahl = seitenContainer.querySelectorAll('.luecke').length;
+        const zuordnungAnzahl = seitenContainer.querySelectorAll('.zuordnung-knoten.links').length;
+        const blasenAnzahl = seitenContainer.querySelectorAll('.mengen-blase').length;
+        const einkreisAnzahl = seitenContainer.querySelectorAll('.einkreis-item').length;
+        const gesamtFelder = lueckenAnzahl + zuordnungAnzahl || blasenAnzahl || einkreisAnzahl;
+        const numpadMax = parseInt(document.body.getAttribute('data-numpad-max') || '10', 10);
+
+        const gespeicherterTest = window.TabbiTestbibliothek.speichereNeuenTest({
+          titel: meta.titel,
+          fach: 'mathe',
+          icon: meta.icon,
+          aufgabenTypen: meta.aktiveTypen,
+          zahlenText: meta.zahlenText,
+          tags: meta.tags,
+          numpadMax: numpadMax,
+          tastaturTyp: 'zahlen',
+          seitenAnzahl: seitenAnzahl,
+          gesamtFelder: gesamtFelder,
+          html: seitenContainer.innerHTML
+        });
+
+        // Zurück zur Testbibliothek navigieren (mit Highlight des neu angelegten Blatts!)
+        window.location.href = `../index.html?gespeichert=${encodeURIComponent(gespeicherterTest.id)}`;
+      });
+
+      // URL-Parameter beim Öffnen des Konfigurators prüfen (z.B. ?typ=zahlenhaus&bereich=1-5)
+      function wendeStartParameterAn() {
+        const urlTyp = params.get('typ');
+        const urlBereich = params.get('bereich');
+        if (urlBereich) {
+          bereich = urlBereich;
+          document.querySelectorAll('#mix-bereich-wahl .mix-chip').forEach((b) => {
+            b.classList.toggle('aktiv', b.getAttribute('data-mix-bereich') === urlBereich);
+          });
+          setzeZahlenAusBereich(urlBereich);
+        }
+        if (urlTyp) {
+          const typListe = urlTyp.split(',').map((s) => s.trim()).filter(Boolean);
+          if (typListe.length > 0) {
+            document.querySelectorAll('#mix-typen-wahl .mix-chip').forEach((b) => {
+              b.classList.toggle('aktiv', typListe.includes(b.getAttribute('data-mix-typ')));
+            });
+          }
+        }
+      }
+
+      baueEinzelzahlenChips();
+      wendeStartParameterAn();
+
+      if (window.tabbiApp) {
+        generiereZufallsBlatt();
+      } else {
+        document.addEventListener('DOMContentLoaded', () => {
+          generiereZufallsBlatt();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

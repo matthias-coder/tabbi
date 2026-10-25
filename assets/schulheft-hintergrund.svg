@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="720" viewBox="0 0 900 720">
+  <defs>
+    <!-- Grundschul-Lineatur (Linierte Blätter mit Hilfslinie) -->
+    <pattern id="lineatur" width="900" height="36" patternUnits="userSpaceOnUse">
+      <!-- Gestrichelte Mittellinie (Schreibhilfe 1. Klasse) -->
+      <line x1="0" y1="18" x2="900" y2="18" stroke="#dbeafe" stroke-width="1" stroke-dasharray="5,5" />
+      <!-- Durchgezogene Haupt-Schreiblinie -->
+      <line x1="0" y1="35.5" x2="900" y2="35.5" stroke="#bfdbfe" stroke-width="1.35" />
+    </pattern>
+
+    <!-- Weicher Graphit-Bleistift-Effekt -->
+    <style>
+      .bleistift {
+        fill: none;
+        stroke: #64748b;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0.24;
+      }
+      .bleistift-fein {
+        fill: none;
+        stroke: #475569;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0.2;
+      }
+      .tinte {
+        fill: #0000CD;
+        opacity: 0.085;
+      }
+      .tinte-kräftig {
+        fill: #1d4ed8;
+        opacity: 0.11;
+      }
+    </style>
+  </defs>
+
+  <!-- Warmes Schulheft-Papier -->
+  <rect width="900" height="720" fill="#fdfcf7" />
+
+  <!-- Horizontale Schreiblinien -->
+  <rect width="900" height="720" fill="url(#lineatur)" />
+
+  <!-- Klassische rote Randlinie links & rechts -->
+  <line x1="68" y1="0" x2="68" y2="720" stroke="#fca5a5" stroke-width="2" />
+  <line x1="72" y1="0" x2="72" y2="720" stroke="#fecaca" stroke-width="1" />
+  <line x1="852" y1="0" x2="852" y2="720" stroke="#fca5a5" stroke-width="1.5" stroke-dasharray="8,4" />
+
+  <!-- Heftrand-Lochung (Abheftlöcher links) -->
+  <g fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2">
+    <circle cx="32" cy="140" r="11" />
+    <circle cx="32" cy="360" r="11" />
+    <circle cx="32" cy="580" r="11" />
+  </g>
+
+  <!-- ======================================================================
+       1. TINTENFLECKE / FÜLLER-KLECKSE (Königsblau #0000CD)
+       ====================================================================== -->
+  <!-- Großer Füller-Tintenklecks oben rechts am Rand -->
+  <g transform="translate(765, 58)">
+    <path class="tinte-kräftig" d="M22,6 C32,2 44,10 47,20 C51,32 62,36 58,47 C54,57 41,53 33,60 C24,67 12,64 6,54 C0,44 8,34 4,23 C1,13 12,10 22,6 Z" />
+    <circle class="tinte-kräftig" cx="68" cy="18" r="5.5" />
+    <circle class="tinte" cx="77" cy="28" r="3" />
+    <circle class="tinte" cx="63" cy="62" r="4" />
+    <circle class="tinte" cx="2" cy="12" r="3.5" />
+    <ellipse class="tinte-kräftig" cx="14" cy="70" rx="4.5" ry="3" transform="rotate(-20 14 70)" />
+  </g>
+
+  <!-- Zweiter Tintenklecks unten links nahe der Randlinie -->
+  <g transform="translate(88, 565)">
+    <path class="tinte" d="M18,8 C27,3 38,9 41,18 C44,27 54,30 50,40 C46,49 34,47 26,53 C18,58 7,54 4,44 C1,35 9,26 7,17 C5,10 11,12 18,8 Z" />
+    <circle class="tinte-kräftig" cx="59" cy="22" r="4" />
+    <circle class="tinte" cx="55" cy="52" r="3" />
+    <circle class="tinte" cx="-4" cy="34" r="4.5" />
+    <circle class="tinte" cx="12" cy="62" r="2.5" />
+  </g>
+
+  <!-- Kleiner Tintenfleck Mitte rechts -->
+  <g transform="translate(810, 410)">
+    <path class="tinte" d="M12,4 C19,1 27,6 29,14 C31,21 25,29 17,31 C9,33 2,26 3,17 C4,9 6,7 12,4 Z" />
+    <circle class="tinte-kräftig" cx="35" cy="9" r="3" />
+    <circle class="tinte" cx="32" cy="28" r="2" />
+  </g>
+
+  <!-- ======================================================================
+       2. BLEISTIFT-KRITZELEIEN (Handgezeichnete Doodles & Kringel)
+       ====================================================================== -->
+
+  <!-- Bleistift-Spirale / Schreibschwung oben links am Rand -->
+  <path class="bleistift" stroke-width="2.2"
+    d="M 16 42 C 36 22, 58 58, 38 68 C 22 76, 14 54, 34 44 C 52 35, 64 62, 46 74 C 30 84, 18 64, 42 54 C 60 46, 72 68, 55 82" />
+
+  <!-- Gezeichneter kleiner Bleistift mit Kritzellinie oben Mitte-Links -->
+  <g class="bleistift" transform="translate(115, 22) rotate(-14)" stroke-width="2">
+    <!-- Bleistift-Körper -->
+    <rect x="0" y="0" width="54" height="12" rx="2" />
+    <line x1="8" y1="4" x2="46" y2="4" stroke-width="1.2" />
+    <line x1="8" y1="8" x2="46" y2="8" stroke-width="1.2" />
+    <!-- Radiergummi-Kappe -->
+    <path d="M 0 0 L -8 0 C -11 0, -11 12, -8 12 L 0 12 Z" />
+    <!-- Bleistift-Spitze -->
+    <polygon points="54,0 70,6 54,12" />
+    <polygon points="65,4.2 70,6 65,7.8" fill="#64748b" />
+    <!-- Geschwungene Bleistift-Spur -->
+    <path d="M 72 6 Q 92 -6, 108 8 T 144 4 T 176 12" stroke-dasharray="3,2" />
+  </g>
+
+  <!-- Kritzel-Schraffur (Zickzack-Bleistiftprobe) am linken Rand -->
+  <path class="bleistift-fein" stroke-width="2"
+    d="M 14 235 L 52 225 L 16 248 L 54 238 L 18 260 L 56 250 L 22 272 L 50 266" />
+
+  <!-- Handgezeichnete Sterne & Pluszeichen am rechten Rand -->
+  <g class="bleistift" stroke-width="2" transform="translate(862, 195)">
+    <path d="M12,2 L15,10 L24,10 L17,15 L19,24 L12,19 L5,24 L7,15 L0,10 L9,10 Z" />
+    <path d="M6,38 L8,44 L14,44 L9,48 L11,54 L6,50 L1,54 L3,48 L-2,44 L4,44 Z" />
+  </g>
+
+  <!-- Bleistift-Wellenlinie & Kringel unten rechts -->
+  <path class="bleistift" stroke-width="2.2"
+    d="M 690 676 C 710 658, 725 692, 745 674 C 765 656, 780 690, 800 672 C 818 656, 832 686, 846 670" />
+
+  <!-- Kleine Bleistift-Rechenkritzelei ("1 + 2 = 3") & ABC-Doodle ganz zart am Heftrand -->
+  <g class="bleistift-fein" stroke-width="1.8" transform="translate(14, 435) rotate(-6)">
+    <!-- "A B C" in Kinderschrift-Strichen -->
+    <path d="M 4 22 L 12 4 L 20 22 M 7 16 L 17 16" />
+    <path d="M 26 4 L 26 22 M 26 4 C 36 4, 36 13, 26 13 C 37 13, 37 22, 26 22" />
+    <path d="M 52 6 C 40 4, 40 22, 52 20" />
+  </g>
+
+  <g class="bleistift-fein" stroke-width="1.8" transform="translate(856, 520) rotate(5)">
+    <!-- "1 2 3" am rechten Rand -->
+    <path d="M 6 8 L 12 3 L 12 22" />
+    <path d="M 6 34 C 12 29, 20 34, 14 42 L 6 50 L 18 50" />
+    <path d="M 6 62 C 16 60, 16 70, 9 71 C 17 72, 17 82, 6 80" />
+  </g>
+</svg>

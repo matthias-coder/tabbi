@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Gleiche Mengen verbinden (1–10)</title>
+  <link rel="stylesheet" href="../css/tabbi.css">
+</head>
+<body
+  data-blatt-id="006_gleiche_mengen_anmalen"
+  data-titel="Gleiche Mengen verbinden (Symbol ↔ Zahl)"
+  data-beschreibung="Fingerbilder &amp; Würfelbilder auf der linken Seite mit der passenden Zahl auf der rechten Seite verbinden (mit ✔ bestätigen oder ✖ abbrechen)."
+  data-icon="🔗🫧"
+  data-kategorie="1-10"
+  data-numpad-max="10"
+>
+
+  <!-- Sticky Kopfzeile -->
+  <header class="blatt-header print-hide">
+    <div class="blatt-header-links">
+      <a href="../index.html" id="btn-zurueck" class="ui-btn" aria-label="Zurück zur Bibliothek">
+        ⬅️ Bibliothek
+      </a>
+    </div>
+
+    <div class="blatt-titel-gruppe">
+      <h1 class="blatt-titel">🔗 Gleiche Mengen verbinden</h1>
+      <p class="blatt-untertitel">1. Links Bild antippen ➔ 2. Rechts Zahl antippen ➔ 3. Mit ✔ bestätigen oder ✖ abbrechen</p>
+    </div>
+
+    <div class="blatt-header-rechts">
+      <button type="button" id="btn-reset" class="ui-btn" aria-label="Blatt leeren">
+        🗑️ Löschen
+      </button>
+      <button type="button" id="btn-print" class="ui-btn ui-btn-print" aria-label="Als PDF speichern oder drucken">
+        🖨️ PDF / Drucken
+      </button>
+    </div>
+  </header>
+
+  <main class="blatt-inhalt">
+
+    <div class="druck-kopf">
+      <span>Name: Louis</span>
+      <span>Arbeitsblatt: Gleiche Mengen verbinden</span>
+      <span>Datum: _______________</span>
+    </div>
+
+    <section class="aufgaben-sektion fokus-kandidat">
+      <div class="aufgaben-kopf">
+        <span class="aufgaben-nr">1</span>
+        <h2 class="aufgaben-titel">Fingerbilder mit der passenden Zahl verbinden</h2>
+      </div>
+      <div id="zuordnung-block-1" data-baustein="zuordnung" data-links="F:L5,F:R3,F:6" data-rechts="5,6,3" data-prefix="b006_z1"></div>
+    </section>
+
+    <section class="aufgaben-sektion fokus-kandidat">
+      <div class="aufgaben-kopf">
+        <span class="aufgaben-nr">2</span>
+        <h2 class="aufgaben-titel">Würfelbilder &amp; Fingerbilder mit der passenden Zahl verbinden</h2>
+      </div>
+      <div id="zuordnung-block-2" data-baustein="zuordnung" data-links="W:4,F:7,W:8" data-rechts="8,4,7" data-prefix="b006_z2"></div>
+    </section>
+
+  </main>
+
+  <nav id="numpad" class="print-hide" aria-label="Ziffernblock" style="display:none;"></nav>
+
+  <script src="../js/tabbi-core.js"></script>
+  <script>
+    (function () {
+      window.addEventListener('tabbi:neu-wuerfeln', (e) => {
+        const min = Math.max(1, Math.min(10, (e.detail && e.detail.min) || 1));
+        const max = Math.max(min, Math.min(10, (e.detail && e.detail.max) || 10));
+
+        const zieheDrei = () => {
+          const pool = [];
+          for (let z = min; z <= max; z++) pool.push(z);
+          if (pool.length < 3) {
+            for (let z = 1; z <= 6; z++) if (!pool.includes(z)) pool.push(z);
+          }
+          pool.sort(() => Math.random() - 0.5);
+          return pool.slice(0, 3);
+        };
+
+        const z1 = zieheDrei();
+        const r1 = [...z1].sort(() => Math.random() - 0.5);
+        if (r1[0] === z1[0]) r1.push(r1.shift());
+
+        const b1 = document.getElementById('zuordnung-block-1');
+        if (b1) {
+          b1.setAttribute(
+            'data-links',
+            z1.map((w, i) => (w <= 5 ? `F:${i % 2 === 0 ? 'L' : 'R'}${w}` : `F:${w}`)).join(',')
+          );
+          b1.setAttribute('data-rechts', r1.join(','));
+          b1.innerHTML = '';
+        }
+
+        const z2 = zieheDrei();
+        const r2 = [...z2].sort(() => Math.random() - 0.5);
+        if (r2[0] === z2[0]) r2.push(r2.shift());
+
+        const b2 = document.getElementById('zuordnung-block-2');
+        if (b2) {
+          b2.setAttribute(
+            'data-links',
+            z2.map((w, i) => (i % 2 === 0 ? `W:${w}` : `F:${w}`)).join(',')
+          );
+          b2.setAttribute('data-rechts', r2.join(','));
+          b2.innerHTML = '';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

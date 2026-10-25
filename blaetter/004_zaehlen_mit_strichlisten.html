@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zählen mit Strichlisten (Unterwasser)</title>
+  <link rel="stylesheet" href="../css/tabbi.css">
+</head>
+<body
+  data-blatt-id="004_zaehlen_mit_strichlisten"
+  data-titel="Zählen mit Strichlisten"
+  data-beschreibung="Meeresbewohner im Wimmelbild zählen, Strichlisten per Knopfdruck eintragen und die Zahl darunter tippen."
+  data-icon="🦀📊"
+  data-kategorie="5-10"
+  data-numpad-max="10"
+>
+
+  <!-- Sticky Kopfzeile -->
+  <header class="blatt-header print-hide">
+    <div class="blatt-header-links">
+      <a href="../index.html" id="btn-zurueck" class="ui-btn" aria-label="Zurück zur Übersicht">
+        ⬅️ Übersicht
+      </a>
+    </div>
+
+    <div class="blatt-titel-gruppe">
+      <h1 class="blatt-titel">Zählen mit Strichlisten</h1>
+      <p class="blatt-untertitel">Tippe die Tiere im Bild an, mache Striche und trage die Zahl ein</p>
+    </div>
+
+    <div class="blatt-header-rechts">
+      <button type="button" id="btn-reset" class="ui-btn" aria-label="Blatt leeren">
+        🗑️ Löschen
+      </button>
+      <button type="button" id="btn-print" class="ui-btn ui-btn-print" aria-label="Als PDF speichern oder drucken">
+        🖨️ PDF / Drucken
+      </button>
+    </div>
+  </header>
+
+  <main class="blatt-inhalt">
+
+    <div class="druck-kopf">
+      <span>Name: Louis</span>
+      <span>Arbeitsblatt: Zählen mit Strichlisten</span>
+      <span>Datum: _______________</span>
+    </div>
+
+    <section class="aufgaben-sektion">
+      <div class="aufgaben-kopf">
+        <span class="aufgaben-nr">1</span>
+        <h2 class="aufgaben-titel">Suchbild: Tippe jedes Tier an, das du schon gezählt hast!</h2>
+      </div>
+
+      <!-- Wimmelbild-Kasten mit den 5 Meeresbewohnern (Krabbe/Einsiedlerkrebs, Tintenfisch, Delfin, Muschel, Fisch) -->
+      <div id="wimmelbild" class="wimmelbild-box" aria-label="Unterwasser-Suchbild"></div>
+
+      <div class="aufgaben-kopf" style="margin-top:16px;">
+        <span class="aufgaben-nr">2</span>
+        <h2 class="aufgaben-titel">Strichliste &amp; Anzahl eintragen</h2>
+      </div>
+
+      <!-- 5-spaltige Tabelle exakt wie auf der Vorlage:
+           Zeile 1: Tier-Symbol | Zeile 2: Strichliste (+ / - Buttons) | Zeile 3: Zahl-Lücke -->
+      <div class="strichlisten-tabelle">
+
+        <!-- Spalte 1: Einsiedlerkrebs / Krabbe (🦀) -->
+        <div class="strichlisten-spalte">
+          <div class="strichlisten-kopf" aria-label="Krabbe">🦀</div>
+          <div class="strichlisten-striche-box">
+            <div class="striche-anzeige" data-id="striche_krabbe" data-anzahl="0"></div>
+            <div class="strich-buttons print-hide">
+              <button type="button" class="strich-btn plus" data-strich-id="striche_krabbe" data-delta="1">+ |</button>
+              <button type="button" class="strich-btn" data-strich-id="striche_krabbe" data-delta="-1">−</button>
+            </div>
+          </div>
+          <div class="strichlisten-zahl-box">
+            <div class="luecke" data-id="zahl_krabbe"></div>
+          </div>
+        </div>
+
+        <!-- Spalte 2: Tintenfisch / Nautilus (🦑) -->
+        <div class="strichlisten-spalte">
+          <div class="strichlisten-kopf" aria-label="Tintenfisch">🦑</div>
+          <div class="strichlisten-striche-box">
+            <div class="striche-anzeige" data-id="striche_tintenfisch" data-anzahl="0"></div>
+            <div class="strich-buttons print-hide">
+              <button type="button" class="strich-btn plus" data-strich-id="striche_tintenfisch" data-delta="1">+ |</button>
+              <button type="button" class="strich-btn" data-strich-id="striche_tintenfisch" data-delta="-1">−</button>
+            </div>
+          </div>
+          <div class="strichlisten-zahl-box">
+            <div class="luecke" data-id="zahl_tintenfisch"></div>
+          </div>
+        </div>
+
+        <!-- Spalte 3: Delfin (🐬) -->
+        <div class="strichlisten-spalte">
+          <div class="strichlisten-kopf" aria-label="Delfin">🐬</div>
+          <div class="strichlisten-striche-box">
+            <div class="striche-anzeige" data-id="striche_delfin" data-anzahl="0"></div>
+            <div class="strich-buttons print-hide">
+              <button type="button" class="strich-btn plus" data-strich-id="striche_delfin" data-delta="1">+ |</button>
+              <button type="button" class="strich-btn" data-strich-id="striche_delfin" data-delta="-1">−</button>
+            </div>
+          </div>
+          <div class="strichlisten-zahl-box">
+            <div class="luecke" data-id="zahl_delfin"></div>
+          </div>
+        </div>
+
+        <!-- Spalte 4: Muschel (🐚) -->
+        <div class="strichlisten-spalte">
+          <div class="strichlisten-kopf" aria-label="Muschel">🐚</div>
+          <div class="strichlisten-striche-box">
+            <div class="striche-anzeige" data-id="striche_muschel" data-anzahl="0"></div>
+            <div class="strich-buttons print-hide">
+              <button type="button" class="strich-btn plus" data-strich-id="striche_muschel" data-delta="1">+ |</button>
+              <button type="button" class="strich-btn" data-strich-id="striche_muschel" data-delta="-1">−</button>
+            </div>
+          </div>
+          <div class="strichlisten-zahl-box">
+            <div class="luecke" data-id="zahl_muschel"></div>
+          </div>
+        </div>
+
+        <!-- Spalte 5: Fisch (🐠) -->
+        <div class="strichlisten-spalte">
+          <div class="strichlisten-kopf" aria-label="Fisch">🐠</div>
+          <div class="strichlisten-striche-box">
+            <div class="striche-anzeige" data-id="striche_fisch" data-anzahl="0"></div>
+            <div class="strich-buttons print-hide">
+              <button type="button" class="strich-btn plus" data-strich-id="striche_fisch" data-delta="1">+ |</button>
+              <button type="button" class="strich-btn" data-strich-id="striche_fisch" data-delta="-1">−</button>
+            </div>
+          </div>
+          <div class="strichlisten-zahl-box">
+            <div class="luecke" data-id="zahl_fisch"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <nav id="numpad" class="print-hide" aria-label="Ziffernblock"></nav>
+
+  <script>
+    // Baut das Unterwasser-Suchbild exakt mit den Tier-Anzahlen aus der Vorlage auf:
+    // 5 Krabben (🦀), 3 Tintenfische (🦑), 2 Delfine (🐬), 8 Muscheln (🐚), 9 Fische (🐠)
+    // in fester, durchmischter Reihenfolge:
+    (function () {
+      const box = document.getElementById('wimmelbild');
+      if (!box) return;
+
+      function rendereTiere(liste) {
+        box.innerHTML = liste
+          .map(
+            (t, idx) =>
+              `<button type="button" class="zaehl-item" data-id="wb_tier_${idx}" ` +
+              `aria-label="Tier ${idx + 1}">${t}</button>`
+          )
+          .join('');
+      }
+
+      const standardTiere = [
+        '🦑', '🦀', '🐚', '🐠', '🐚', '🦑', '🐬',
+        '🐠', '🐚', '🐠', '🐚', '🦀', '🐚', '🐠', '🦀',
+        '🐚', '🐠', '🐬', '🦑', '🐠', '🦀', '🐚', '🐠',
+        '🦀', '🐠', '🐚', '🐠'
+      ];
+      rendereTiere(standardTiere);
+
+      window.addEventListener('tabbi:neu-wuerfeln', () => {
+        const arten = ['🦀', '🦑', '🐬', '🐚', '🐠'];
+        const neueListe = [];
+        arten.forEach((symbol) => {
+          const anz = Math.floor(Math.random() * 8) + 2; // 2 bis 9 Tiere pro Art
+          for (let i = 0; i < anz; i++) neueListe.push(symbol);
+        });
+        neueListe.sort(() => Math.random() - 0.5);
+        rendereTiere(neueListe);
+      });
+    })();
+  </script>
+  <script src="../js/tabbi-core.js"></script>
+</body>
+</html>

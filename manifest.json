@@ -1,0 +1,19 @@
+{
+  "name": "TABBI: Tipp-ArbeitsBlätter-Bibliothek",
+  "short_name": "TABBI",
+  "description": "Tablet Arbeitsblatt Bibliothek für Louis (1. Klasse)",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fdfdf9",
+  "theme_color": "#1d4ed8",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,3004 @@
+/* ==========================================================================
+   TABBI: Tipp-ArbeitsBlätter-Bibliothek (1. Klasse)
+   Zentrales Stylesheet (css/tabbi.css)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Andika:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+:root {
+  --font-main: 'Andika', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Farben gemäß AGENTS.md */
+  --color-paper: #fdfdf9;
+  --color-karo-line: #dce6f2;
+  --color-vorgabe: #222222;
+  --color-fueller-blau: #0000CD;
+  --color-luecke-aktiv-bg: #fffacd;
+  --color-luecke-aktiv-border: #d97706;
+  --color-line-dark: #1e293b;
+
+  /* Plättchen-Farben (3-State-Toggle) */
+  --color-kreis-blau: #2563eb;
+  --color-kreis-rot: #dc2626;
+
+  /* UI-Farben */
+  --color-ui-bg: #ffffff;
+  --color-ui-border: #cbd5e1;
+  --color-primary: #1d4ed8;
+  --color-primary-light: #eff6ff;
+  --color-warn-bg: #dc2626;
+  --color-warn-text: #ffffff;
+
+  /* Maße für Zahlenhäuser & Zehnerstreifen (perfekt aufeinander abgestimmt) */
+  --etage-height: 54px;
+  --spalte-width: 56px;
+  --haus-width: calc(var(--spalte-width) * 2);
+  --dach-height: 68px;
+  --kreis-size: 38px;
+  --karo-size: 24px;
+}
+
+/* ==========================================================================
+   1. Globaler Reset & Fat-Finger-Schutz
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-main);
+  color: var(--color-vorgabe);
+  background-color: var(--color-paper);
+  /* Liniertes Schulheft-Blatt mit Bleistift-Kritzeleien & Füller-Tintenflecken */
+  background-image: url('../assets/schulheft-hintergrund.svg');
+  background-size: 900px 720px;
+  background-repeat: repeat;
+  background-position: top center;
+  background-attachment: fixed;
+  /* Fat-Finger-Schutz: verhindert Double-Tap-Zoom und Textmarkierung */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  min-height: 100vh;
+}
+
+/* Wenn ein Ziffernblock vorhanden ist, Platz am unteren Rand lassen */
+body[data-blatt-id] {
+  padding-bottom: calc(175px + env(safe-area-inset-bottom, 0px));
+}
+
+button {
+  font-family: var(--font-main);
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   2. Kopfzeile & Navigation (Arbeitsblatt & Bibliothek)
+   ========================================================================== */
+.blatt-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(6px);
+  border-bottom: 2px solid var(--color-ui-border);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  flex-wrap: wrap;
+}
+
+.blatt-header-links,
+.blatt-header-rechts {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.blatt-titel-gruppe {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.blatt-titel {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+  color: var(--color-line-dark);
+}
+
+.blatt-untertitel {
+  font-size: 0.9rem;
+  color: #475569;
+  margin: 0;
+}
+
+/* Standard UI-Buttons in der Kopfzeile */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-line-dark);
+  background: #f8fafc;
+  border: 2px solid #94a3b8;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: transform 0.08s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.ui-btn:active {
+  transform: scale(0.97);
+}
+
+.ui-btn-print {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1e40af;
+}
+
+/* Zwei-Tipp-Bestätigung: Warnzustand beim 1. Tipp */
+.ui-btn.zwei-tipp-aktiv {
+  background: var(--color-warn-bg) !important;
+  color: var(--color-warn-text) !important;
+  border-color: #991b1b !important;
+  animation: pulsieren 0.8s infinite alternate;
+}
+
+@keyframes pulsieren {
+  from { transform: scale(1); }
+  to { transform: scale(1.04); }
+}
+
+/* Druck-Kopfzeile (nur im Druck oder dezent oben auf dem Blatt) */
+.druck-kopf {
+  display: none;
+}
+
+/* ==========================================================================
+   3. Tabs & Zahlenraum-Auswahl (z.B. 1-5, 5-10, 1-10)
+   ========================================================================== */
+.steuerung-leiste {
+  max-width: 1120px;
+  margin: 16px auto 8px;
+  padding: 0 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tab-gruppe,
+.bereich-gruppe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 6px;
+  border-radius: 14px;
+  border: 2px solid var(--color-ui-border);
+}
+
+.tab-btn,
+.bereich-btn {
+  min-height: 48px;
+  padding: 8px 18px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-btn.aktiv,
+.bereich-btn.aktiv {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: #1e3a8a;
+  box-shadow: 0 2px 6px rgba(29, 78, 216, 0.25);
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.aktiv {
+  display: block;
+}
+
+/* Ausblenden von Aufgabenblöcken, wenn ein Zahlenbereich (z.B. 1-5 oder 5-10) gefiltert ist */
+.aufgabe-versteckt {
+  display: none !important;
+}
+
+/* ==========================================================================
+   4. Arbeitsblatt-Inhalt & Aufgaben-Container
+   ========================================================================== */
+.blatt-inhalt {
+  max-width: 1120px;
+  margin: 12px auto 32px;
+  padding: 12px 16px;
+}
+
+/* Raster für die reinen Zahlenhäuser (Tab 1) */
+.haeuser-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 36px 32px;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+/* Liste für Zahlenfreunde (Tab 2: Haus + Zehnerstreifen pro Etage) */
+.freunde-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+/* ==========================================================================
+   5. Komponenten: .vorgabe & .luecke
+   ========================================================================== */
+.vorgabe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.65rem;
+  font-weight: 400;
+  color: var(--color-vorgabe);
+  background: #ffffff;
+  width: 100%;
+  height: 100%;
+  line-height: 1;
+}
+
+.luecke {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--color-fueller-blau);
+  background: #ffffff;
+  width: 100%;
+  height: 100%;
+  min-width: 48px;
+  min-height: 48px;
+  line-height: 1;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+  transition: background-color 0.1s ease;
+}
+
+/* Aktive Lücke: kräftiges Gelb (#fffacd) + deutlicher Fokus-Innenrahmen */
+.luecke.aktiv {
+  background-color: var(--color-luecke-aktiv-bg) !important;
+  box-shadow: inset 0 0 0 3px var(--color-luecke-aktiv-border);
+  z-index: 2;
+}
+
+/* Dezenter pulsierender Cursor-Balken, wenn aktive Lücke noch leer ist */
+.luecke.aktiv:empty::after {
+  content: '';
+  width: 2px;
+  height: 26px;
+  background-color: var(--color-fueller-blau);
+   opacity: 0.55;
+  animation: blinkCursor 1s steps(2, start) infinite;
+}
+
+@keyframes blinkCursor {
+  to { visibility: hidden; }
+}
+
+/* ==========================================================================
+   6. Komponente: .zahlenhaus (Exakt wie in den Vorlagen-Bildern)
+   ========================================================================== */
+.zahlenhaus {
+  display: inline-flex;
+  flex-direction: column;
+  width: var(--haus-width);
+  flex-shrink: 0;
+}
+
+/* Das Dreiecks-Spitzdach per inline-SVG im Hintergrund */
+.zahlenhaus .dach {
+  position: relative;
+  width: var(--haus-width);
+  height: var(--dach-height);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 10px;
+}
+
+.zahlenhaus .dach-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.zahlenhaus .dach-svg polygon {
+  fill: #ffffff;
+  stroke: var(--color-line-dark);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.zahlenhaus .dach-zahl {
+  position: relative;
+  z-index: 1;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-vorgabe);
+  line-height: 1;
+}
+
+/* Wohnungen: 2 Spalten unter dem Dach */
+.zahlenhaus .wohnungen {
+  display: flex;
+  flex-direction: column;
+  width: var(--haus-width);
+  background: #ffffff;
+  border-left: 2.5px solid var(--color-line-dark);
+  border-right: 2.5px solid var(--color-line-dark);
+  border-bottom: 2.5px solid var(--color-line-dark);
+}
+
+.zahlenhaus .etage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: var(--etage-height);
+  border-bottom: 2px solid var(--color-line-dark);
+}
+
+.zahlenhaus .etage:last-child {
+  border-bottom: none;
+}
+
+.zahlenhaus .etage > *:first-child {
+  border-right: 2px solid var(--color-line-dark);
+}
+
+/* ==========================================================================
+   7. Komponente: Zahlenfreunde (Zahlenhaus + Zehnerstreifen je Etage)
+   ========================================================================== */
+.zahlenfreund-block {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 12px;
+}
+
+/* Container für die Zehnerstreifen rechts neben dem Haus:
+   Exakt um die Dachhöhe nach unten versetzt, damit Etage 1 neben Streifen 1 liegt! */
+.zehnerstreifen-spalte {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--dach-height);
+}
+
+/* Eine Zeile im Zehnerstreifen-Stapel hat exakt die Höhe einer Haus-Etage */
+.zehnerstreifen-zeile {
+  height: var(--etage-height);
+  display: flex;
+  align-items: center;
+}
+
+/* Der horizontale Zehnerstreifen (2x5 Kreise mit Mittelstrich wie in Vorlage 1) */
+.zehnerstreifen {
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  border: 2.2px solid var(--color-line-dark);
+  border-radius: 6px;
+  height: calc(var(--etage-height) - 4px);
+  padding: 0 6px;
+}
+
+.zehnerstreifen .fuenfer-gruppe {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 4px;
+}
+
+/* Vertikaler Trennstrich nach dem 5. Kreis */
+.zehnerstreifen .fuenfer-gruppe:first-child {
+  border-right: 2.2px solid var(--color-line-dark);
+  padding-right: 8px;
+  margin-right: 4px;
+}
+
+/* Der einzelne Kreis (3-State-Toggle: leer -> .blau -> .rot -> leer) */
+.kreis {
+  width: var(--kreis-size);
+  height: var(--kreis-size);
+  border-radius: 50%;
+  border: 2.2px solid var(--color-line-dark);
+  background-color: #ffffff;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: transform 0.06s ease, background-color 0.1s ease, border-color 0.1s ease;
+}
+
+.kreis:active {
+  transform: scale(0.92);
+}
+
+.kreis.blau {
+  background-color: var(--color-kreis-blau) !important;
+  border-color: #1d4ed8 !important;
+}
+
+.kreis.rot {
+  background-color: var(--color-kreis-rot) !important;
+  border-color: #b91c1c !important;
+}
+
+/* Vorgedruckter Punkt im Zehnerstreifen (nicht klickbar, Druck-Schwarz/Grau) */
+.kreis-vorgabe {
+  width: var(--kreis-size);
+  height: var(--kreis-size);
+  border-radius: 50%;
+  border: 2.2px solid var(--color-line-dark);
+  background-color: #ffffff;
+  flex-shrink: 0;
+}
+
+.kreis-vorgabe.gefuellt {
+  background-color: #475569 !important;
+}
+
+/* ==========================================================================
+   7b. Neue Aufgaben-Bausteine (aus den Beispiel-Arbeitsblättern)
+   ========================================================================== */
+
+/* Aufgaben-Abschnitt mit runder Aufgabennummer (1), (2), (3) */
+.aufgaben-sektion {
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+}
+
+.aufgaben-kopf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.aufgaben-nr {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--color-line-dark);
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.aufgaben-titel {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Zahlen-Schreibstreifen (Ziffern-Reihe wie Aufgabe 1 auf "Zahlen bis 5") */
+.schreib-streifen {
+  display: flex;
+  flex-direction: column;
+  border: 2.2px solid var(--color-line-dark);
+  background: #ffffff;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.schreib-reihe {
+  display: flex;
+  border-bottom: 2px solid var(--color-line-dark);
+}
+
+.schreib-reihe:last-child {
+  border-bottom: none;
+}
+
+.schreib-zelle {
+  width: 52px;
+  height: 52px;
+  border-right: 2px solid var(--color-line-dark);
+  flex-shrink: 0;
+}
+
+.schreib-zelle:last-child {
+  border-right: none;
+}
+
+.vorgabe.spur {
+  color: #94a3b8;
+}
+
+/* Zähl-Karten (Fingerbilder, Steckwürfel-Türme, Würfelbilder + Lücke darunter) */
+.zaehl-karten-reihe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 14px;
+  align-items: flex-end;
+}
+
+.zaehl-karte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.zaehl-symbol-box {
+  min-width: 72px;
+  min-height: 78px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 4px;
+}
+
+.zaehl-luecke-box {
+  width: 58px;
+  height: 58px;
+  border: 2.2px solid var(--color-line-dark);
+  background: #ffffff;
+}
+
+/* Steckwürfel-Turm (wie in Aufgabe 3 auf "Zahlen bis 5") */
+.wuerfel-turm {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0;
+}
+
+.steck-wuerfel {
+  width: 46px;
+  height: 34px;
+  border: 2.5px solid var(--color-line-dark);
+  border-bottom: none;
+  background: #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.steck-wuerfel:nth-child(even) {
+  background: #93c5fd;
+}
+
+.steck-wuerfel:first-child {
+  border-bottom: 2.5px solid var(--color-line-dark);
+}
+
+/* Kleiner Steck-Noppen oben auf dem obersten Würfel */
+.steck-wuerfel:last-child::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 6px;
+  border: 2.5px solid var(--color-line-dark);
+  border-bottom: none;
+  background: inherit;
+  border-radius: 3px 3px 0 0;
+}
+
+/* Klassisches Würfelbild (1 bis 6 Augen) */
+.wuerfel-bild {
+  width: 64px;
+  height: 64px;
+  border: 2.5px solid var(--color-line-dark);
+  border-radius: 12px;
+  background: #ffffff;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  padding: 7px;
+  gap: 2px;
+}
+
+.wuerfel-auge {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-line-dark);
+  align-self: center;
+  justify-self: center;
+}
+
+/* Fingerbild-Karte */
+.hand-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 78px;
+}
+
+.hand-svg {
+  width: 72px;
+  height: 78px;
+}
+
+/* Punktebilder / Zehnerstreifen-Ablese-Zeile */
+.punktebild-zeile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.blase-luecke {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: 2.5px solid var(--color-line-dark);
+  background: #ffffff;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset -4px -4px 0 rgba(148, 163, 184, 0.25);
+}
+
+/* Aquarium / Fische zählen ("Fische zählen" Vorlage) */
+.aquarium-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.aquarium-aufgabe {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.aquarium-becken {
+  position: relative;
+  min-width: 230px;
+  flex: 1 1 230px;
+  min-height: 165px;
+  padding: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid var(--color-line-dark);
+  border-radius: 14px;
+  background: linear-gradient(to bottom, #f0f9ff 0%, #e0f2fe 82%, #fef3c7 82%, #fde68a 100%);
+  overflow: visible;
+}
+
+.aquarium-antwort {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.aquarium-antwort .luecke {
+  width: 64px;
+  height: 64px;
+  border: 2.5px solid var(--color-line-dark);
+  border-radius: 12px;
+}
+
+/* Abhakbares Zähl-Objekt (groß & deutlich zum Zählen mit dem Finger, ohne Lösung zu verraten!) */
+.zaehl-item {
+  position: relative;
+  min-width: 66px;
+  min-height: 66px;
+  font-size: 2.75rem;
+  line-height: 1;
+  background: #ffffff;
+  border: 2.5px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+  transition: transform 0.1s ease, background-color 0.1s ease, border-color 0.1s ease;
+}
+
+.tier-svg {
+  width: 48px;
+  height: 48px;
+  display: block;
+  pointer-events: none;
+}
+
+/* Tiere ohne eigenes SVG (z. B. 🐬, 🦑, 🐴, 🦭, 🦞) groß als Original-Emoji, damit jede Art unterscheidbar bleibt */
+.tier-emoji {
+  font-size: 2.6rem;
+  line-height: 1;
+  display: block;
+  pointer-events: none;
+}
+
+.strichlisten-kopf .tier-svg {
+  width: 52px;
+  height: 52px;
+}
+
+.zaehl-item:active {
+  transform: scale(0.94);
+}
+
+.zaehl-item.markiert {
+  background-color: #dbeafe !important;
+  border: 3px solid #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+.zaehl-item.markiert::after {
+  content: '✔';
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.2);
+}
+
+/* Wimmelbild & Strichlisten ("Zählen mit Strichlisten" Vorlage) */
+.wimmelbild-box {
+  background: #f0f9ff;
+  border: 2.5px solid var(--color-line-dark);
+  border-radius: 20px;
+  padding: 18px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 16px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.strichlisten-tabelle {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  border: 2.5px solid var(--color-line-dark);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  max-width: 820px;
+}
+
+.strichlisten-spalte {
+  display: flex;
+  flex-direction: column;
+  border-right: 2px solid var(--color-line-dark);
+}
+
+.strichlisten-spalte:last-child {
+  border-right: none;
+}
+
+.strichlisten-kopf {
+  height: 76px;
+  border-bottom: 2px solid var(--color-line-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  background: #f8fafc;
+}
+
+.strichlisten-striche-box {
+  min-height: 115px;
+  border-bottom: 2px solid var(--color-line-dark);
+  padding: 10px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.striche-anzeige {
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--color-fueller-blau);
+  letter-spacing: 2px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* 5er-Bündel Strichliste (4 vertikale Striche + 1 Querstrich) */
+.strich-buendel {
+  position: relative;
+  display: inline-block;
+  padding: 0 4px;
+  letter-spacing: 3px;
+}
+
+.strich-buendel.fuenfer::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 50%;
+  height: 3px;
+  background: var(--color-fueller-blau);
+  transform: rotate(-18deg);
+}
+
+.strich-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.strich-btn {
+  min-width: 52px;
+  min-height: 52px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border: 2px solid #94a3b8;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: var(--color-line-dark);
+}
+
+.strich-btn.plus {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.strichlisten-zahl-box {
+  height: 64px;
+}
+
+/* Zählen & Einkreisen / Mengen bündeln */
+.einkreisen-zeile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  border: 2.2px solid var(--color-line-dark);
+  border-radius: 16px;
+  padding: 12px 18px;
+  margin-bottom: 14px;
+}
+
+.einkreisen-zielzahl {
+  width: 58px;
+  height: 58px;
+  font-size: 2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: 2px solid var(--color-line-dark);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.einkreisen-objekte {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.einkreis-item {
+  width: 66px;
+  height: 66px;
+  border-radius: 16px;
+  border: 2.5px dashed #cbd5e1;
+  background: #ffffff;
+  font-size: 2.55rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.08s ease, background-color 0.1s ease, border-color 0.1s ease;
+}
+
+.einkreis-item:active {
+  transform: scale(0.93);
+}
+
+/* Farben für Einkreisen / Bündeln und "Gleiche Mengen gleich anmalen" */
+.einkreis-item.farbe-blau,
+.mengen-blase.farbe-blau {
+  background-color: #dbeafe !important;
+  border: 3px solid #2563eb !important;
+}
+
+.einkreis-item.farbe-rot,
+.mengen-blase.farbe-rot {
+  background-color: #fee2e2 !important;
+  border: 3px solid #dc2626 !important;
+}
+
+.einkreis-item.farbe-gruen,
+.mengen-blase.farbe-gruen {
+  background-color: #dcfce7 !important;
+  border: 3px solid #16a34a !important;
+}
+
+.einkreis-item.farbe-gelb,
+.mengen-blase.farbe-gelb {
+  background-color: #fef08a !important;
+  border: 3px solid #ca8a04 !important;
+}
+
+.einkreis-item.farbe-lila,
+.mengen-blase.farbe-lila {
+  background-color: #f3e8ff !important;
+  border: 3px solid #9333ea !important;
+}
+
+.einkreis-item.farbe-orange,
+.mengen-blase.farbe-orange {
+  background-color: #ffedd5 !important;
+  border: 3px solid #ea580c !important;
+}
+
+/* Farb-Palette für "Gleiche Mengen gleich anmalen" & "Mengen bündeln" */
+.farb-palette {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 2px solid var(--color-line-dark);
+  border-radius: 14px;
+  padding: 10px 16px;
+  margin-bottom: 18px;
+}
+
+.farb-pinsel-btn {
+  min-height: 48px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 3px solid transparent;
+  font-size: 1rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.farb-pinsel-btn.aktiv {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 3px var(--color-line-dark);
+}
+
+.mengen-blasen-feld {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.mengen-blase {
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  border: 3px solid var(--color-line-dark);
+  background: #ffffff;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px;
+  cursor: pointer;
+  box-shadow: inset -6px -6px 0 rgba(148, 163, 184, 0.2);
+  transition: transform 0.1s ease, background-color 0.15s ease;
+}
+
+.mengen-blase.klein {
+  width: 96px;
+  height: 96px;
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+
+.mengen-blase:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================================================
+   7c. Bausteine für den Zahlenraum bis 20 (Zwanzigerfeld, Z/E-Tafel,
+       Gleichungen, Nachbarzahlen, Zahlenmauer)
+   ========================================================================== */
+
+/* Zwanzigerfeld (2 Zehnerstreifen übereinander = 20 Kreise) */
+.zwanzigerfeld {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #ffffff;
+  border: 2.5px solid var(--color-line-dark);
+  border-radius: 8px;
+  padding: 6px;
+}
+
+.zwanzigerfeld .zehnerstreifen {
+  border: none;
+  height: auto;
+  padding: 2px 4px;
+}
+
+.zwanzigerfeld .zehnerstreifen:first-child {
+  border-bottom: 1.8px dashed #cbd5e1;
+  padding-bottom: 6px;
+}
+
+.kreis-vorgabe.blau {
+  background-color: var(--color-kreis-blau) !important;
+  border-color: #1d4ed8 !important;
+}
+
+.kreis-vorgabe.rot {
+  background-color: var(--color-kreis-rot) !important;
+  border-color: #b91c1c !important;
+}
+
+/* ==========================================================================
+   Zuordnungs- / Verbindungs-Baustein (Links Symbole ↔ Rechts Zahlen + ✔ / ✖)
+   ========================================================================== */
+.zuordnung-container {
+  width: 100%;
+  max-width: 660px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.zuordnung-anleitung {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #334155;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 8px 14px;
+}
+
+.zuordnung-buehne {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+}
+
+.zuordnung-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.zuordnung-spalte {
+  position: relative;
+  z-index: 2;
+  width: 136px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.zuordnung-zeile-punkt {
+  height: 132px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zuordnung-knoten {
+  width: 132px;
+  height: 116px;
+  border-radius: 58px;
+  border: 3px solid var(--color-line-dark);
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+  transition: transform 0.1s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.zuordnung-knoten .hand-svg {
+  width: 72px;
+  height: 78px;
+}
+
+.zuordnung-knoten .hand-box .hand-svg {
+  width: 52px;
+  height: 56px;
+}
+
+.zuordnung-knoten .wuerfel-bild {
+  width: 54px;
+  height: 54px;
+  padding: 5px;
+}
+
+.zuordnung-knoten .wuerfel-auge {
+  width: 10px;
+  height: 10px;
+}
+
+.zuordnung-knoten .zuordnung-zahl {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-vorgabe);
+}
+
+/* Aktuell angetippter Kreis (links oder rechts) -> gelb markiert (#fffacd) + oranger/blauer Rahmen */
+.zuordnung-knoten.ausgewaehlt {
+  background-color: var(--color-luecke-aktiv-bg) !important;
+  border-color: #d97706 !important;
+  border-width: 4px;
+  box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.25);
+  transform: scale(1.04);
+}
+
+/* Bereits mit einer festen Linie verbundener Kreis */
+.zuordnung-knoten.verbunden {
+  border-color: var(--color-primary);
+  background-color: #eff6ff;
+}
+
+/* Bestätigungs-Dialog in der Mitte (Grüner Haken ✔ / Rotes X ✖) */
+.zuordnung-mitte-dialog {
+  position: relative;
+  z-index: 5;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.zuordnung-frage-box {
+  pointer-events: auto;
+  background: #ffffff;
+  border: 3px solid #1e293b;
+  border-radius: 18px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.24);
+}
+
+.zuordnung-frage-titel {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.zuordnung-frage-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.zuordnung-btn-haken,
+.zuordnung-btn-x {
+  min-width: 64px;
+  min-height: 58px;
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  border-radius: 14px;
+  border: 2.5px solid transparent;
+  border-bottom-width: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zuordnung-btn-haken {
+  background: #16a34a;
+  border-color: #14532d;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+.zuordnung-btn-x {
+  background: #dc2626;
+  border-color: #7f1d1d;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.zuordnung-btn-haken:active,
+.zuordnung-btn-x:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+/* Stellenwerttafel (Z | E) */
+.stellenwert-tafel {
+  display: inline-grid;
+  grid-template-columns: 54px 54px;
+  border: 2.5px solid var(--color-line-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.stellenwert-kopf {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  border-bottom: 2px solid var(--color-line-dark);
+}
+
+.stellenwert-kopf.zehner {
+  background: #dbeafe;
+  color: #1e3a8a;
+  border-right: 2px solid var(--color-line-dark);
+}
+
+.stellenwert-kopf.einer {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.stellenwert-zelle {
+  height: 54px;
+}
+
+.stellenwert-zelle:first-of-type {
+  border-right: 2px solid var(--color-line-dark);
+}
+
+/* Zeile für "Zehner & Einer am Zwanzigerfeld" */
+.zwanziger-aufgabe-zeile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+}
+
+/* Gleichungen & Rechenpäckchen (z.B. 10 + 4 = [14] oder Zwergen-/Riesenaufgaben) */
+.gleichung-zeile {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.65rem;
+  font-weight: 700;
+  background: #ffffff;
+  padding: 6px 12px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+}
+
+.gleichung-box {
+  width: 56px;
+  height: 54px;
+  border: 2.2px solid var(--color-line-dark);
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.rechenpaeckchen-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 20px;
+}
+
+.zwerg-riese-karte {
+  background: #ffffff;
+  border: 2.2px solid var(--color-line-dark);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.zwerg-riese-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Nachbarzahlen (Vorgänger | Zahl | Nachfolger) */
+.nachbarzahlen-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.nachbar-trio {
+  display: inline-grid;
+  grid-template-columns: 64px 64px 64px;
+  border: 2.5px solid var(--color-line-dark);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.nachbar-kopf {
+  height: 30px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border-bottom: 2px solid var(--color-line-dark);
+  border-right: 2px solid var(--color-line-dark);
+}
+
+.nachbar-kopf:nth-child(3) {
+  border-right: none;
+}
+
+.nachbar-zelle {
+  height: 58px;
+  border-right: 2px solid var(--color-line-dark);
+}
+
+.nachbar-zelle:last-child {
+  border-right: none;
+}
+
+.nachbar-zelle .vorgabe {
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+/* Zahlenmauer (3 Steine unten, 2 Mitte, 1 oben) */
+.zahlenmauern-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 28px;
+  justify-items: center;
+}
+
+.zahlenmauer {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mauer-reihe {
+  display: flex;
+}
+
+.mauer-stein {
+  width: 72px;
+  height: 54px;
+  border: 2.2px solid var(--color-line-dark);
+  background: #ffffff;
+  margin-left: -2.2px;
+  margin-top: -2.2px;
+}
+
+.mauer-stein:first-child {
+  margin-left: 0;
+}
+
+.mauer-reihe:first-child .mauer-stein {
+  margin-top: 0;
+}
+
+/* Zehnerübergang ("Erst bis zur 10") Karte */
+.zehneruebergang-karte {
+  background: #ffffff;
+  border: 2.2px solid var(--color-line-dark);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.schritt-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.schritt-hinweis {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e40af;
+  background: #eff6ff;
+  padding: 4px 10px;
+  border-radius: 8px;
+  display: inline-block;
+  width: fit-content;
+}
+
+/* ==========================================================================
+   7d. Click & Mix – Zufalls-Arbeitsblatt-Generator & DIN-A4-Seitenlayout
+   ========================================================================== */
+
+.mix-konfigurator {
+  background: #ffffff;
+  border: 3px solid var(--color-primary);
+  border-radius: 20px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(29, 78, 216, 0.08);
+}
+
+.mix-konfig-zeile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 20px 28px;
+  margin-bottom: 16px;
+}
+
+.mix-konfig-gruppe {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mix-konfig-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mix-chip-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mix-chip {
+  min-height: 46px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 12px;
+  border: 2px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.1s ease;
+}
+
+.mix-chip.aktiv {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: #1e3a8a;
+  box-shadow: 0 2px 6px rgba(29, 78, 216, 0.25);
+}
+
+.mix-start-btn {
+  min-height: 54px;
+  padding: 10px 24px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  border-radius: 14px;
+  border: 2px solid #15803d;
+  background: #16a34a;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+}
+
+.mix-start-btn:active {
+  transform: scale(0.97);
+}
+
+/* Ein einzelner DIN-A4-Druckseiten-Container (auf dem Bildschirm wie ein liniertes Heftblatt mit Randlinie) */
+.druck-seite {
+  background-color: rgba(255, 255, 254, 0.94);
+  background-image:
+    linear-gradient(90deg, transparent 22px, rgba(248, 113, 113, 0.35) 22px, rgba(248, 113, 113, 0.35) 24px, transparent 24px),
+    repeating-linear-gradient(to bottom, transparent 0px, transparent 31px, rgba(191, 219, 254, 0.45) 31px, rgba(191, 219, 254, 0.45) 32px);
+  border: 2px solid #cbd5e1;
+  border-radius: 18px;
+  padding: 20px 24px 20px 34px;
+  margin-bottom: 28px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.druck-seite-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--color-line-dark);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.mix-aufgaben-block {
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1.5px dashed #cbd5e1;
+}
+
+.mix-aufgaben-block:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.mix-block-titel {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 10px;
+  color: var(--color-line-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================================================
+   8. Fixierter Ziffernblock am unteren Bildschirmrand (#numpad)
+   ========================================================================== */
+#numpad {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: rgba(248, 250, 252, 0.98);
+  backdrop-filter: blur(8px);
+  border-top: 2px solid #94a3b8;
+  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.1);
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+}
+
+.numpad-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.numpad-reihe {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 8px;
+}
+
+.numpad-taste {
+  flex: 1 1 0;
+  min-height: 58px;
+  min-width: 48px;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--color-line-dark);
+  background: #ffffff;
+  border: 2px solid #94a3b8;
+  border-bottom-width: 4px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  transition: transform 0.05s ease, background-color 0.1s ease;
+}
+
+.numpad-taste:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  background: #e2e8f0;
+}
+
+/* Prominente Backspace-Taste (⌫) */
+.numpad-taste.taste-backspace {
+  flex: 1.35 1 0;
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #991b1b;
+  font-size: 1.65rem;
+}
+
+.numpad-taste.taste-backspace:active {
+  background: #fecaca;
+}
+
+/* Umschalter 0-10 / 0-20 */
+.numpad-taste.taste-modus {
+  flex: 0.9 1 0;
+  font-size: 0.95rem;
+  background: #f1f5f9;
+  border-color: #64748b;
+  color: #334155;
+}
+
+.numpad-taste.taste-modus.aktiv {
+  background: #dbeafe;
+  border-color: #2563eb;
+  color: #1e40af;
+}
+
+/* ==========================================================================
+   9. Startseite / Bibliothek (index.html)
+   ========================================================================== */
+.bib-header {
+  background: #ffffff;
+  border-bottom: 3px solid var(--color-ui-border);
+  padding: 20px 24px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+}
+
+.bib-header-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.bib-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bib-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: var(--color-primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(29, 78, 216, 0.25);
+}
+
+.bib-titel {
+  font-size: 1.85rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-line-dark);
+}
+
+.bib-sub {
+  font-size: 1.05rem;
+  color: #475569;
+  margin: 2px 0 0;
+}
+
+.bib-container {
+  max-width: 1120px;
+  margin: 24px auto 48px;
+  padding: 0 20px;
+}
+
+.bib-filter-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.bib-filter-btn {
+  min-height: 52px;
+  padding: 10px 22px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  background: #ffffff;
+  color: #334155;
+  border: 2px solid #94a3b8;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bib-filter-btn.aktiv {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: #1e3a8a;
+  box-shadow: 0 4px 10px rgba(29, 78, 216, 0.25);
+}
+
+/* Zweite Filter-Ebene in der Bibliothek (Zahlenbereich innerhalb des Aufgabentyps) */
+.bib-subfilter-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: -10px;
+  margin-bottom: 24px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #cbd5e1;
+  border-radius: 14px;
+}
+
+.bib-subfilter-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #475569;
+  margin-right: 6px;
+}
+
+.bib-subfilter-btn {
+  min-height: 42px;
+  padding: 6px 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  background: #f8fafc;
+  color: #334155;
+  border: 2px solid #cbd5e1;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bib-subfilter-btn.aktiv {
+  background: #0f766e;
+  color: #ffffff;
+  border-color: #115e59;
+}
+
+/* Hervorhebung für die Click-&-Mix-Kachel jedes Aufgabentyps */
+.bib-kachel.ist-click-mix {
+  border-color: #3b82f6;
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 42%);
+}
+
+/* Eingebettete Click & Mix Leiste direkt in jedem Arbeitsblatt (standardmäßig kompakt eingeklappt) */
+.blatt-click-mix-bar {
+  display: none;
+  max-width: 1120px;
+  margin: 6px auto 10px;
+  padding: 12px 18px;
+  background: #ffffff;
+  border: 2.5px solid #3b82f6;
+  border-radius: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 18px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+.blatt-click-mix-bar.offen {
+  display: flex;
+}
+
+.lehrer-mix-toggle-btn {
+  min-height: 48px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  border: 2px solid #93c5fd;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1e40af;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lehrer-mix-toggle-btn.aktiv {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #1d4ed8;
+}
+
+.bcm-gruppe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.bcm-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-right: 4px;
+}
+
+.bcm-chip {
+  min-height: 40px;
+  padding: 4px 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 9px;
+  border: 2px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+}
+
+.bcm-chip.aktiv {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: #1e3a8a;
+}
+
+.bcm-wuerfel-btn {
+  min-height: 44px;
+  padding: 6px 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 2px solid #15803d;
+  background: #16a34a;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bib-kachel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 24px;
+}
+
+.bib-kachel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(90deg, transparent 16px, rgba(248, 113, 113, 0.35) 16px, rgba(248, 113, 113, 0.35) 18px, transparent 18px),
+    repeating-linear-gradient(to bottom, transparent 0px, transparent 27px, rgba(219, 234, 254, 0.55) 27px, rgba(219, 234, 254, 0.55) 28px);
+  border: 3px solid #cbd5e1;
+  border-radius: 20px;
+  padding: 22px 22px 22px 28px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+  transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bib-kachel:hover,
+.bib-kachel:focus-visible {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(29, 78, 216, 0.12);
+}
+
+.bib-kachel:active {
+  transform: scale(0.98);
+}
+
+.bib-kachel-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.bib-kachel-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: #eff6ff;
+  border: 2px solid #bfdbfe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.bib-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #475569;
+  border: 2px solid #cbd5e1;
+}
+
+.bib-status-badge.angefangen {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #f59e0b;
+}
+
+.bib-kachel-titel {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--color-line-dark);
+}
+
+.bib-kachel-beschreibung {
+  font-size: 1rem;
+  color: #475569;
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+
+.bib-kachel-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.bib-tag {
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+/* Aktionsleiste auf den Bibliothek-Kacheln (Öffnen, Reset, Neu würfeln) */
+.bib-kachel-aktionen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 2px dashed #e2e8f0;
+}
+
+.bib-aktion-btn {
+  min-height: 44px;
+  padding: 6px 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 2px solid #94a3b8;
+  background: #f8fafc;
+  color: #1e293b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  flex: 1 1 auto;
+}
+
+.bib-aktion-btn.oeffnen {
+  background: var(--color-primary);
+  border-color: #1e3a8a;
+  color: #ffffff;
+}
+
+.bib-aktion-btn.wuerfeln {
+  background: #f0fdf4;
+  border-color: #16a34a;
+  color: #15803d;
+}
+
+.bib-aktion-btn.reset {
+  background: #fff1f2;
+  border-color: #f43f5e;
+  color: #be123c;
+}
+
+.bib-aktion-btn.zwei-tipp-aktiv {
+  background: var(--color-warn-bg) !important;
+  color: var(--color-warn-text) !important;
+  border-color: #991b1b !important;
+}
+
+/* Prominenter Haupt-Button "➕ Arbeitsblatt erstellen" in der Bibliothek (mit 3-Sekunden-Halteschutz) */
+.bib-erstellen-hauptbtn {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 12px 26px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  border: 2px solid #14532d;
+  border-bottom-width: 4px;
+  border-radius: 16px;
+  text-decoration: none;
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.28);
+  transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.bib-erstellen-hauptbtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.35);
+}
+
+.lehrer-hold-balken {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  background: rgba(254, 240, 138, 0.38);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.lehrer-hold-btn.lehrer-hold-laeuft .lehrer-hold-balken {
+  width: 100%;
+  transition: width 3s linear;
+}
+
+.lehrer-hold-btn.lehrer-hold-hinweis {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  border-color: #78350f !important;
+}
+
+.lehrer-hold-inhalt {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================================================
+   Lehrer-Zutritts-Gate (Einmaleins-Aufgabe wie 3 × 7, 8 × 6)
+   ========================================================================== */
+.lehrer-gate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.lehrer-gate-karte {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border: 3px solid #1e3a8a;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lehrer-gate-kopf {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lehrer-gate-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #eff6ff;
+  border: 2px solid #93c5fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+
+.lehrer-gate-titel {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #1e293b;
+}
+
+.lehrer-gate-sub {
+  margin: 2px 0 0;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.lehrer-gate-aufgabe-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: #f8fafc;
+  border: 2px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 14px 18px;
+}
+
+.lehrer-gate-rechnung {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.lehrer-gate-antwort {
+  width: 90px !important;
+  height: 58px !important;
+  font-size: 2rem !important;
+  border: 2.5px solid #d97706 !important;
+  border-radius: 12px;
+}
+
+.lehrer-gate-status {
+  margin: -6px 0 0;
+  min-height: 22px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.lehrer-gate-numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.gate-ziffer-btn {
+  min-height: 56px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  background: #ffffff;
+  border: 2px solid #94a3b8;
+  border-bottom-width: 4px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gate-ziffer-btn:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  background: #e2e8f0;
+}
+
+.gate-ziffer-btn.gate-loeschen {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
+.gate-ziffer-btn.gate-ok {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #14532d;
+  font-size: 1.15rem;
+}
+
+.lehrer-gate-fuss {
+  display: flex;
+  justify-content: center;
+}
+
+.lehrer-gate-abbrechen {
+  min-height: 44px;
+  padding: 6px 20px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #475569;
+  background: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  border-radius: 10px;
+}
+
+@keyframes gateWackeln {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  50% { transform: translateX(8px); }
+  75% { transform: translateX(-6px); }
+}
+
+.gate-fehler-wackeln {
+  animation: gateWackeln 0.32s ease;
+}
+
+/* Bestätigungs-Banner nach dem Speichern */
+.bib-gespeichert-banner {
+  background: #dcfce7;
+  border: 2.5px solid #16a34a;
+  color: #14532d;
+  padding: 14px 20px;
+  border-radius: 14px;
+  margin-bottom: 18px;
+  font-size: 1.05rem;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.12);
+}
+
+/* Toolbar für Fach-Filter & Status-Filter */
+.bib-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.bib-bald-badge {
+  font-size: 0.78rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #475569;
+  font-weight: 700;
+}
+
+.bib-filter-btn.aktiv .bib-bald-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Meta-Zeile oben in jeder Bibliothek-Kachel (Fach + Erstellungsdatum) */
+.bib-kachel-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px dashed #e2e8f0;
+}
+
+.bib-fach-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.bib-fach-badge.deutsch {
+  background: #fae8ff;
+  color: #86198f;
+}
+
+.bib-datum-badge {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #475569;
+  background: #f8fafc;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+}
+
+.bib-status-badge.fertig {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #22c55e;
+}
+
+.bib-kachel-neu-highlight {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.18), 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.bib-aktion-btn.drucken {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.bib-leer-box {
+  grid-column: 1 / -1;
+  background: #ffffff;
+  border: 3px dashed #cbd5e1;
+  border-radius: 20px;
+  padding: 40px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Live-Vorschau-Aktionsleiste über dem generierten Arbeitsblatt */
+.vorschau-aktionen-leiste {
+  max-width: 210mm;
+  margin: 0 auto 14px;
+  padding: 14px 20px;
+  background: linear-gradient(90deg, #f0fdf4 0%, #eff6ff 100%);
+  border: 3px solid #16a34a;
+  border-radius: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: 0 6px 18px rgba(22, 163, 74, 0.14);
+}
+
+.vorschau-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.08rem;
+  color: #0f172a;
+}
+
+.vorschau-badge {
+  background: #1e40af;
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+}
+
+.vorschau-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.vorschau-btn-wuerfeln {
+  min-height: 50px;
+  padding: 8px 18px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  background: #ffffff;
+  border: 2.5px solid #2563eb;
+  border-bottom-width: 4px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vorschau-btn-speichern {
+  min-height: 52px;
+  padding: 10px 22px;
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #16a34a;
+  border: 2.5px solid #14532d;
+  border-bottom-width: 4px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+}
+
+.vorschau-btn-wuerfeln:active,
+.vorschau-btn-speichern:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+/* Buchstaben-Tastatur (Deutsch A-Z + ÄÖÜ) */
+.numpad-buchstaben .numpad-taste.taste-buchstabe {
+  min-height: 54px;
+  font-size: 1.35rem;
+}
+
+/* Würfel-Button in der Kopfzeile jedes Arbeitsblatts */
+.ui-btn-wuerfel {
+  background: #f0fdf4;
+  border-color: #16a34a;
+  color: #15803d;
+}
+
+/* ==========================================================================
+   10. Fokus-Modus (1-Aufgaben-Ansicht für Tablet & Mobilgeräte) & Responsivität
+   ========================================================================== */
+
+/* Umschalter-Button in der Steuerungsleiste */
+.fokus-toggle-btn {
+  min-height: 48px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  border: 2px solid #cbd5e1;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+}
+
+.fokus-toggle-btn.aktiv {
+  background: #0f766e;
+  color: #ffffff;
+  border-color: #115e59;
+}
+
+/* Fokus-Navigationsleiste (◀ Zurück | Aufgabe X von Y | Weiter ▶) */
+.fokus-nav {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 760px;
+  margin: 8px auto 14px;
+  padding: 10px 16px;
+  background: #ffffff;
+  border: 2.5px solid var(--color-primary);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.1);
+}
+
+body.fokus-modus .fokus-nav {
+  display: flex;
+}
+
+.fokus-nav-btn {
+  min-height: 52px;
+  min-width: 130px;
+  padding: 8px 18px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  border-radius: 12px;
+  border: 2px solid var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.fokus-nav-btn:disabled {
+  opacity: 0.4;
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.fokus-nav-btn.weiter {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.fokus-nav-info {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-line-dark);
+  text-align: center;
+}
+
+/* Im Fokus-Modus wird immer nur das aktuelle Aufgaben-Element groß und zentriert gezeigt */
+body.fokus-modus .fokus-kandidat {
+  display: none !important;
+}
+
+body.fokus-modus .fokus-kandidat.fokus-aktiv {
+  display: flex !important;
+  margin: 8px auto !important;
+  justify-content: center;
+}
+
+body.fokus-modus .aufgaben-sektion.fokus-kandidat.fokus-aktiv {
+  display: block !important;
+  max-width: 820px;
+}
+
+/* Auf kleineren Bildschirmen & Smartphones im Hochformat */
+@media (max-width: 768px) {
+  :root {
+    --etage-height: 48px;
+    --spalte-width: 50px;
+    --dach-height: 60px;
+    --kreis-size: 32px;
+  }
+
+  body[data-blatt-id] {
+    padding-bottom: calc(210px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .blatt-header {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .blatt-titel {
+    font-size: 1.15rem;
+  }
+
+  .ui-btn {
+    min-height: 44px;
+    padding: 6px 12px;
+    font-size: 0.92rem;
+  }
+
+  /* Numpad auf schmalen Geräten zweizeilig (0-5 oben, 6-10 + ⌫ unten),
+     damit jede Taste mindestens 52px breit bleibt! */
+  .numpad-reihe {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .numpad-taste {
+    flex: 1 1 calc(16.6% - 6px);
+    min-width: 46px;
+    min-height: 54px;
+    font-size: 1.4rem;
+  }
+
+  /* Zehnerstreifen unter dem Haus oder kompakt daneben auf sehr schmalen Screens */
+  .zahlenfreund-block {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .strichlisten-tabelle {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  /* Auf dem Smartphone: Zehnerstreifen innerhalb einer Zeile als 2x5 Block statt 1x10,
+     damit man niemals horizontal scrollen muss */
+  .zahlenfreund-block {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .zehnerstreifen-spalte {
+    margin-top: 8px;
+  }
+
+  /* Zuordnungs-Spalten auf kleinen Handys etwas kompakter halten */
+  .zuordnung-spalte {
+    width: 104px;
+  }
+
+  .zuordnung-knoten {
+    width: 100px;
+    height: 96px;
+  }
+
+  .zuordnung-knoten .hand-svg {
+    width: 56px;
+    height: 60px;
+  }
+
+  .zuordnung-knoten .hand-box .hand-svg {
+    width: 42px;
+    height: 46px;
+  }
+
+  .zuordnung-knoten .zuordnung-zahl {
+    font-size: 2rem;
+  }
+}
+
+/* ==========================================================================
+   Fertigstellen-Bereich am unteren Blatt-Ende (Zielflagge mit Fragezeichen 🏁❓)
+   ========================================================================== */
+.blatt-fertig-bereich {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 28px auto 16px;
+  padding: 12px;
+  max-width: 620px;
+  animation: fertigEinblenden 0.25s ease-out;
+}
+
+@keyframes fertigEinblenden {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.blatt-fertig-hauptbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 16px 28px;
+  min-height: 88px;
+  background: linear-gradient(135deg, #fefce8 0%, #fef08a 100%);
+  border: 3.5px solid #1e293b;
+  border-bottom-width: 6px;
+  border-radius: 22px;
+  color: #0f172a;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.14);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.blatt-fertig-hauptbtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.18);
+}
+
+.blatt-fertig-hauptbtn:active {
+  transform: translateY(2px);
+  border-bottom-width: 3.5px;
+}
+
+.zielflagge-svg {
+  width: 66px;
+  height: 62px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.blatt-fertig-text-gruppe {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 2px;
+}
+
+.blatt-fertig-titel {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.blatt-fertig-sub {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #854d0e;
+}
+
+.blatt-fertig-frage-box {
+  background: #ffffff;
+  border: 3.5px solid #1e293b;
+  border-radius: 22px;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16);
+}
+
+.blatt-fertig-frage-kopf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.blatt-fertig-frage-kopf .zielflagge-svg {
+  width: 52px;
+  height: 50px;
+}
+
+.blatt-fertig-frage-titel {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.blatt-fertig-frage-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.blatt-fertig-btn-ok,
+.blatt-fertig-btn-abbruch {
+  min-height: 64px;
+  padding: 10px 24px;
+  border-radius: 16px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.08s ease;
+}
+
+.blatt-fertig-btn-ok {
+  background: #16a34a;
+  border: 3px solid #14532d;
+  border-bottom-width: 5px;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+.blatt-fertig-btn-abbruch {
+  background: #dc2626;
+  border: 3px solid #7f1d1d;
+  border-bottom-width: 5px;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.blatt-fertig-btn-ok:active,
+.blatt-fertig-btn-abbruch:active {
+  transform: translateY(2px);
+  border-bottom-width: 3px;
+}
+
+.blatt-fertig-symbol {
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+/* ==========================================================================
+   11. Druck- & PDF-Workflow (@media print) — ca. 15% kompaktere Darstellung
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+
+  :root {
+    --etage-height: 44px;
+    --spalte-width: 48px;
+    --dach-height: 58px;
+    --kreis-size: 31px;
+  }
+
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html, body {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Alle UI-Elemente, Navigation, Hilfe, Fertigstellen-Button und Ziffernblock im Druck ausblenden */
+  #numpad,
+  #blatt-fertig-bereich,
+  .blatt-fertig-bereich,
+  .blatt-header,
+  .steuerung-leiste,
+  .blatt-click-mix-bar,
+  .vorschau-aktionen-leiste,
+  .fokus-nav,
+  .fokus-toggle-btn,
+  .mix-konfigurator,
+  .farb-palette,
+  .farb-palette-leiste,
+  .strich-buttons,
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Aufgaben in der Druckansicht ca. 15% kleiner darstellen (0.85), damit sie optimal auf A4 passen */
+  .mix-aufgaben-block,
+  .aufgaben-sektion {
+    zoom: 0.85;
+    margin-bottom: 12px !important;
+    padding-bottom: 10px !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .aufgaben-sektion {
+    padding: 12px 16px !important;
+  }
+
+  /* Im Druck: Jede .druck-seite passt exakt auf 1 DIN-A4-Blatt; ab der 2. Seite sauberer Seitenumbruch */
+  .druck-seite {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .druck-seite + .druck-seite {
+    break-before: page;
+    page-break-before: always;
+    padding-top: 4mm !important;
+  }
+
+  /* Im Druck wird der Fokus-Modus aufgehoben, damit alle Aufgaben des gewählten Bereichs gedruckt werden */
+  body.fokus-modus .fokus-kandidat {
+    display: flex !important;
+  }
+
+  body.fokus-modus .aufgaben-sektion.fokus-kandidat {
+    display: block !important;
+  }
+
+  /* Druck-Kopfzeile für Name & Datum einblenden */
+  .druck-kopf {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--color-line-dark);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  /* Gelbe Fokus-Markierung und Cursor im Druck neutralisieren */
+  .luecke.aktiv,
+  .zuordnung-knoten.ausgewaehlt {
+    background-color: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  .zuordnung-linie-vorschau,
+  .zuordnung-mitte-dialog {
+    display: none !important;
+  }
+
+  /* Zähl-Häkchen (motorische Zählhilfe) im Druck ausblenden, damit das Aufgabenbild sauber bleibt */
+  .zaehl-item.markiert::after {
+    display: none !important;
+  }
+  .zaehl-item.markiert {
+    background-color: transparent !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: none !important;
+  }
+
+  .luecke.aktiv:empty::after {
+    display: none !important;
+  }
+
+  /* Füller-Blau und Plättchen-Farben bleiben für die Lehrkraft erhalten */
+  .luecke {
+    color: var(--color-fueller-blau) !important;
+  }
+
+  .kreis.blau {
+    background-color: var(--color-kreis-blau) !important;
+  }
+
+  .kreis.rot {
+    background-color: var(--color-kreis-rot) !important;
+  }
+
+  .zahlenhaus,
+  .zahlenfreund-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .haeuser-grid {
+    gap: 24px 24px;
+  }
+
+  .freunde-liste {
+    gap: 20px;
+  }
+}

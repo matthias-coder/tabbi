@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zahlen bis 5 – Finger, Türme &amp; Würfel</title>
+  <link rel="stylesheet" href="../css/tabbi.css">
+</head>
+<body
+  data-blatt-id="002_zahlen_bis_5_finger_tuerme_wuerfel"
+  data-titel="Zahlen bis 5 (Finger, Türme &amp; Würfel)"
+  data-beschreibung="Ziffernreihe 4 und 5, Fingerbilder, Steckwürfel-Türme und Würfelbilder im Zahlenraum 1 bis 5."
+  data-icon="✋🎲"
+  data-kategorie="1-5"
+  data-numpad-max="10"
+>
+
+  <!-- Sticky Kopfzeile -->
+  <header class="blatt-header print-hide">
+    <div class="blatt-header-links">
+      <a href="../index.html" id="btn-zurueck" class="ui-btn" aria-label="Zurück zur Übersicht">
+        ⬅️ Übersicht
+      </a>
+    </div>
+
+    <div class="blatt-titel-gruppe">
+      <h1 class="blatt-titel">Zahlen bis 5</h1>
+      <p class="blatt-untertitel">Fingerbilder, Steckwürfel-Türme &amp; Würfel</p>
+    </div>
+
+    <div class="blatt-header-rechts">
+      <button type="button" id="btn-reset" class="ui-btn" aria-label="Blatt leeren">
+        🗑️ Löschen
+      </button>
+      <button type="button" id="btn-print" class="ui-btn ui-btn-print" aria-label="Als PDF speichern oder drucken">
+        🖨️ PDF / Drucken
+      </button>
+    </div>
+  </header>
+
+  <main class="blatt-inhalt">
+
+    <div class="druck-kopf">
+      <span>Name: Louis</span>
+      <span>Arbeitsblatt: Zahlen bis 5 (Seite 13)</span>
+      <span>Datum: _______________</span>
+    </div>
+
+    <!-- Aufgabe 1: Zahlenreihe 4 und 5 tippen -->
+    <section class="aufgaben-sektion" aria-label="Aufgabe 1">
+      <div class="aufgaben-kopf">
+        <span class="aufgaben-nr">1</span>
+        <h2 class="aufgaben-titel">Zahlenreihe 4 und 5</h2>
+      </div>
+      <div class="schreib-streifen" data-zahlen="4,5" data-spalten="13" data-prefix="a1_reihe"></div>
+    </section>
+
+    <!-- Aufgabe 2: Fingerbilder zählen (exakt die Reihenfolge der Vorlage: 2, 5, 1, 3, 4, 5, 2, 1, 3, 4) -->
+    <section class="aufgaben-sektion" aria-label="Aufgabe 2">
+      <div class="aufgaben-kopf">
+        <span class="aufgaben-nr">2</span>
+        <h2 class="aufgaben-titel">Wie viele Finger sind es?</h2>
+      </div>
+      <div class="zaehl-karten-reihe" data-baustein="finger" data-werte="2,5,1,3,4,5,2,1,3,4" data-prefix="a2_finger"></div>
+    </section>
+
+    <!-- Aufgabe 3: Steckwürfel-Türme zählen (exakt die Reihenfolge der Vorlage: 3, 1, 5, 2, 4, 2, 3, 1, 3, 5) -->
+    <section class="aufgaben-sektion" aria-label="Aufgabe 3">
+      <div class="aufgaben-kopf">
+        <span class="aufgaben-nr">3</span>
+        <h2 class="aufgaben-titel">Steckwürfel-Türme zählen</h2>
+      </div>
+      <div class="zaehl-karten-reihe" data-baustein="tuerme" data-werte="3,1,5,2,4,2,3,1,3,5" data-prefix="a3_turm"></div>
+    </section>
+
+    <!-- Aufgabe 4: Würfelbilder (Reihe 1: 1,4,3,5,1,2,3,5,2,3 / Reihe 2: 4,2,5,3,5,2,4,3,2,4) -->
+    <section class="aufgaben-sektion" aria-label="Aufgabe 4">
+      <div class="aufgaben-kopf">
+        <span class="aufgaben-nr">4</span>
+        <h2 class="aufgaben-titel">Würfelbilder erkennen</h2>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="zaehl-karten-reihe" data-baustein="wuerfel" data-werte="1,4,3,5,1,2,3,5,2,3" data-prefix="a4_w1"></div>
+        <div class="zaehl-karten-reihe" data-baustein="wuerfel" data-werte="4,2,5,3,5,2,4,3,2,4" data-prefix="a4_w2"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav id="numpad" class="print-hide" aria-label="Ziffernblock"></nav>
+
+  <script src="../js/tabbi-core.js"></script>
+</body>
+</html>
