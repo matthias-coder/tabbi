@@ -2836,7 +2836,9 @@
         tastaturTyp: testDaten.tastaturTyp || 'zahlen',
         seitenAnzahl: testDaten.seitenAnzahl || 1,
         gesamtFelder: testDaten.gesamtFelder || 0,
-        html: testDaten.html || ''
+        html: testDaten.html || '',
+        // Erstellungs-Einstellungen (typen, bereich, zahlen, anzahl, praefix) für "Nochmal neu"
+        einstellungen: testDaten.einstellungen || null
       };
 
       alle.unshift(neuerTest);

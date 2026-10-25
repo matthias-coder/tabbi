@@ -1638,12 +1638,12 @@ button {
    ========================================================================== */
 
 .mix-konfigurator {
-  background: #ffffff;
-  border: 3px solid var(--color-primary);
-  border-radius: 20px;
-  padding: 20px 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 8px 24px rgba(29, 78, 216, 0.08);
+  background: var(--ui-surface);
+  border: 3px solid var(--ui-teacher);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-5);
+  box-shadow: var(--shadow-2);
 }
 
 .mix-konfig-zeile {
@@ -1651,49 +1651,211 @@ button {
   flex-wrap: wrap;
   align-items: flex-start;
   gap: 20px 28px;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 .mix-konfig-gruppe {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
-.mix-konfig-label {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #334155;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.mix-konfig-label,
+.bau-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--ui-text-muted);
+  letter-spacing: 0.3px;
 }
 
 .mix-chip-leiste {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
+/* Auswahl-Chips (Fach, Zahlenraum, Anzahl, Kennzeichnung): aktiv = accent-soft + accent-border */
 .mix-chip {
-  min-height: 46px;
-  padding: 8px 16px;
-  font-size: 1rem;
-  font-weight: 700;
-  border-radius: 12px;
-  border: 2px solid #cbd5e1;
-  background: #f8fafc;
-  color: #334155;
+  min-height: var(--touch-min);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-md);
+  font-weight: var(--weight-regular);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--ui-border);
+  background: var(--ui-surface);
+  color: var(--ui-text);
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  transition: all 0.1s ease;
+  gap: var(--space-2);
+  cursor: pointer;
 }
 
 .mix-chip.aktiv {
-  background: var(--color-primary);
-  color: #ffffff;
-  border-color: #1e3a8a;
-  box-shadow: 0 2px 6px rgba(29, 78, 216, 0.25);
+  background: var(--ui-accent-soft);
+  border-color: var(--ui-accent-border);
+  color: var(--ui-accent-strong);
+  font-weight: var(--weight-bold);
+}
+
+.mix-chip:focus-visible,
+.bau-gruppe-kachel:focus-visible,
+.bau-typ-kachel:focus-visible,
+.bau-mehr-kopf:focus-visible {
+  outline: 3px solid var(--ui-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Entschlackte Erstellung: Übergruppe -> Typ-Kacheln -> Zahlenraum ---- */
+.bau-schritt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-bottom: 2px dashed var(--ui-border);
+}
+
+.bau-schritt[hidden] {
+  display: none;
+}
+
+.bau-gruppen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+.bau-gruppe-kachel,
+.bau-typ-kachel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch-min);
+  padding: var(--space-3) var(--space-2);
+  text-align: center;
+  font-family: inherit;
+  font-size: var(--text-md);
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border: 2px solid var(--ui-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  cursor: pointer;
+}
+
+.bau-gruppe-kachel {
+  min-height: 112px;
+}
+
+.bau-gruppe-icon {
+  font-size: var(--text-3xl);
+  line-height: 1;
+}
+
+.bau-gruppe-name {
+  font-weight: var(--weight-bold);
+}
+
+.bau-gruppe-kachel.aktiv,
+.bau-typ-kachel.aktiv {
+  background: var(--ui-accent-soft);
+  border-color: var(--ui-accent);
+  color: var(--ui-accent-strong);
+}
+
+.bau-typen,
+.bau-typen-reihe {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-3);
+}
+
+.bau-typ-kachel {
+  min-height: 112px;
+}
+
+.bau-typ-icon {
+  font-size: var(--text-3xl);
+  line-height: 1;
+}
+
+.bau-typ-name {
+  font-weight: var(--weight-bold);
+}
+
+.bau-typ-kachel.aktiv .bau-typ-name::before {
+  content: '\2713\00a0';
+}
+
+.bau-typ-hinweis {
+  font-size: var(--text-xs);
+  color: var(--ui-text-muted);
+  background: var(--ui-surface-sunken);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--space-2);
+}
+
+.bau-typen:has(.bau-typ-gruppe) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.bau-typ-gruppe {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.bau-typ-gruppe-titel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--ui-teacher);
+}
+
+.bau-mehr {
+  border: 2px solid var(--ui-border);
+  border-radius: var(--radius-md);
+  background: var(--ui-surface-muted);
+}
+
+.bau-mehr-kopf {
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--ui-teacher);
+  cursor: pointer;
+}
+
+.bau-mehr-inhalt {
+  padding: var(--space-4) var(--space-4) 0;
+}
+
+.bau-mehr-inhalt .bau-schritt:last-child {
+  border-bottom: 0;
+  margin-bottom: 0;
+}
+
+.bau-schalter {
+  align-self: flex-start;
+}
+
+.bau-schalter-punkt {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--ui-border-strong);
+  background: var(--ui-surface);
+}
+
+.bau-schalter.aktiv .bau-schalter-punkt {
+  background: var(--ui-accent);
+  border-color: var(--ui-accent-strong);
 }
 
 .mix-start-btn {
@@ -2596,20 +2758,20 @@ button {
   justify-content: center;
 }
 
-/* Live-Vorschau-Aktionsleiste über dem generierten Arbeitsblatt */
+/* Live-Vorschau-Aktionsleiste über dem generierten Arbeitsblatt (Lehrkraft-Zone) */
 .vorschau-aktionen-leiste {
   max-width: 210mm;
   margin: 0 auto 14px;
-  padding: 14px 20px;
-  background: linear-gradient(90deg, #f0fdf4 0%, #eff6ff 100%);
-  border: 3px solid #16a34a;
-  border-radius: 16px;
+  padding: var(--space-4) var(--space-5);
+  background: var(--ui-teacher-soft);
+  border: 3px solid var(--ui-teacher);
+  border-radius: var(--radius-lg);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  box-shadow: 0 6px 18px rgba(22, 163, 74, 0.14);
+  box-shadow: var(--shadow-2);
 }
 
 .vorschau-info {
@@ -2617,17 +2779,17 @@ button {
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  font-size: 1.08rem;
-  color: #0f172a;
+  font-size: var(--text-md);
+  color: var(--ui-text);
 }
 
 .vorschau-badge {
-  background: #1e40af;
+  background: var(--ui-teacher);
   color: #ffffff;
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   letter-spacing: 0.03em;
 }
 
@@ -2639,40 +2801,44 @@ button {
 }
 
 .vorschau-btn-wuerfeln {
-  min-height: 50px;
-  padding: 8px 18px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #1e3a8a;
-  background: #ffffff;
-  border: 2.5px solid #2563eb;
-  border-bottom-width: 4px;
-  border-radius: 12px;
+  min-height: var(--touch-min);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-md);
+  font-weight: var(--weight-regular);
+  color: var(--ui-teacher);
+  background: var(--ui-surface);
+  border: 2px solid var(--ui-teacher);
+  border-radius: var(--radius-md);
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
+  cursor: pointer;
 }
 
 .vorschau-btn-speichern {
-  min-height: 52px;
-  padding: 10px 22px;
-  font-size: 1.12rem;
-  font-weight: 700;
+  min-height: var(--touch-min);
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
   color: #ffffff;
-  background: #16a34a;
-  border: 2.5px solid #14532d;
-  border-bottom-width: 4px;
-  border-radius: 12px;
+  background: var(--ui-accent);
+  border: 2px solid var(--ui-accent-strong);
+  border-radius: var(--radius-md);
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+  gap: var(--space-2);
+  cursor: pointer;
 }
 
 .vorschau-btn-wuerfeln:active,
 .vorschau-btn-speichern:active {
-  transform: translateY(2px);
-  border-bottom-width: 2px;
+  transform: translateY(1px);
+}
+
+.vorschau-btn-wuerfeln:focus-visible,
+.vorschau-btn-speichern:focus-visible {
+  outline: 3px solid var(--ui-accent);
+  outline-offset: 2px;
 }
 
 /* Buchstaben-Tastatur (Deutsch A-Z + ÄÖÜ) */
