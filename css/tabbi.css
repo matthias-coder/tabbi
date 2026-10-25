@@ -2579,26 +2579,25 @@ button {
 .fokus-nav {
   display: none;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 12px;
-  max-width: 760px;
-  margin: 8px auto 14px;
-  padding: 10px 16px;
+  margin: 0;
+  padding: 6px 14px;
   background: #ffffff;
-  border: 2.5px solid var(--color-primary);
-  border-radius: 16px;
+  border: 2px solid var(--color-primary);
+  border-radius: 14px;
   box-shadow: 0 4px 12px rgba(29, 78, 216, 0.1);
 }
 
 body.fokus-modus .fokus-nav {
-  display: flex;
+  display: inline-flex;
 }
 
 .fokus-nav-btn {
-  min-height: 52px;
-  min-width: 130px;
-  padding: 8px 18px;
-  font-size: 1.15rem;
+  min-height: 48px;
+  min-width: 110px;
+  padding: 8px 16px;
+  font-size: 1.1rem;
   font-weight: 700;
   border-radius: 12px;
   border: 2px solid var(--color-primary);
@@ -2608,13 +2607,16 @@ body.fokus-modus .fokus-nav {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 .fokus-nav-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   border-color: #cbd5e1;
   background: #f1f5f9;
-  color: #64748b;
+  color: #94a3b8;
+  cursor: not-allowed;
 }
 
 .fokus-nav-btn.weiter {
@@ -2623,10 +2625,31 @@ body.fokus-modus .fokus-nav {
 }
 
 .fokus-nav-info {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--color-line-dark);
   text-align: center;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+/* Im Fokus-Modus: Alle Druck-Kopfzeilen (Name, Datum, Blatt 1 von 2) ausblenden */
+body.fokus-modus .druck-seite-kopf {
+  display: none !important;
+}
+
+/* Im Fokus-Modus: Druckseiten-Container neutralisieren, damit keine leeren Seiten-Kästen angezeigt werden */
+body.fokus-modus .druck-seite {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Druckseiten, die NICHT die aktive Aufgabe enthalten, komplett ausblenden */
+body.fokus-modus .druck-seite.druck-seite-inaktiv {
+  display: none !important;
 }
 
 /* Im Fokus-Modus wird immer nur das aktuelle Aufgaben-Element groß und zentriert gezeigt */
@@ -2640,9 +2663,25 @@ body.fokus-modus .fokus-kandidat.fokus-aktiv {
   justify-content: center;
 }
 
+body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv,
 body.fokus-modus .aufgaben-sektion.fokus-kandidat.fokus-aktiv {
   display: block !important;
-  max-width: 820px;
+  max-width: 960px;
+  margin: 12px auto 24px !important;
+  padding: 22px 28px !important;
+  background: #ffffff !important;
+  border: 2.5px solid var(--color-primary) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(29, 78, 216, 0.12) !important;
+}
+
+body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel {
+  font-size: 1.35rem;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e2e8f0;
+  justify-content: center;
+  text-align: center;
 }
 
 /* Auf kleineren Bildschirmen & Smartphones im Hochformat */

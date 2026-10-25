@@ -828,7 +828,7 @@
       el.innerHTML = zahlen
         .map(
           (z, i) =>
-            `<div class="nachbar-trio fokus-kandidat">` +
+            `<div class="nachbar-trio">` +
             `<div class="nachbar-kopf">−1</div>` +
             `<div class="nachbar-kopf">Zahl</div>` +
             `<div class="nachbar-kopf">+1</div>` +
@@ -1343,7 +1343,7 @@
       });
       leiste.appendChild(toggleBtn);
 
-      // 2. Navigationsleiste (◀ Zurück | Aufgabe X von Y | Weiter ▶) vor <main> einfügen
+      // 2. Navigationsleiste (◀ Zurück | Aufgabe X von Y | Weiter ▶) direkt neben den Toggle-Button setzen
       const nav = document.createElement('div');
       nav.className = 'fokus-nav print-hide';
       nav.innerHTML =
@@ -1351,10 +1351,7 @@
         `<span class="fokus-nav-info" id="fokus-nav-status">Aufgabe 1</span>` +
         `<button type="button" class="fokus-nav-btn weiter" id="btn-fokus-next">Weiter ▶</button>`;
 
-      const main = document.querySelector('main.blatt-inhalt');
-      if (main && main.parentNode) {
-        main.parentNode.insertBefore(nav, main);
-      }
+      leiste.appendChild(nav);
 
       document.getElementById('btn-fokus-prev').addEventListener('click', () => {
         this.blattereFokus(-1);
@@ -1365,8 +1362,25 @@
     }
 
     markiereFokusKandidaten() {
+      // 1. Zunächst alle bisherigen Kandidaten-Markierungen zurücksetzen
+      document.querySelectorAll('.fokus-kandidat').forEach((el) => {
+        el.classList.remove('fokus-kandidat');
+      });
+
+      // 2. Priorität 1: Click & Mix und zusammengestellte Tests (.mix-aufgaben-block)
+      const mixBloecke = document.querySelectorAll('.mix-aufgaben-block');
+      if (mixBloecke.length > 1) {
+        mixBloecke.forEach((el) => el.classList.add('fokus-kandidat'));
+        // WICHTIG: Keine Kind-Elemente innerhalb von .mix-aufgaben-block dürfen .fokus-kandidat sein!
+        document.querySelectorAll('.mix-aufgaben-block .fokus-kandidat').forEach((el) => {
+          el.classList.remove('fokus-kandidat');
+        });
+        return;
+      }
+
+      // 3. Priorität 2: Standard-Arbeitsblätter nach spezifischen Bausteinen
       const kandidaten = document.querySelectorAll(
-        '.haeuser-grid > .zahlenhaus, .freunde-liste > .zahlenfreund-block, .aquarium-grid > .aquarium-aufgabe, [data-baustein="punktebilder"] > .punktebild-zeile, .einkreisen-zeile, .zwanziger-aufgabe-zeile, .zwerg-riese-karte, .zehneruebergang-karte, .zahlenmauern-grid > *, .mix-aufgaben-block'
+        '.haeuser-grid > .zahlenhaus, .freunde-liste > .zahlenfreund-block, .aquarium-grid > .aquarium-aufgabe, [data-baustein="punktebilder"] > .punktebild-zeile, .einkreisen-zeile, .zwanziger-aufgabe-zeile, .zwerg-riese-karte, .zehneruebergang-karte, .zahlenmauern-grid > *'
       );
 
       if (kandidaten.length > 1) {
@@ -1377,6 +1391,11 @@
           sektionen.forEach((el) => el.classList.add('fokus-kandidat'));
         }
       }
+
+      // 4. Eiserne Regel: Niemals verschachtelte .fokus-kandidat Elemente!
+      document.querySelectorAll('.fokus-kandidat .fokus-kandidat').forEach((el) => {
+        el.classList.remove('fokus-kandidat');
+      });
     }
 
     holeSichtbareFokusKandidaten() {
@@ -1423,6 +1442,12 @@
         el.classList.remove('fokus-aktiv')
       );
 
+      // In mehrseitigen Tests: Nur die Druckseite anzeigen, die die aktive Aufgabe enthält!
+      document.querySelectorAll('.druck-seite').forEach((seite) => {
+        const istAktiv = this.fokusModus ? Boolean(seite.querySelector('.fokus-aktiv')) : true;
+        seite.classList.toggle('druck-seite-inaktiv', !istAktiv);
+      });
+
       if (!this.fokusModus) {
         this.fokussiereErsteLeereLuecke();
         this.aktualisiereFertigstellenButton(false);
@@ -1438,6 +1463,12 @@
 
       const aktuell = kandidaten[this.fokusIndex];
       aktuell.classList.add('fokus-aktiv');
+
+      // Nach dem Aktivieren: Druckseiten-Status nochmals präzise aktualisieren
+      document.querySelectorAll('.druck-seite').forEach((seite) => {
+        const istAktiv = Boolean(seite.querySelector('.fokus-aktiv'));
+        seite.classList.toggle('druck-seite-inaktiv', !istAktiv);
+      });
 
       const statusEl = document.getElementById('fokus-nav-status');
       if (statusEl) {
