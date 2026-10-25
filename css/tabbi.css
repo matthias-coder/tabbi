@@ -51,9 +51,11 @@ html, body {
   padding: 0;
   font-family: var(--font-main);
   color: var(--color-vorgabe);
-  background-color: #f1f5f9;
-  /* Farbenfroher Schreibtisch-Hintergrund mit Heften, Stiften, Zirkel & Linealen */
-  background-image: url('../assets/schreibtisch-hintergrund.jpg');
+  background-color: var(--color-paper);
+  /* Dezent abgetönte Schreibtisch-Illustration (ca. 62% sanfter Schleier für ruhige, unaufdringliche Lesbarkeit) */
+  background-image: 
+    linear-gradient(rgba(253, 253, 249, 0.62), rgba(253, 253, 249, 0.62)),
+    url('../assets/schreibtisch-hintergrund.jpg');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
