@@ -397,7 +397,8 @@
 
       // Wert der Bereichs-Schnellwahl, der die gewählten Zahlen abdeckt (1-5 | 1-10 | 1-20)
       function bereichFuerEinstellungen() {
-        if (['1-5', '1-10', '1-20'].includes(bereich)) return bereich;
+        // Bei Einzelzahlen zählt allein die tatsächliche Obergrenze, nie die zuletzt gewählte Schnellwahl
+        if (!zahlenAngepasst && ['1-5', '1-10', '1-20'].includes(bereich)) return bereich;
         const m = aktuellerZahlenMax();
         return m <= 5 ? '1-5' : m <= 10 ? '1-10' : '1-20';
       }
@@ -809,7 +810,9 @@
           `${seitenAnzahl} ${seitenAnzahl === 1 ? 'Druckseite' : 'Druckseiten'}`
         ];
 
-        // Einstellungen für "Nochmal neu" (Task 9) – dieselben Werte treiben die Generierung
+        // Einstellungen für "Nochmal neu" (Task 9) – dieselben Werte treiben die Generierung.
+        // Vertrag: bereich ist immer '1-5' | '1-10' | '1-20'; zahlen ist null oder ein Array und
+        // hat Vorrang vor bereich, sobald es gesetzt ist (bereich deckt dann dessen Maximum ab).
         const einstellungen = {
           typen: aktiveTypen.slice(),
           bereich: bereichFuerEinstellungen(),
@@ -1122,7 +1125,6 @@
           } else {
             // Teilbereich (z.B. 10-20): als Einzelzahlen führen, Schnellwahl bleibt ohne Markierung
             zahlenAngepasst = true;
-            bereich = bereichFuerEinstellungen();
             markiereChip('mix-bereich-wahl', 'data-mix-bereich', null);
           }
         }
