@@ -8,3 +8,6 @@ node_modules/
 gitignore/
 raw_assets/
 beispiele/
+
+# Brainstorming-Mockups
+.superpowers/
