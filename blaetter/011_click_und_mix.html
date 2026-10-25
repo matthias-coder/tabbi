@@ -769,8 +769,14 @@
             const blockPrefix = `mix_s${s}_b${b}`;
             const blockDaten = erzeugeAufgabenBlock(typ, min, max, blockPrefix);
 
+            // Schmale Aufgabentypen teilen sich im Druck eine Zeile (zwei Blöcke nebeneinander)
+            const schmaleTypen = ['zahlenhaus', 'zahlenfreunde', 'rechnen', 'zahlenmauern', 'nachbarn', 'zwerg_riese'];
+            const blockKlasse = schmaleTypen.includes(typ)
+              ? 'mix-aufgaben-block mix-aufgaben-block--halb fokus-kandidat'
+              : 'mix-aufgaben-block fokus-kandidat';
+
             seitenBloeckeHTML +=
-              `<div class="mix-aufgaben-block fokus-kandidat">` +
+              `<div class="${blockKlasse}" data-mix-typ="${typ}">` +
                 `<h2 class="mix-block-titel">` +
                   `<span class="aufgaben-nr">${globaleAufgabenNr}</span>` +
                   `<span>${blockDaten.titel}</span>` +

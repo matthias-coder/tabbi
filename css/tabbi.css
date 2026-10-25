@@ -3233,6 +3233,24 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
     page-break-before: always;
   }
 
+  /* Blöcke teilen sich Zeilen: schmale Typen (--halb) zu zweit nebeneinander, breite füllen die Zeile */
+  .druck-seite {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    column-gap: 6mm;
+  }
+
+  .druck-seite > .druck-seite-kopf,
+  .druck-seite > .mix-aufgaben-block {
+    flex: 0 0 100%;
+    min-width: 0;
+  }
+
+  .druck-seite > .mix-aufgaben-block--halb {
+    flex: 0 0 calc(50% - 3mm);
+  }
+
   /* Im Druck wird der Fokus-Modus aufgehoben, damit alle Aufgaben des gewählten Bereichs gedruckt werden */
   body.fokus-modus .fokus-kandidat {
     display: flex !important;
