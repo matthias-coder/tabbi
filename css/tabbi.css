@@ -2661,6 +2661,70 @@ button {
   font-size: 1.35rem;
 }
 
+/* ==========================================================================
+   Schwebender Ziffernblock (Desktop mit Maus)
+   Nur bei breitem Viewport UND feinem Zeiger (Maus/Trackpad). Touch-Tablets
+   (auch im Querformat >= 1024px) behalten die volle Leiste am unteren Rand.
+   Rein motorische Layoutänderung: Tastensatz und Zahlenraum bleiben unverändert.
+   ========================================================================== */
+@media (min-width: 1024px) and (pointer: fine) {
+  #numpad {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    bottom: var(--space-4);
+    width: max-content;
+    max-width: calc(100vw - 2 * var(--space-4));
+    border: 1px solid var(--ui-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-3);
+    background: rgba(255, 255, 255, 0.96);
+    padding: var(--space-2);
+  }
+
+  .numpad-inner {
+    max-width: none;
+    margin: 0;
+  }
+
+  .numpad-taste {
+    flex: 0 0 var(--touch-min);
+    min-height: var(--touch-min);
+    min-width: var(--touch-min);
+    font-size: 1.3rem;
+  }
+
+  .numpad-taste.taste-backspace {
+    flex: 0 0 auto;
+    min-width: 64px;
+    font-size: 1.4rem;
+  }
+
+  .numpad-taste.taste-modus {
+    flex: 0 0 auto;
+    min-width: 72px;
+  }
+
+  .numpad-buchstaben .numpad-taste.taste-buchstabe {
+    min-height: var(--touch-min);
+    font-size: 1.2rem;
+  }
+
+  /* Platz unter dem Blatt = Leistenhöhe + Abstand (16px) + 32px Luft.
+     Standard = dreizeilig (Buchstaben); per :has() auf die tatsächliche Zeilenzahl verkleinert. */
+  body[data-blatt-id] {
+    padding-bottom: 228px;
+  }
+
+  body[data-blatt-id]:has(#numpad .numpad-reihe:only-child) {
+    padding-bottom: 116px;
+  }
+
+  body[data-blatt-id]:has(#numpad .numpad-reihe:nth-child(2):last-child) {
+    padding-bottom: 172px;
+  }
+}
+
 /* Würfel-Button in der Kopfzeile jedes Arbeitsblatts (hinter TabbiLehrerGate -> Lehrkraft-Stil, kein Grün) */
 .ui-btn-wuerfel {
   background: var(--ui-teacher-soft);
