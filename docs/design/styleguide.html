@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TABBI Styleguide</title>
+  <link rel="icon" href="../../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../css/tabbi.css">
+  <!-- Live-Ansicht der Design-Tokens aus css/tabbi.css. Komponenten hier zeigen das Zielbild
+       aus docs/design/designsystem.md § 6 und benutzen ausschließlich Tokens. -->
+  <style>
+    body.sg {
+      background: var(--paper);
+      background-image:
+        linear-gradient(var(--paper-karo) 1px, transparent 1px),
+        linear-gradient(90deg, var(--paper-karo) 1px, transparent 1px);
+      background-size: var(--karo-size) var(--karo-size);
+      color: var(--ui-text);
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .sg-wrap { max-width: 1040px; margin: 0 auto; padding: var(--space-5) var(--space-4) var(--space-7); }
+    .sg-kopf {
+      display: flex; align-items: center; gap: var(--space-4);
+      background: var(--ui-surface); border: 1px solid var(--ui-border);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-2);
+      padding: var(--space-4) var(--space-5); margin-bottom: var(--space-6);
+    }
+    .sg-kopf img { width: 56px; height: 56px; }
+    .sg-kopf h1 { margin: 0; font-size: var(--text-xl); }
+    .sg-kopf p { margin: var(--space-1) 0 0; font-size: var(--text-sm); color: var(--ui-text-muted); font-weight: var(--weight-regular); }
+    section.sg-abschnitt {
+      background: var(--ui-surface); border: 1px solid var(--ui-border);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-1);
+      padding: var(--space-5); margin-bottom: var(--space-5);
+    }
+    .sg-abschnitt h2 { margin: 0 0 var(--space-1); font-size: var(--text-lg); }
+    .sg-abschnitt > p { margin: 0 0 var(--space-4); font-size: var(--text-sm); color: var(--ui-text-muted); line-height: 1.5; }
+    .sg-abschnitt h3 { margin: var(--space-5) 0 var(--space-3); font-size: var(--text-md); color: var(--ui-text-muted); }
+    code { font-size: var(--text-xs); color: var(--ui-text-muted); }
+
+    /* Farbfelder */
+    .sg-farben { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-3); }
+    .sg-farbe { border: 1px solid var(--ui-border); border-radius: var(--radius-md); overflow: hidden; }
+    .sg-farbe-feld { height: 56px; }
+    .sg-farbe-text { padding: var(--space-2); font-size: var(--text-xs); line-height: 1.4; }
+    .sg-farbe-text b { display: block; font-size: var(--text-xs); color: var(--ui-text); }
+    .sg-farbe-text span { color: var(--ui-text-subtle); font-weight: var(--weight-regular); }
+
+    /* Typo */
+    .sg-typo-zeile { display: flex; align-items: baseline; gap: var(--space-4); padding: var(--space-2) 0; border-bottom: 1px solid var(--ui-surface-sunken); }
+    .sg-typo-zeile code { width: 120px; flex-shrink: 0; }
+
+    /* Raum & Form */
+    .sg-reihe { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-end; }
+    .sg-mass { text-align: center; font-size: var(--text-xs); color: var(--ui-text-muted); font-weight: var(--weight-regular); }
+    .sg-mass i { display: block; background: var(--ui-accent); margin: 0 auto var(--space-1); height: 16px; }
+    .sg-form { width: 96px; height: 64px; background: var(--ui-surface); border: 1px solid var(--ui-border); display: grid; place-items: center; font-size: var(--text-xs); color: var(--ui-text-muted); font-weight: var(--weight-regular); }
+
+    /* Lücken & Plättchen (Zielbild) */
+    .sg-luecke {
+      width: 56px; height: 56px; display: inline-grid; place-items: center;
+      background: var(--ui-surface); border: 2px solid var(--ink-line); border-radius: var(--radius-sm);
+      font-size: var(--text-task); line-height: 1; color: var(--ink-print);
+    }
+    .sg-luecke.gefuellt { color: var(--ink-fueller); font-weight: var(--weight-bold); }
+    .sg-luecke.aktiv { background: var(--focus-bg); box-shadow: inset 0 0 0 3px var(--focus-ring); }
+    .sg-luecke.aktiv:empty::after { content: ''; width: 3px; height: 28px; background: var(--ink-fueller); animation: blinkCursor 1s steps(1) infinite; }
+    .sg-kreis { width: var(--kreis-size); height: var(--kreis-size); border-radius: 50%; border: 2px solid var(--ink-line); display: inline-block; }
+    .sg-kreis.blau { background: var(--ink-plaettchen-blau); border-color: var(--ink-plaettchen-blau); }
+    .sg-kreis.rot { background: var(--ink-plaettchen-rot); border-color: var(--ink-plaettchen-rot); }
+    .sg-zustand {
+      display: flex; flex-direction: column; align-items: center; gap: var(--space-2);
+      font-size: var(--text-xs); color: var(--ui-text-muted); font-weight: var(--weight-regular);
+    }
+
+    /* Knöpfe (Zielbild) */
+    .sg-btn {
+      min-height: var(--touch-min); padding: 0 var(--space-4);
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-size: var(--text-md); font-weight: var(--weight-regular);
+      border-radius: var(--radius-md); border: 2px solid var(--ui-border);
+      background: var(--ui-surface); color: var(--ui-text);
+      transition: background-color var(--dur-fast) ease-out;
+    }
+    .sg-btn:focus-visible { outline: 3px solid var(--ui-accent); outline-offset: 2px; }
+    .sg-btn.primaer { background: var(--ui-accent); border-color: var(--ui-accent); color: #fff; font-weight: var(--weight-bold); }
+    .sg-btn.primaer:active { background: var(--ui-accent-strong); }
+    .sg-btn.ruhig { background: transparent; border-color: transparent; color: var(--ui-text-muted); }
+    .sg-btn.ruhig:hover { border-color: var(--ui-border); }
+    .sg-btn.lehrkraft { background: var(--ui-teacher-soft); border-color: var(--ui-teacher); color: var(--ui-teacher); }
+    .sg-btn.warnung { background: var(--ui-danger); border-color: var(--ui-danger); color: #fff; font-weight: var(--weight-bold); }
+
+    /* Ziffernblock (Zielbild) */
+    .sg-numpad {
+      background: var(--ui-surface-muted); border: 1px solid var(--ui-border);
+      border-radius: var(--radius-lg); padding: var(--space-2); display: grid; gap: var(--space-1);
+    }
+    .sg-numpad-reihe { display: grid; grid-template-columns: repeat(11, 1fr) 1.5fr 0.9fr; gap: var(--space-1); }
+    .sg-taste {
+      min-height: var(--touch-key); border-radius: var(--radius-md);
+      background: var(--ui-surface); color: var(--ui-text);
+      border: 2px solid var(--ui-border-strong); border-bottom-width: var(--key-edge);
+      font-size: var(--text-xl); font-weight: var(--weight-bold);
+    }
+    .sg-taste:active { background: var(--ui-surface-sunken); border-bottom-width: 2px; }
+    .sg-taste.rueck { background: var(--ui-surface-sunken); }
+    .sg-taste.modus { font-size: var(--text-xs); color: var(--ui-text-muted); }
+    .sg-taste.modus.aktiv { background: var(--ui-accent-soft); border-color: var(--ui-accent); color: var(--ui-accent-strong); }
+    .sg-leer { visibility: hidden; }
+
+    /* Kopfzeile & Kachel (Zielbild) */
+    .sg-blattkopf {
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--space-3);
+      background: var(--ui-surface); border: 1px solid var(--ui-border);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-2); padding: var(--space-2) var(--space-3);
+    }
+    .sg-blattkopf .mitte { text-align: center; }
+    .sg-blattkopf .mitte b { display: block; font-size: var(--text-lg); }
+    .sg-blattkopf .mitte span { font-size: var(--text-sm); color: var(--ui-text-muted); font-weight: var(--weight-regular); }
+    .sg-blattkopf .rechts { display: flex; justify-content: flex-end; gap: var(--space-2); }
+    .sg-kacheln { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: var(--space-4); }
+    .sg-kachel {
+      background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-2); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3);
+    }
+    .sg-kachel-oben { display: flex; justify-content: space-between; align-items: center; font-size: var(--text-2xl); }
+    .sg-pille {
+      font-size: var(--text-xs); font-weight: var(--weight-regular); color: var(--ui-text-muted);
+      background: var(--ui-surface-sunken); border-radius: var(--radius-pill); padding: var(--space-1) var(--space-3);
+    }
+    .sg-kachel h4 { margin: 0; font-size: var(--text-lg); line-height: 1.25; }
+    .sg-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .sg-chip {
+      font-size: var(--text-xs); font-weight: var(--weight-regular); color: var(--ui-text-muted);
+      border: 1px solid var(--ui-border); border-radius: var(--radius-pill); padding: var(--space-1) var(--space-3);
+    }
+    .sg-chip.aktiv { background: var(--ui-accent-soft); border-color: var(--ui-accent-border); color: var(--ui-accent-strong); }
+    .sg-kachel .sg-btn { justify-content: center; }
+
+    @media (max-width: 760px) {
+      .sg-numpad-reihe { grid-template-columns: repeat(6, 1fr); }
+      .sg-numpad-reihe .sg-leer { display: none; }
+      .sg-blattkopf { grid-template-columns: 1fr; }
+      .sg-blattkopf .rechts { justify-content: center; }
+      .sg-typo-zeile code { width: 90px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sg-luecke.aktiv:empty::after { animation: none; }
+    }
+  </style>
+</head>
+<body class="sg">
+  <div class="sg-wrap">
+
+    <header class="sg-kopf">
+      <img src="../../assets/figuren/tabbi-lesend-128.png" alt="">
+      <div>
+        <h1>TABBI Styleguide · „Heft &amp; Füller“</h1>
+        <p>Live aus <code>css/tabbi.css</code>. Regeln und Begründungen: <code>docs/design/designsystem.md</code></p>
+      </div>
+    </header>
+
+    <section class="sg-abschnitt">
+      <h2>Tinte &amp; Papier (Kind-Zone)</h2>
+      <p>Reserviert. Füller-Blau nur für Eingaben des Kindes, Gelb nur für die aktive Lücke. Kein Grün, kein Rot außer Plättchen.</p>
+      <div class="sg-farben" data-tokens="--ink-print --ink-fueller --ink-plaettchen-blau --ink-plaettchen-rot --ink-line --paper --paper-karo --focus-bg --focus-ring"></div>
+    </section>
+
+    <section class="sg-abschnitt">
+      <h2>UI (Erwachsenen-Zone)</h2>
+      <p>Neutral mit einem Akzent. Petrol statt Blau, weil Blau dem Kind gehört. Violett markiert alles hinter der Lehrkraft-Sperre.</p>
+      <div class="sg-farben" data-tokens="--ui-surface --ui-surface-muted --ui-surface-sunken --ui-border --ui-border-strong --ui-text --ui-text-muted --ui-text-subtle --ui-accent --ui-accent-strong --ui-accent-soft --ui-teacher --ui-teacher-soft --ui-danger --ui-danger-soft"></div>
+    </section>
+
+    <section class="sg-abschnitt">
+      <h2>Typografie</h2>
+      <p>Andika 400 und 700. Fließtext regular, fett nur für Überschriften, Tasten, Ziffern und Kind-Eingaben.</p>
+      <div data-typo="--text-xs --text-sm --text-md --text-lg --text-xl --text-task --text-2xl --text-3xl"></div>
+    </section>
+
+    <section class="sg-abschnitt">
+      <h2>Raum &amp; Form</h2>
+      <p>4-px-Raster, vier Radien, drei Schattenebenen.</p>
+      <h3>Abstände</h3>
+      <div class="sg-reihe" data-space="--space-1 --space-2 --space-3 --space-4 --space-5 --space-6 --space-7"></div>
+      <h3>Radien &amp; Schatten</h3>
+      <div class="sg-reihe">
+        <div class="sg-form" style="border-radius: var(--radius-sm)">radius-sm</div>
+        <div class="sg-form" style="border-radius: var(--radius-md)">radius-md</div>
+        <div class="sg-form" style="border-radius: var(--radius-lg)">radius-lg</div>
+        <div class="sg-form" style="border-radius: var(--radius-pill)">radius-pill</div>
+        <div class="sg-form" style="border-radius: var(--radius-lg); box-shadow: var(--shadow-1)">shadow-1</div>
+        <div class="sg-form" style="border-radius: var(--radius-lg); box-shadow: var(--shadow-2)">shadow-2</div>
+        <div class="sg-form" style="border-radius: var(--radius-lg); box-shadow: var(--shadow-3)">shadow-3</div>
+      </div>
+    </section>
+
+    <section class="sg-abschnitt">
+      <h2>Lücke &amp; Plättchen</h2>
+      <p>Es gibt keinen Zustand „richtig“, „falsch“ oder „unvollständig“.</p>
+      <div class="sg-reihe">
+        <div class="sg-zustand"><div class="sg-luecke">4</div>Vorgabe</div>
+        <div class="sg-zustand"><div class="sg-luecke"></div>leer</div>
+        <div class="sg-zustand"><div class="sg-luecke aktiv"></div>aktiv</div>
+        <div class="sg-zustand"><div class="sg-luecke gefuellt">7</div>Eingabe</div>
+        <div class="sg-zustand"><div class="sg-luecke aktiv gefuellt">7</div>aktiv + Eingabe</div>
+        <div class="sg-zustand"><div><span class="sg-kreis"></span></div>leer</div>
+        <div class="sg-zustand"><div><span class="sg-kreis blau"></span></div>1. Tipp</div>
+        <div class="sg-zustand"><div><span class="sg-kreis rot"></span></div>2. Tipp</div>
+      </div>
+    </section>
+
+    <section class="sg-abschnitt">
+      <h2>Ziffernblock</h2>
+      <p>Alle Zifferntasten gleich breit. Die Reihe 0–10 bleibt im 0–20-Modus an derselben Stelle. ⌫ ist neutral und nur über Form und Breite unterschieden.</p>
+      <div class="sg-numpad">
+        <div class="sg-numpad-reihe" data-tasten="0-10"></div>
+        <div class="sg-numpad-reihe" data-tasten="11-20"></div>
+      </div>
+    </section>
+
+    <section class="sg-abschnitt">
+      <h2>Knöpfe</h2>
+      <p>Mindesthöhe 48 px, immer Icon und Text. Eine Primäraktion pro Ansicht.</p>
+      <div class="sg-reihe">
+        <button class="sg-btn primaer" type="button">▶ Öffnen</button>
+        <button class="sg-btn" type="button">🖨️ Drucken</button>
+        <button class="sg-btn ruhig" type="button">⚙️ Werkzeuge ▾</button>
+        <button class="sg-btn lehrkraft" type="button">🔒 Arbeitsblatt erstellen</button>
+        <button class="sg-btn warnung" type="button">Wirklich löschen?</button>
+      </div>
+    </section>
+
+    <section class="sg-abschnitt">
+      <h2>Kopfzeile Arbeitsblatt &amp; Bibliothek-Kachel</h2>
+      <p>Eine Kopfzeile, Werkzeuge im Menü. Kacheln mit neutralen Status-Pillen, Primärfarbe nur auf „Öffnen“.</p>
+      <div class="sg-blattkopf">
+        <div><button class="sg-btn" type="button">← Übersicht</button></div>
+        <div class="mitte"><b>Zahlenhäuser</b><span>Zahlen 1 bis 10</span></div>
+        <div class="rechts">
+          <button class="sg-btn" type="button">🖨️ Drucken</button>
+          <button class="sg-btn ruhig" type="button">⚙️ Werkzeuge ▾</button>
+        </div>
+      </div>
+      <h3>Filter &amp; Kacheln</h3>
+      <div class="sg-chips" style="margin-bottom: var(--space-4)">
+        <span class="sg-chip aktiv">Alle Fächer</span><span class="sg-chip">Mathematik</span><span class="sg-chip">Deutsch</span>
+      </div>
+      <div class="sg-kacheln">
+        <article class="sg-kachel">
+          <div class="sg-kachel-oben"><span>🏠</span><span class="sg-pille">Neu</span></div>
+          <h4>Zahlenhäuser (Zahlen 1 bis 5)</h4>
+          <div class="sg-chips"><span class="sg-chip">Zahlenhäuser</span><span class="sg-chip">Zahlen 1–5</span></div>
+          <button class="sg-btn primaer" type="button">▶ Öffnen</button>
+        </article>
+        <article class="sg-kachel">
+          <div class="sg-kachel-oben"><span>🔴</span><span class="sg-pille">✏️ Angefangen</span></div>
+          <h4>Zahlenfreunde (Alle 1 bis 10)</h4>
+          <div class="sg-chips"><span class="sg-chip">Zehnerstreifen</span><span class="sg-chip">Zahlen 1–10</span></div>
+          <button class="sg-btn primaer" type="button">▶ Öffnen</button>
+        </article>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    (function () {
+      const css = getComputedStyle(document.documentElement);
+      const wert = (t) => css.getPropertyValue(t).trim();
+
+      document.querySelectorAll('[data-tokens]').forEach((box) => {
+        box.innerHTML = box.dataset.tokens.split(' ').map((t) =>
+          `<div class="sg-farbe"><div class="sg-farbe-feld" style="background: var(${t})"></div>` +
+          `<div class="sg-farbe-text"><b>${t}</b><span>${wert(t)}</span></div></div>`
+        ).join('');
+      });
+
+      document.querySelectorAll('[data-typo]').forEach((box) => {
+        box.innerHTML = box.dataset.typo.split(' ').map((t) =>
+          `<div class="sg-typo-zeile"><code>${t}<br>${wert(t)}</code>` +
+          `<span style="font-size: var(${t})">Zahlenhaus 7 + 3</span></div>`
+        ).join('');
+      });
+
+      document.querySelectorAll('[data-space]').forEach((box) => {
+        box.innerHTML = box.dataset.space.split(' ').map((t) =>
+          `<div class="sg-mass"><i style="width: var(${t})"></i>${t.replace('--space-', '')} · ${wert(t)}</div>`
+        ).join('');
+      });
+
+      document.querySelectorAll('[data-tasten]').forEach((reihe) => {
+        const [von, bis] = reihe.dataset.tasten.split('-').map(Number);
+        let html = '';
+        for (let i = von; i <= bis; i++) html += `<button class="sg-taste" type="button">${i}</button>`;
+        if (von === 0) {
+          html += '<button class="sg-taste rueck" type="button" aria-label="Rückschritt">⌫</button>';
+          html += '<button class="sg-taste modus aktiv" type="button">0–20</button>';
+        } else {
+          html += '<span class="sg-leer"></span><span class="sg-leer"></span><span class="sg-leer"></span>';
+        }
+        reihe.innerHTML = html;
+      });
+    })();
+  </script>
+</body>
+</html>

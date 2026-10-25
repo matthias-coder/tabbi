@@ -25,6 +25,8 @@ TABBI ist eine statische Web-App (PWA auf GitHub Pages) für einen Erstklässler
 ---
 
 ## 2. Visuelles Design & Layout
+> Verbindliches Designsystem „Heft & Füller“: `docs/design/designsystem.md` (Tokens im `:root` von `css/tabbi.css`, Live-Ansicht `docs/design/styleguide.html`). Neuer Code nutzt nur diese Tokens. Kernregeln: Blau gehört dem Kind (UI-Akzent ist Petrol), kein Grün/Rot auf der Kind-Fläche außer Plättchen, Gelb nur für die aktive Lücke.
+
 - **Schriftart:** Google Font `'Andika'` (für Leseanfänger optimiert), Fallback `system-ui, sans-serif`.
 - **Farbschema:**
   - Hintergrund: Rechenheft-Karo-Muster (dezentes CSS-Grid-Pattern).

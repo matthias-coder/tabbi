@@ -5,28 +5,95 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Andika:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
+/* Design-Tokens "Heft & Füller" – Doku: docs/design/designsystem.md
+   Neuer Code verwendet nur diese Tokens, keine rohen Farb-/Größenwerte. */
 :root {
   --font-main: 'Andika', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Farben gemäß AGENTS.md */
-  --color-paper: #fdfdf9;
-  --color-karo-line: #dce6f2;
-  --color-vorgabe: #222222;
-  --color-fueller-blau: #0000CD;
-  --color-luecke-aktiv-bg: #fffacd;
-  --color-luecke-aktiv-border: #d97706;
-  --color-line-dark: #1e293b;
+  /* --- Tinte & Papier (Kind-Zone, reserviert) --- */
+  --ink-print: #222222;            /* Vorgaben */
+  --ink-fueller: #0000CD;          /* NUR Kind-Eingaben */
+  --ink-plaettchen-blau: #2563eb;
+  --ink-plaettchen-rot: #dc2626;
+  --ink-line: #1e293b;             /* Zellrahmen, Dach, Mauer */
+  --paper: #fdfdf9;
+  --paper-karo: #dce6f2;
+  --paper-heftrand: rgba(248, 113, 113, 0.35);
+  --focus-bg: #fffacd;             /* NUR aktive Lücke */
+  --focus-ring: #b45309;
 
-  /* Plättchen-Farben (3-State-Toggle) */
-  --color-kreis-blau: #2563eb;
-  --color-kreis-rot: #dc2626;
+  /* --- UI (Erwachsenen-Zone) --- */
+  --ui-surface: #ffffff;
+  --ui-surface-muted: #f8fafc;
+  --ui-surface-sunken: #f1f5f9;
+  --ui-border: #cbd5e1;
+  --ui-border-strong: #94a3b8;     /* nie als Textfarbe */
+  --ui-text: #1e293b;
+  --ui-text-muted: #475569;
+  --ui-text-subtle: #64748b;       /* hellste erlaubte Textfarbe */
+  --ui-accent: #0f766e;            /* Petrol: Blau gehört dem Kind */
+  --ui-accent-strong: #115e59;
+  --ui-accent-soft: #f0fdfa;
+  --ui-accent-border: #5eead4;
+  --ui-teacher: #6d28d9;           /* alles hinter TabbiLehrerGate */
+  --ui-teacher-soft: #f5f3ff;
+  --ui-danger: #b91c1c;            /* Zwei-Tipp-Warnzustand */
+  --ui-danger-soft: #fef2f2;
+  --ui-overlay: rgba(15, 23, 42, 0.45);
 
-  /* UI-Farben */
-  --color-ui-bg: #ffffff;
-  --color-ui-border: #cbd5e1;
-  --color-primary: #1d4ed8;
-  --color-primary-light: #eff6ff;
-  --color-warn-bg: #dc2626;
+  /* --- Typografie --- */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-task: 1.65rem;            /* Ziffern in Lücken & Vorgaben */
+  --text-2xl: 2rem;
+  --text-3xl: 2.5rem;
+  --weight-regular: 400;
+  --weight-bold: 700;
+
+  /* --- Raum, Form, Ebenen --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-2: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-3: 0 12px 32px rgba(15, 23, 42, 0.16);
+  --key-edge: 4px;
+  --touch-min: 48px;
+  --touch-key: 56px;
+  --z-sticky: 100;
+  --z-keyboard: 200;
+  --z-overlay: 1000;
+  --z-toast: 1100;
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+
+  /* --- Legacy-Namen (Migration: docs/design/designsystem.md § 10) ---
+     Werte bewusst unverändert, damit die Optik bis Schritt 3/5 gleich bleibt. */
+  --color-paper: var(--paper);
+  --color-karo-line: var(--paper-karo);
+  --color-vorgabe: var(--ink-print);
+  --color-fueller-blau: var(--ink-fueller);
+  --color-luecke-aktiv-bg: var(--focus-bg);
+  --color-luecke-aktiv-border: var(--focus-ring);
+  --color-line-dark: var(--ink-line);
+  --color-kreis-blau: var(--ink-plaettchen-blau);
+  --color-kreis-rot: var(--ink-plaettchen-rot);
+  --color-ui-bg: var(--ui-surface);
+  --color-ui-border: var(--ui-border);
+  --color-primary: #1d4ed8;               /* Ziel: var(--ui-accent) */
+  --color-primary-light: #eff6ff;         /* Ziel: var(--ui-accent-soft) */
+  --color-warn-bg: #dc2626;               /* Ziel: var(--ui-danger) */
   --color-warn-text: #ffffff;
 
   /* Maße für Zahlenhäuser & Zehnerstreifen (perfekt aufeinander abgestimmt) */
@@ -1267,9 +1334,9 @@ button {
 /* Aktuell angetippter Kreis (links oder rechts) -> gelb markiert (#fffacd) + oranger/blauer Rahmen */
 .zuordnung-knoten.ausgewaehlt {
   background-color: var(--color-luecke-aktiv-bg) !important;
-  border-color: #d97706 !important;
+  border-color: var(--focus-ring) !important;
   border-width: 4px;
-  box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.25);
+  box-shadow: 0 0 0 4px rgba(180, 83, 9, 0.25);
   transform: scale(1.04);
 }
 
@@ -1745,17 +1812,18 @@ button {
   background: #e2e8f0;
 }
 
-/* Prominente Backspace-Taste (⌫) */
+/* Backspace-Taste (⌫): bewusst neutral, nicht rot – Rot würde nach jedem
+   Korrigieren wie ein Urteil wirken. Unterscheidung über Breite und Fläche. */
 .numpad-taste.taste-backspace {
   flex: 1.35 1 0;
-  background: #fee2e2;
-  border-color: #ef4444;
-  color: #991b1b;
+  background: var(--ui-surface-sunken);
+  border-color: var(--ui-border-strong);
+  color: var(--ui-text);
   font-size: 1.65rem;
 }
 
 .numpad-taste.taste-backspace:active {
-  background: #fecaca;
+  background: var(--ui-border);
 }
 
 /* Umschalter 0-10 / 0-20 */
@@ -2308,7 +2376,7 @@ button {
   width: 90px !important;
   height: 58px !important;
   font-size: 2rem !important;
-  border: 2.5px solid #d97706 !important;
+  border: 2.5px solid var(--focus-ring) !important;
   border-radius: 12px;
 }
 
@@ -2579,11 +2647,11 @@ button {
   font-size: 1.35rem;
 }
 
-/* Würfel-Button in der Kopfzeile jedes Arbeitsblatts */
+/* Würfel-Button in der Kopfzeile jedes Arbeitsblatts (hinter TabbiLehrerGate -> Lehrkraft-Stil, kein Grün) */
 .ui-btn-wuerfel {
-  background: #f0fdf4;
-  border-color: #16a34a;
-  color: #15803d;
+  background: var(--ui-teacher-soft);
+  border-color: var(--ui-teacher);
+  color: var(--ui-teacher);
 }
 
 /* ==========================================================================
@@ -2844,18 +2912,7 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
   margin: 28px auto 16px;
   padding: 12px;
   max-width: 620px;
-  animation: fertigEinblenden 0.25s ease-out;
-}
-
-@keyframes fertigEinblenden {
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  /* Kein Einblenden, kein Gelb: das Erscheinen darf nicht wie eine Belohnung wirken */
 }
 
 .blatt-fertig-hauptbtn {
@@ -2865,19 +2922,14 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
   gap: 18px;
   padding: 16px 28px;
   min-height: 88px;
-  background: linear-gradient(135deg, #fefce8 0%, #fef08a 100%);
-  border: 3.5px solid #1e293b;
+  background: var(--ui-surface);
+  border: 3.5px solid var(--ink-line);
   border-bottom-width: 6px;
   border-radius: 22px;
-  color: #0f172a;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.14);
+  color: var(--ui-text);
+  box-shadow: var(--shadow-2);
   cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.15s ease;
-}
-
-.blatt-fertig-hauptbtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.18);
+  transition: transform var(--dur-fast) ease-out;
 }
 
 .blatt-fertig-hauptbtn:active {
@@ -2910,7 +2962,7 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
 .blatt-fertig-sub {
   font-size: 1rem;
   font-weight: 700;
-  color: #854d0e;
+  color: var(--ui-text-muted);
 }
 
 .blatt-fertig-frage-box {
@@ -2957,7 +3009,6 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
   border-radius: 16px;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #ffffff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2966,18 +3017,21 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
   transition: transform 0.08s ease;
 }
 
+/* Kein Grün/Rot (liest das Kind als richtig/falsch): Bestätigen = Primär, Abbrechen = Sekundär */
 .blatt-fertig-btn-ok {
-  background: #16a34a;
-  border: 3px solid #14532d;
+  color: #ffffff;
+  background: var(--ui-accent);
+  border: 3px solid var(--ui-accent-strong);
   border-bottom-width: 5px;
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+  box-shadow: var(--shadow-2);
 }
 
 .blatt-fertig-btn-abbruch {
-  background: #dc2626;
-  border: 3px solid #7f1d1d;
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border: 3px solid var(--ui-border-strong);
   border-bottom-width: 5px;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  box-shadow: var(--shadow-2);
 }
 
 .blatt-fertig-btn-ok:active,

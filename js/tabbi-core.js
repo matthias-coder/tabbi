@@ -299,7 +299,7 @@
           `<rect x="14" y="11" width="44" height="33" rx="3" fill="none" stroke="#1e293b" stroke-width="2.8"/>` +
         `</g>` +
         `<!-- Großes Fragezeichen-Abzeichen rechts unten -->` +
-        `<circle cx="54" cy="49" r="17" fill="#fef08a" stroke="#1e293b" stroke-width="3"/>` +
+        `<circle cx="54" cy="49" r="17" fill="#ffffff" stroke="#1e293b" stroke-width="3"/>` +
         `<text x="54" y="57" text-anchor="middle" font-family="Andika, system-ui, sans-serif" font-size="25" font-weight="800" fill="#b45309">?</text>` +
       `</svg>`
     );
@@ -578,9 +578,9 @@
       const y1 = holeY('links', lIdx);
       const y2 = holeY('rechts', rIdx);
       svgVorschau.innerHTML =
-        `<path d="M ${xLinks} ${y1} C ${c1} ${y1}, ${c2} ${y2}, ${xRechts} ${y2}" fill="none" stroke="#d97706" stroke-width="5" stroke-dasharray="10,8" stroke-linecap="round" />` +
-        `<circle cx="${xLinks}" cy="${y1}" r="7" fill="#d97706" />` +
-        `<circle cx="${xRechts}" cy="${y2}" r="7" fill="#d97706" />`;
+        `<path d="M ${xLinks} ${y1} C ${c1} ${y1}, ${c2} ${y2}, ${xRechts} ${y2}" fill="none" stroke="#b45309" stroke-width="5" stroke-dasharray="10,8" stroke-linecap="round" />` +
+        `<circle cx="${xLinks}" cy="${y1}" r="7" fill="#b45309" />` +
+        `<circle cx="${xRechts}" cy="${y2}" r="7" fill="#b45309" />`;
     } else {
       svgVorschau.innerHTML = '';
     }
@@ -1519,7 +1519,7 @@
                 `<span>Ja, fertig!</span>` +
               `</button>` +
               `<button type="button" class="blatt-fertig-btn-abbruch" data-fertig-aktion="abbruch" aria-label="Zurück zum Blatt und weiterarbeiten">` +
-                `<span class="blatt-fertig-symbol">✖</span>` +
+                `<span class="blatt-fertig-symbol">✏️</span>` +
                 `<span>Weiterarbeiten</span>` +
               `</button>` +
             `</div>` +
