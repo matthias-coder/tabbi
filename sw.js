@@ -2,7 +2,7 @@
    TABBI: Tipp-ArbeitsBlätter-Bibliothek – Offline Service Worker (sw.js)
    ========================================================================== */
 
-const CACHE_NAME = 'tabbi-offline-v6';
+const CACHE_NAME = 'tabbi-offline-v7';
 
 const CORE_ASSETS = [
   './',
