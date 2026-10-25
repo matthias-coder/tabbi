@@ -272,6 +272,10 @@ button {
   display: none;
 }
 
+.druck-kopf > :last-child {
+  text-align: right;
+}
+
 /* ==========================================================================
    3. Tabs & Zahlenraum-Auswahl (z.B. 1-5, 5-10, 1-10)
    ========================================================================== */
@@ -1724,15 +1728,25 @@ button {
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
 }
 
+/* Kopf wie im Druck: Name links, Titel fett mittig, Datum rechts, darunter 1 px Linie */
 .druck-seite-kopf {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 2px solid var(--color-line-dark);
-  padding-bottom: 8px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  column-gap: 16px;
+  border-bottom: 1px solid var(--ink-print);
+  padding-bottom: 6px;
   margin-bottom: 16px;
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: var(--text-md);
+}
+
+.druck-seite-kopf > :nth-child(2) {
+  font-weight: var(--weight-bold);
+  text-align: center;
+}
+
+.druck-seite-kopf > :last-child {
+  text-align: right;
 }
 
 .mix-aufgaben-block {
@@ -3127,30 +3141,45 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
 }
 
 /* ==========================================================================
-   11. Druck- & PDF-Workflow (@media print) — ca. 15% kompaktere Darstellung
+   11. Druck- & PDF-Workflow (@media print) — Layout "wie ein Schul-Arbeitsblatt"
+   Druck ist ein eigenes Layout, kein verkleinerter Bildschirm: Heftrand links
+   (25 mm), keine Kästen/Schatten/Hintergründe, dünne schwarze Linien, kleine
+   Bausteine, die dicht nebeneinander fließen. Füller-Blau und rot/blaue
+   Plättchen bleiben farbig. Zum Prüfen im Browser: Print-Regeln per Konsole
+   auf "screen" erweitern und body auf 661px (210 − 25 − 10 mm) setzen.
    ========================================================================== */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 10mm 12mm;
+    margin: 10mm 10mm 10mm 25mm; /* links Heftrand/Locher */
   }
 
   :root {
-    --etage-height: 44px;
-    --spalte-width: 48px;
-    --dach-height: 58px;
-    --kreis-size: 31px;
+    --druck-linie: 0.75px;
+    --druck-text: 11pt;
+    --druck-ziffer: 12pt;
+    --etage-height: 5.5mm;
+    --spalte-width: 9mm;
+    --dach-height: 6mm;
+    --kreis-size: 4.5mm;
   }
 
   *, *::before, *::after {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transition: none !important;
+    animation: none !important;
   }
 
   html, body {
     background-color: #ffffff !important;
     background-image: none !important;
-    padding-bottom: 0 !important;
+    color: var(--ink-print);
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: var(--druck-text);
   }
 
   .blatt-inhalt {
@@ -3161,6 +3190,9 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
     box-shadow: none !important;
     border: none !important;
     border-radius: 0 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    counter-reset: druck-aufgabe;
   }
 
   /* Alle UI-Elemente, Navigation, Hilfe, Fertigstellen-Button und Ziffernblock im Druck ausblenden */
@@ -3180,39 +3212,25 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
   .tabbi-bg-decorations,
   .tabbi-bg-sticker,
   .blatt-titel-mascot,
+  .zuordnung-linie-vorschau,
+  .zuordnung-mitte-dialog,
   .print-hide {
     display: none !important;
   }
 
-  /* Aufgaben in der Druckansicht ca. 15% kleiner darstellen (0.85), damit sie optimal auf A4 passen */
-  .mix-aufgaben-block,
-  .aufgaben-sektion {
-    zoom: 0.85;
-    margin-bottom: 12px !important;
-    padding-bottom: 10px !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  .aufgaben-sektion {
-    padding: 12px 16px !important;
-  }
-
-  /* Im Druck: Jede .druck-seite passt exakt auf 1 DIN-A4-Blatt; ab der 2. Seite sauberer Seitenumbruch */
+  /* ---- Seiten (Click & Mix / erstellte Blätter) -------------------------- */
   .druck-seite {
     border: none !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
     padding: 0 !important;
     margin: 0 !important;
     background: transparent !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
   }
 
   .druck-seite + .druck-seite {
     break-before: page;
     page-break-before: always;
-    padding-top: 4mm !important;
   }
 
   /* Im Druck wird der Fokus-Modus aufgehoben, damit alle Aufgaben des gewählten Bereichs gedruckt werden */
@@ -3220,41 +3238,123 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
     display: flex !important;
   }
 
+  body.fokus-modus .mix-aufgaben-block.fokus-kandidat,
   body.fokus-modus .aufgaben-sektion.fokus-kandidat {
     display: block !important;
   }
 
-  /* Druck-Kopfzeile für Name & Datum einblenden */
-  .druck-kopf {
-    display: flex !important;
+  body.fokus-modus .druck-seite-kopf {
+    display: grid !important;
+  }
+
+  /* ---- Kopfzeile: Name links, Titel fett mittig, Datum rechts, 1 Linie ---- */
+  .druck-kopf,
+  .druck-seite-kopf {
+    display: grid !important;
+    grid-template-columns: auto 1fr auto;
+    align-items: end;
+    column-gap: 4mm;
+    border: none;
+    border-bottom: var(--druck-linie) solid var(--ink-print);
+    padding: 0 0 1mm;
+    margin: 0 0 3mm;
+    font-size: 10pt;
+    font-weight: var(--weight-regular);
+    color: var(--ink-print);
+  }
+
+  .druck-kopf > :nth-child(2),
+  .druck-seite-kopf > :nth-child(2) {
+    font-size: 12pt;
+    font-weight: var(--weight-bold);
+    text-align: center;
+  }
+
+  .druck-kopf > :first-child,
+  .druck-kopf > :last-child,
+  .druck-seite-kopf > :first-child,
+  .druck-seite-kopf > :last-child {
+    white-space: nowrap;
+  }
+
+  /* ---- Aufgabenblöcke: nummeriert, ohne Kasten, nicht mittendurch geschnitten ---- */
+  .mix-aufgaben-block,
+  .aufgaben-sektion {
+    zoom: 1;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 0 3.5mm !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .aufgaben-kopf,
+  .mix-block-titel {
+    display: flex;
     align-items: center;
-    justify-content: space-between;
-    border-bottom: 2px solid var(--color-line-dark);
-    padding-bottom: 8px;
-    margin-bottom: 16px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    gap: 1.5mm;
+    margin: 0 0 1.5mm !important;
+    font-size: 10pt;
+    color: var(--ink-print);
+  }
+
+  /* Nummerierter schwarzer Kreis: vorhandene Ziffer im DOM (.aufgaben-nr) oder
+     per CSS-Zähler (.druck-aufgabe-nr ohne Inhalt, z. B. in der Auswertung) */
+  .aufgaben-nr,
+  .druck-aufgabe-nr {
+    width: 4.6mm;
+    height: 4.6mm;
+    border: none;
+    border-radius: 50%;
+    background: var(--ink-print);
+    color: #ffffff;
+    font-size: 8pt;
+    font-weight: var(--weight-bold);
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .druck-aufgabe-nr:empty::before {
+    counter-increment: druck-aufgabe;
+    content: counter(druck-aufgabe);
+  }
+
+  .aufgaben-titel,
+  .druck-aufgabe-titel,
+  .mix-block-titel > span:not(.aufgaben-nr) {
+    font-size: 10pt;
+    font-weight: var(--weight-bold);
+    margin: 0;
+    color: var(--ink-print);
+  }
+
+  /* ---- Zahlen: Vorgaben schwarz, Kind-Eingaben Füller-Blau ----------------- */
+  .vorgabe,
+  .luecke {
+    font-size: var(--druck-ziffer);
+    min-width: 0;
+    min-height: 0;
+    background: transparent !important;
+  }
+
+  .vorgabe {
+    color: var(--ink-print);
+  }
+
+  .luecke {
+    color: var(--ink-fueller) !important;
+    font-weight: var(--weight-bold);
   }
 
   /* Gelbe Fokus-Markierung und Cursor im Druck neutralisieren */
   .luecke.aktiv,
   .zuordnung-knoten.ausgewaehlt {
-    background-color: #ffffff !important;
-    box-shadow: none !important;
-  }
-
-  .zuordnung-linie-vorschau,
-  .zuordnung-mitte-dialog {
-    display: none !important;
-  }
-
-  /* Zähl-Häkchen (motorische Zählhilfe) im Druck ausblenden, damit das Aufgabenbild sauber bleibt */
-  .zaehl-item.markiert::after {
-    display: none !important;
-  }
-  .zaehl-item.markiert {
     background-color: transparent !important;
-    border-color: #cbd5e1 !important;
     box-shadow: none !important;
   }
 
@@ -3262,31 +3362,533 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
     display: none !important;
   }
 
-  /* Füller-Blau und Plättchen-Farben bleiben für die Lehrkraft erhalten */
-  .luecke {
-    color: var(--color-fueller-blau) !important;
-  }
-
-  .kreis.blau {
-    background-color: var(--color-kreis-blau) !important;
-  }
-
-  .kreis.rot {
-    background-color: var(--color-kreis-rot) !important;
+  /* ---- Zahlenhaus ---------------------------------------------------------- */
+  .haeuser-grid {
+    gap: 3mm 4mm !important;
+    align-items: flex-start;
   }
 
   .zahlenhaus,
-  .zahlenfreund-block {
+  .zahlenfreund-block,
+  .zahlenmauer,
+  .zwanzigerfeld,
+  .nachbar-trio,
+  .stellenwert-tafel {
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
-  .haeuser-grid {
-    gap: 24px 24px;
+  .zahlenhaus .dach {
+    padding-bottom: 0.4mm;
   }
 
+  .zahlenhaus .dach-svg polygon {
+    fill: none;
+    stroke: var(--ink-print);
+    stroke-width: var(--druck-linie);
+    vector-effect: non-scaling-stroke;
+  }
+
+  .zahlenhaus .dach-zahl {
+    font-size: var(--druck-ziffer);
+    color: var(--ink-print);
+  }
+
+  .zahlenhaus .wohnungen {
+    background: transparent;
+    border-width: 0 var(--druck-linie) var(--druck-linie);
+    border-style: solid;
+    border-color: var(--ink-print);
+  }
+
+  .zahlenhaus .etage {
+    border-bottom: var(--druck-linie) solid var(--ink-print);
+  }
+
+  .zahlenhaus .etage:last-child {
+    border-bottom: none;
+  }
+
+  .zahlenhaus .etage > *:first-child {
+    border-right: var(--druck-linie) solid var(--ink-print);
+  }
+
+  /* ---- Zahlenfreunde / Zehnerstreifen / Plättchen -------------------------- */
+  /* Zahlenfreunde-Liste: zwei Spalten, Blöcke dicht untereinander (ohne Lücken durch Zeilenhöhen) */
   .freunde-liste {
-    gap: 20px;
+    display: block;
+    column-count: 2;
+    column-gap: 8mm;
+  }
+
+  .freunde-liste > .zahlenfreund-block {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 3mm;
+    break-inside: avoid;
+  }
+
+  .zahlenfreund-block {
+    padding: 0;
+    gap: 2mm;
+    border-radius: 0;
+  }
+
+  .zehnerstreifen {
+    background: transparent;
+    border: var(--druck-linie) solid var(--ink-print);
+    border-radius: 0;
+    height: calc(var(--etage-height) - 0.8mm);
+    padding: 0 0.8mm;
+  }
+
+  .zehnerstreifen .fuenfer-gruppe {
+    gap: 0.5mm;
+    padding: 0 0.5mm;
+  }
+
+  .zehnerstreifen .fuenfer-gruppe:first-child {
+    border-right: var(--druck-linie) solid var(--ink-print);
+    padding-right: 1mm;
+    margin-right: 0.5mm;
+  }
+
+  .kreis,
+  .kreis-vorgabe {
+    border: var(--druck-linie) solid var(--ink-print);
+    background-color: transparent;
+  }
+
+  .kreis.blau,
+  .kreis-vorgabe.blau {
+    background-color: var(--ink-plaettchen-blau) !important;
+    border-color: var(--ink-plaettchen-blau) !important;
+  }
+
+  .kreis.rot,
+  .kreis-vorgabe.rot {
+    background-color: var(--ink-plaettchen-rot) !important;
+    border-color: var(--ink-plaettchen-rot) !important;
+  }
+
+  .kreis-vorgabe.gefuellt {
+    background-color: var(--ink-print) !important;
+  }
+
+  .zwanzigerfeld {
+    background: transparent;
+    border: var(--druck-linie) solid var(--ink-print);
+    border-radius: 0;
+    padding: 0.6mm;
+    gap: 0.6mm;
+  }
+
+  .zwanzigerfeld .zehnerstreifen:first-child {
+    border-bottom: var(--druck-linie) dashed var(--ink-print);
+    padding-bottom: 0.6mm;
+  }
+
+  /* ---- Zahlen schreiben / Zählen / Mengen ---------------------------------- */
+  .schreib-streifen {
+    border: var(--druck-linie) solid var(--ink-print);
+    background: transparent;
+    overflow: visible;
+  }
+
+  .schreib-reihe {
+    border-bottom: var(--druck-linie) solid var(--ink-print);
+  }
+
+  .schreib-zelle {
+    width: 8mm;
+    height: 8mm;
+    border-right: var(--druck-linie) solid var(--ink-print);
+  }
+
+  .vorgabe.spur {
+    color: var(--ink-print);
+    opacity: 0.45;
+  }
+
+  .zaehl-karten-reihe {
+    gap: 2mm 3mm;
+  }
+
+  .zaehl-karte {
+    gap: 1mm;
+  }
+
+  .zaehl-symbol-box {
+    zoom: 0.5;
+  }
+
+  .zaehl-luecke-box {
+    width: 8mm !important;
+    height: 8mm !important;
+    border: var(--druck-linie) solid var(--ink-print);
+    background: transparent;
+  }
+
+  .blase-luecke {
+    width: 9mm;
+    height: 9mm;
+    border: var(--druck-linie) solid var(--ink-print);
+    background: transparent;
+  }
+
+  .punktebild-zeile {
+    gap: 2mm;
+    margin-bottom: 1.5mm;
+  }
+
+  .mengen-blasen-feld {
+    gap: 2mm;
+    padding: 0;
+    justify-content: flex-start;
+  }
+
+  .mengen-blase {
+    zoom: 0.5;
+    background: transparent;
+  }
+
+  .mengen-blase:not([class*='farbe-']) {
+    border-width: 1.5px;
+    border-color: var(--ink-print);
+  }
+
+  .aquarium-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2mm 4mm;
+  }
+
+  .aquarium-aufgabe {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    gap: 2mm;
+  }
+
+  .aquarium-becken {
+    min-width: 0;
+    min-height: 12mm;
+    flex: 1 1 0;
+    padding: 1mm;
+    gap: 0.5mm;
+    background: transparent;
+    border: var(--druck-linie) solid var(--ink-print);
+    border-radius: 0;
+  }
+
+  .aquarium-antwort .luecke {
+    width: 9mm;
+    height: 9mm;
+    min-width: 0;
+    min-height: 0;
+    border: var(--druck-linie) solid var(--ink-print);
+    border-radius: 0;
+  }
+
+  /* Zähl-Objekte (Tiere, Symbole): ohne Karte, klein; Zähl-Häkchen sind Bedienhilfe → nicht drucken */
+  .zaehl-item {
+    min-width: 0;
+    min-height: 0;
+    font-size: 20pt;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0.3mm;
+  }
+
+  .zaehl-item.markiert {
+    background-color: transparent !important;
+    border-color: transparent !important;
+  }
+
+  .zaehl-item.markiert::after {
+    display: none !important;
+  }
+
+  .tier-svg {
+    width: 6.5mm;
+    height: 6.5mm;
+  }
+
+  .tier-emoji {
+    font-size: 6.5mm;
+  }
+
+  .strichlisten-kopf .tier-svg {
+    width: 9mm;
+    height: 9mm;
+  }
+
+  .wimmelbild-box {
+    background: transparent;
+    border: var(--druck-linie) solid var(--ink-print);
+    border-radius: 0;
+    padding: 1.5mm 2mm;
+    gap: 1mm 3mm;
+    justify-content: flex-start;
+  }
+
+  /* Einkreisen / Bündeln: Farben des Kindes bleiben, Rahmen und Karte nicht */
+  .einkreisen-zeile {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    margin-bottom: 1.5mm;
+    gap: 2mm;
+  }
+
+  .einkreisen-zielzahl {
+    width: 9mm !important;
+    height: 9mm !important;
+    font-size: var(--druck-ziffer) !important;
+    background: transparent;
+    border: var(--druck-linie) solid var(--ink-print);
+    border-radius: 0;
+  }
+
+  .einkreisen-objekte {
+    gap: 0.8mm;
+  }
+
+  .einkreis-item {
+    width: 8mm;
+    height: 8mm;
+    font-size: 6mm;
+    background: transparent;
+    border: none;
+    border-radius: 1.5mm;
+  }
+
+  .einkreis-item[class*='farbe-'],
+  .mengen-blase[class*='farbe-'] {
+    border-width: 1.5px !important;
+  }
+
+  /* Strichlisten */
+  .strichlisten-tabelle {
+    grid-template-columns: repeat(5, 1fr);
+    max-width: none;
+    border: var(--druck-linie) solid var(--ink-print);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .strichlisten-spalte {
+    border-right: var(--druck-linie) solid var(--ink-print);
+  }
+
+  .strichlisten-spalte:last-child {
+    border-right: none;
+  }
+
+  .strichlisten-kopf {
+    height: 11mm;
+    border-bottom: var(--druck-linie) solid var(--ink-print);
+    font-size: 20pt;
+    background: transparent;
+  }
+
+  .strichlisten-striche-box {
+    min-height: 14mm;
+    padding: 1mm;
+    gap: 1mm;
+    border-bottom: var(--druck-linie) solid var(--ink-print);
+  }
+
+  .striche-anzeige {
+    font-size: var(--druck-ziffer);
+    min-height: 6mm;
+    gap: 1.5mm;
+    letter-spacing: 1px;
+  }
+
+  .strich-buendel.fuenfer::after {
+    height: 1.5px;
+  }
+
+  .strichlisten-zahl-box {
+    height: 9mm;
+  }
+
+  /* Zehner/Einer, Nachbarzahlen, Zahlenmauern */
+  .zwanziger-aufgabe-zeile {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    margin-bottom: 2mm;
+    gap: 3mm;
+  }
+
+  .stellenwert-tafel {
+    grid-template-columns: 9mm 9mm;
+    border: var(--druck-linie) solid var(--ink-print);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .stellenwert-kopf {
+    height: 5mm;
+    font-size: 9pt;
+    border-bottom: var(--druck-linie) solid var(--ink-print);
+  }
+
+  .stellenwert-kopf.zehner,
+  .stellenwert-kopf.einer {
+    background: transparent;
+    color: var(--ink-print);
+  }
+
+  .stellenwert-kopf.zehner {
+    border-right: var(--druck-linie) solid var(--ink-print);
+  }
+
+  .stellenwert-zelle {
+    height: 8mm;
+  }
+
+  .stellenwert-zelle:first-of-type {
+    border-right: var(--druck-linie) solid var(--ink-print);
+  }
+
+  .nachbarzahlen-grid {
+    grid-template-columns: repeat(auto-fill, minmax(36mm, 1fr));
+    gap: 2mm 4mm;
+  }
+
+  .nachbar-trio {
+    grid-template-columns: 11mm 11mm 11mm;
+    border: var(--druck-linie) solid var(--ink-print);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .nachbar-kopf {
+    height: 4.5mm;
+    font-size: 8pt;
+    background: transparent;
+    border-bottom: var(--druck-linie) solid var(--ink-print);
+    border-right: var(--druck-linie) solid var(--ink-print);
+  }
+
+  .nachbar-zelle {
+    height: 7mm;
+    border-right: var(--druck-linie) solid var(--ink-print);
+  }
+
+  .nachbar-zelle .vorgabe {
+    background: transparent;
+  }
+
+  .zahlenmauern-grid {
+    grid-template-columns: repeat(auto-fill, minmax(36mm, 1fr)) !important;
+    gap: 3mm 4mm !important;
+    justify-items: start;
+  }
+
+  .mauer-stein {
+    width: 11mm;
+    height: 7mm;
+    border: var(--druck-linie) solid var(--ink-print);
+    background: transparent;
+    margin-left: calc(var(--druck-linie) * -1);
+    margin-top: calc(var(--druck-linie) * -1);
+  }
+
+  /* ---- Gleichungen & Rechenpäckchen ---------------------------------------- */
+  .gleichung-zeile {
+    font-size: var(--druck-ziffer);
+    gap: 1mm;
+    background: transparent;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+  }
+
+  .gleichung-box {
+    width: 9mm;
+    height: 7mm;
+    border: var(--druck-linie) solid var(--ink-print);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  /* Wie auf dem Papier: nur die Lücke ist umrahmt, vorgegebene Zahlen stehen frei */
+  .gleichung-box:has(> .vorgabe) {
+    border-color: transparent;
+    width: 6mm;
+  }
+
+  /* Inline-Abstände des Builders (Blöcke ohne eigene Klasse) im Druck verdichten */
+  .mix-aufgaben-block > div[style*='flex-wrap'] {
+    gap: 2mm 7mm !important;
+  }
+
+  .mix-aufgaben-block > div[style*='flex-direction:column'],
+  .aufgaben-sektion > div[style*='flex-direction:column'] {
+    gap: 2mm !important;
+  }
+
+  /* Zahlenfolge zum Ordnen (Inline-Kasten im Blatt): nur Text, kein blauer Kasten */
+  .zwanziger-aufgabe-zeile > div[style*='background'] {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    font-size: var(--druck-ziffer) !important;
+    color: var(--ink-print);
+  }
+
+  .mix-aufgaben-block > div[style*='grid-template-columns'] {
+    grid-template-columns: repeat(auto-fill, minmax(40mm, 1fr)) !important;
+    gap: 2mm 4mm !important;
+  }
+
+  .rechenpaeckchen-grid {
+    grid-template-columns: repeat(auto-fill, minmax(40mm, 1fr));
+    gap: 2mm 4mm;
+  }
+
+  .zwerg-riese-karte {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    gap: 1mm;
+  }
+
+  .zwerg-riese-label {
+    font-size: 9pt;
+    color: var(--ink-print);
+  }
+
+  .zehneruebergang-karte {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    margin-bottom: 2mm;
+    gap: 3mm;
+    justify-content: flex-start;
+  }
+
+  .schritt-hinweis {
+    font-size: 9pt;
+    color: var(--ink-print);
+    background: transparent;
+    padding: 0;
+  }
+
+  /* ---- Zuordnen (Linien ziehen): im Ganzen verkleinern, Linien skalieren mit ---- */
+  .zuordnung-container {
+    zoom: 0.6;
+    margin: 0;
   }
 }
 
@@ -3633,6 +4235,21 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
   .hilfe-sprungmarken {
     display: none !important;
   }
+
+  /* Hilfe-Seite im Druck: schlichte Textseite ohne Kasten und roten Rand */
+  .hilfe-blatt {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: var(--druck-text);
+  }
+
+  .hilfe-blatt::before {
+    display: none;
+  }
 }
 
 /* Hilfe-Knopf in der Bibliothek */
@@ -3645,4 +4262,145 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
 
 .bib-hilfe-btn {
   min-height: 52px;
+}
+
+/* ==========================================================================
+   13. Lehrkraft: Name für den Druck (index.html, hinter TabbiLehrerGate)
+   Reine Erwachsenen-Zone: --ui-teacher-Tokens, keine Eingabefelder (Kacheln + Anzeige-div)
+   ========================================================================== */
+.druckname-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--ui-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.druckname-karte {
+  width: 100%;
+  max-width: 600px;
+  max-height: 100%;
+  overflow-y: auto;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  border: 3px solid var(--ui-teacher);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-3);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.druckname-titel {
+  margin: 0;
+  font-size: var(--text-xl);
+  color: var(--ui-teacher);
+}
+
+.druckname-hinweis {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--ui-text-muted);
+}
+
+.druckname-anzeige {
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  background: var(--ui-teacher-soft);
+  border: 2px solid var(--ui-teacher);
+  border-radius: var(--radius-md);
+  word-break: break-word;
+}
+
+.druckname-anzeige.leer {
+  color: var(--ui-text-subtle);
+  font-weight: var(--weight-regular);
+}
+
+.druckname-tasten {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: var(--space-2);
+}
+
+.druckname-taste {
+  min-height: var(--touch-key);
+  font: inherit;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border: 2px solid var(--ui-border-strong);
+  border-bottom-width: var(--key-edge);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.druckname-taste:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  background: var(--ui-surface-sunken);
+}
+
+.druckname-taste.breit {
+  grid-column: span 4;
+  font-size: var(--text-md);
+}
+
+.druckname-taste.zurueck {
+  grid-column: span 2;
+  color: var(--ui-danger);
+  border-color: var(--ui-danger);
+  background: var(--ui-danger-soft);
+}
+
+.druckname-aktionen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
+.druckname-btn {
+  min-height: var(--touch-min);
+  padding: var(--space-2) var(--space-5);
+  font: inherit;
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--ui-text);
+  background: var(--ui-surface-muted);
+  border: 2px solid var(--ui-border-strong);
+  border-radius: var(--radius-md);
+  touch-action: manipulation;
+}
+
+.druckname-btn.speichern {
+  color: #ffffff;
+  background: var(--ui-teacher);
+  border-color: var(--ui-teacher);
+}
+
+.druckname-btn.entfernen {
+  color: var(--ui-danger);
+  border-color: var(--ui-danger);
+  background: var(--ui-danger-soft);
+}
+
+@media print {
+  .druckname-overlay {
+    display: none !important;
+  }
 }

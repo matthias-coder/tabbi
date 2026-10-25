@@ -28,6 +28,7 @@
 
       <div class="bib-header-aktionen">
         <a href="hilfe.html" class="ui-btn bib-hilfe-btn">❓ Hilfe &amp; Fragen</a>
+        <button type="button" id="btn-druckname" class="ui-btn bib-hilfe-btn" title="Für Lehrkräfte: Name im Druckkopf hinterlegen">🔒 ✏️ Name für den Druck</button>
         <button type="button" id="btn-lehrer-erstellen" class="bib-erstellen-hauptbtn" title="Für Lehrkräfte: 3 Sekunden gedrückt halten">
           🔒 ➕ Arbeitsblatt erstellen <small style="font-size:0.82rem;opacity:0.9;font-weight:400;">(3 Sek. halten)</small>
         </button>
@@ -390,6 +391,121 @@
           rendereTestbibliothek();
         });
       });
+
+      // ----------------------------------------------------------------
+      // Lehrkraft: Name für den Druckkopf (nur lokal in localStorage, nie im Code)
+      // Anzeige-div + Buchstaben-Kacheln, kein <input>, keine Systemtastatur.
+      // ----------------------------------------------------------------
+      const DRUCKNAME_KEY = 'tabbi_druckname';
+      const DRUCKNAME_MAX = 30;
+
+      function leseDruckname() {
+        try {
+          return (localStorage.getItem(DRUCKNAME_KEY) || '').trim();
+        } catch (e) {
+          return '';
+        }
+      }
+
+      function oeffneDrucknameOverlay() {
+        const alt = document.getElementById('druckname-overlay');
+        if (alt) alt.remove();
+
+        let name = leseDruckname();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'druckname-overlay';
+        overlay.className = 'druckname-overlay print-hide';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-label', 'Name für den Druck');
+
+        const tasten = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ'
+          .split('')
+          .map((b) => `<button type="button" class="druckname-taste" data-buchstabe="${b}">${b}</button>`)
+          .join('');
+
+        overlay.innerHTML =
+          `<div class="druckname-karte">` +
+            `<h2 class="druckname-titel">✏️ Name für den Druck</h2>` +
+            `<p class="druckname-hinweis">Wird nur auf diesem Gerät gespeichert und im Kopf des Ausdrucks als „Name: …“ eingesetzt.</p>` +
+            `<div class="druckname-anzeige leer" id="druckname-anzeige" aria-live="polite"></div>` +
+            `<div class="druckname-tasten">` +
+              tasten +
+              `<button type="button" class="druckname-taste breit" data-leer="1">Leertaste</button>` +
+              `<button type="button" class="druckname-taste zurueck" data-zurueck="1" aria-label="Letzten Buchstaben löschen">⌫</button>` +
+            `</div>` +
+            `<div class="druckname-aktionen">` +
+              `<button type="button" class="druckname-btn entfernen" data-entfernen="1">Entfernen</button>` +
+              `<button type="button" class="druckname-btn" data-abbrechen="1">Abbrechen</button>` +
+              `<button type="button" class="druckname-btn speichern" data-speichern="1">Speichern</button>` +
+            `</div>` +
+          `</div>`;
+
+        const anzeige = overlay.querySelector('#druckname-anzeige');
+        const zeigeAn = () => {
+          anzeige.textContent = name || 'Noch kein Name';
+          anzeige.classList.toggle('leer', !name);
+        };
+        zeigeAn();
+
+        const schliesse = () => overlay.remove();
+
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            schliesse();
+            return;
+          }
+          const btn = e.target.closest('button');
+          if (!btn) return;
+          if (btn.dataset.buchstabe) {
+            if (name.length < DRUCKNAME_MAX) {
+              // Groß-/Kleinschreibung automatisch: Wortanfang groß, sonst klein
+              const wortanfang = name === '' || name.endsWith(' ');
+              name += wortanfang ? btn.dataset.buchstabe : btn.dataset.buchstabe.toLowerCase();
+              zeigeAn();
+            }
+          } else if (btn.dataset.leer) {
+            if (name !== '' && !name.endsWith(' ') && name.length < DRUCKNAME_MAX) {
+              name += ' ';
+              zeigeAn();
+            }
+          } else if (btn.dataset.zurueck) {
+            name = name.slice(0, -1);
+            zeigeAn();
+          } else if (btn.dataset.speichern) {
+            try {
+              const sauber = name.trim();
+              if (sauber) {
+                localStorage.setItem(DRUCKNAME_KEY, sauber);
+              } else {
+                localStorage.removeItem(DRUCKNAME_KEY);
+              }
+            } catch (err) {}
+            schliesse();
+          } else if (btn.dataset.entfernen) {
+            try {
+              localStorage.removeItem(DRUCKNAME_KEY);
+            } catch (err) {}
+            schliesse();
+          } else if (btn.dataset.abbrechen) {
+            schliesse();
+          }
+        });
+
+        document.body.appendChild(overlay);
+      }
+
+      const drucknameBtn = document.getElementById('btn-druckname');
+      if (drucknameBtn) {
+        drucknameBtn.addEventListener('click', () => {
+          if (window.TabbiLehrerGate && window.TabbiLehrerGate.mitFreigabe) {
+            window.TabbiLehrerGate.mitFreigabe(oeffneDrucknameOverlay);
+          } else {
+            oeffneDrucknameOverlay();
+          }
+        });
+      }
 
       window.addEventListener('pageshow', rendereTestbibliothek);
       rendereTestbibliothek();

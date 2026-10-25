@@ -1053,6 +1053,19 @@
           sp.textContent = `Datum: ${heute}`;
         }
       });
+
+      // Optionaler Name für den Druckkopf (von der Lehrkraft lokal hinterlegt, nie im Code/Repo)
+      let druckName = '';
+      try {
+        druckName = (localStorage.getItem('tabbi_druckname') || '').trim();
+      } catch (e) {
+        druckName = '';
+      }
+      if (druckName) {
+        document.querySelectorAll('.druck-name').forEach((sp) => {
+          sp.textContent = `Name: ${druckName}`;
+        });
+      }
     }
 
     vergebeElementIds() {
