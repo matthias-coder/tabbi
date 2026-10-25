@@ -24,6 +24,15 @@
       }
     }
 
+    // Streng: wirft, wenn ein vorhandener Verlauf nicht lesbar ist (nie ueberschreiben).
+    function leseStreng() {
+      var roh = storage.getItem(SCHLUESSEL);
+      if (roh === null || roh === undefined || roh === '') return [];
+      var liste = JSON.parse(roh);
+      if (!Array.isArray(liste)) throw new Error('kein Array');
+      return liste;
+    }
+
     function holeAlle() {
       return lese();
     }
@@ -51,8 +60,8 @@
       eintrag.id = 'h_' + Date.now() + '_' + zufall4();
       eintrag.abgeschlossenAm = new Date().toISOString();
       try {
-        // lesen -> neues Array bauen -> schreiben; gespeicherte Liste bleibt bei Fehler unberuehrt
-        var neu = [eintrag].concat(lese());
+        // lesen (streng) -> neues Array bauen -> schreiben; unlesbarer/alter Verlauf wird nie ueberschrieben
+        var neu = [eintrag].concat(leseStreng());
         storage.setItem(SCHLUESSEL, JSON.stringify(neu));
         return { ok: true, eintrag: eintrag };
       } catch (e) {

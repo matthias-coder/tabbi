@@ -99,10 +99,48 @@ test('getItem wirft: holeAlle() ist []', () => {
   assert.deepStrictEqual(api.holeAlle(), []);
 });
 
-test('fuegeHinzu auf kaputtem JSON beginnt neue Liste', () => {
-  const api = H.erzeuge(mapStorage([[KEY, 'kaputt']]));
+test('fuegeHinzu auf kaputtem JSON: ok:false, Rohwert unveraendert, kein setItem', () => {
+  const s = mapStorage([[KEY, 'kaputt']]);
+  let setCalls = 0;
+  const orig = s.setItem;
+  s.setItem = (k, v) => { setCalls++; orig(k, v); };
+  const api = H.erzeuge(s);
+  assert.deepStrictEqual(api.fuegeHinzu(eintrag('x')), { ok: false, fehler: 'speicher' });
+  assert.strictEqual(s._map.get(KEY), 'kaputt');
+  assert.strictEqual(setCalls, 0);
+});
+
+test('fuegeHinzu wenn gespeicherter Wert kein Array ist: ok:false, unveraendert', () => {
+  const s = mapStorage([[KEY, '{"a":1}']]);
+  const r = H.erzeuge(s).fuegeHinzu(eintrag());
+  assert.deepStrictEqual(r, { ok: false, fehler: 'speicher' });
+  assert.strictEqual(s._map.get(KEY), '{"a":1}');
+});
+
+test('fuegeHinzu mit getItem das wirft: ok:false, kein setItem', () => {
+  let setCalls = 0;
+  const api = H.erzeuge({ getItem: () => { throw new Error('x'); }, setItem: () => { setCalls++; } });
+  assert.deepStrictEqual(api.fuegeHinzu(eintrag()), { ok: false, fehler: 'speicher' });
+  assert.strictEqual(setCalls, 0);
+});
+
+test('fuegeHinzu: fehlender Schluessel oder leerer String starten frische Liste', () => {
+  assert.strictEqual(H.erzeuge(mapStorage()).fuegeHinzu(eintrag()).ok, true);
+  const s = mapStorage([[KEY, '']]);
+  const api = H.erzeuge(s);
   assert.strictEqual(api.fuegeHinzu(eintrag('x')).ok, true);
   assert.strictEqual(api.holeAlle().length, 1);
+});
+
+test('eigene id und abgeschlossenAm des Aufrufers werden ueberschrieben', () => {
+  const api = H.erzeuge(mapStorage());
+  const e = Object.assign(eintrag(), { id: 'fremd', abgeschlossenAm: '2000-01-01T00:00:00.000Z' });
+  const r = api.fuegeHinzu(e);
+  assert.match(r.eintrag.id, /^h_\d+_[a-z0-9]{4}$/);
+  assert.notStrictEqual(r.eintrag.abgeschlossenAm, '2000-01-01T00:00:00.000Z');
+  assert.ok(Date.now() - new Date(r.eintrag.abgeschlossenAm).getTime() < 5000);
+  assert.strictEqual(api.holeAlle()[0].id, r.eintrag.id);
+  assert.strictEqual(api.hole('fremd'), null);
 });
 
 test('Append-only: kein Loesch-API', () => {
