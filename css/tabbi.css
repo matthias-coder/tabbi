@@ -2104,6 +2104,26 @@ button {
   margin-top: 36px;
 }
 
+/* Katalog nach Übergruppen gegliedert (js/tabbi-gruppen.js) */
+.bib-gruppen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.bib-gruppe-titel {
+  display: inline-block;
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border: 2px solid var(--ui-border);
+  border-left: 6px solid var(--ui-accent);
+  border-radius: var(--radius-md);
+}
+
 .bib-kachel {
   position: relative;
   display: flex;

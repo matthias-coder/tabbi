@@ -80,14 +80,15 @@
     <!-- Kachel-Grid der fertigen Arbeitsblätter aus dem Katalog (blaetter/001–010) -->
     <section id="katalog-bereich" aria-labelledby="katalog-titel">
       <h2 id="katalog-titel" class="bib-abschnitt-titel">📚 Fertige Arbeitsblätter</h2>
-      <div id="katalog-grid" class="bib-kachel-grid" role="list">
-        <!-- Wird dynamisch aus TABBI_KATALOG gerendert -->
+      <div id="katalog-grid" class="bib-gruppen">
+        <!-- Wird dynamisch aus TABBI_KATALOG gerendert, gegliedert nach TabbiGruppen.GRUPPEN -->
       </div>
     </section>
 
   </main>
 
   <script src="js/tabbi-core.js"></script>
+  <script src="js/tabbi-gruppen.js"></script>
   <script src="js/blaetter-katalog.js"></script>
   <script>
     (function () {
@@ -133,42 +134,64 @@
 
         bereich.style.display = gefiltert.length > 0 ? '' : 'none';
 
-        gefiltert.forEach((blatt) => {
-          const status = window.TabbiBibliothek.holeBlattStatus(blatt.blattId, blatt.zahlenFilter, blatt.url);
+        const gruppen = window.TabbiGruppen.GRUPPEN;
+        gruppen.forEach((gruppe) => {
+          const blaetter = gefiltert.filter((b) => b.gruppe === gruppe.id);
+          if (blaetter.length === 0) return;
 
-          let statusText = '⚪ Neu';
-          let statusKlasse = 'bib-status-badge';
-          if (status.angefangen) {
-            statusText =
-              status.gesamt > 0
-                ? `✏️ ${status.anzahl} / ${status.gesamt} ausgefüllt`
-                : '✏️ Angefangen';
-            statusKlasse = 'bib-status-badge angefangen';
-          }
+          const abschnitt = document.createElement('section');
+          abschnitt.className = 'bib-gruppe';
+          abschnitt.setAttribute('aria-labelledby', 'gruppe-titel-' + gruppe.id);
+          const ueberschrift = document.createElement('h3');
+          ueberschrift.className = 'bib-gruppe-titel';
+          ueberschrift.id = 'gruppe-titel-' + gruppe.id;
+          ueberschrift.textContent = gruppe.icon + ' ' + gruppe.titel;
+          abschnitt.appendChild(ueberschrift);
 
-          const tagsHTML = (blatt.tags || [])
-            .map((t) => `<span class="bib-tag">${t}</span>`)
-            .join('');
-
-          const kachel = document.createElement('div');
-          kachel.className = 'bib-kachel';
-          kachel.setAttribute('role', 'listitem');
-          kachel.innerHTML =
-            `<a href="${blatt.url}" style="text-decoration:none;color:inherit;display:block;">` +
-              `<div class="bib-kachel-top">` +
-                `<div class="bib-kachel-icon" aria-hidden="true">${blatt.icon || '📄'}</div>` +
-                `<span class="${statusKlasse}">${statusText}</span>` +
-              `</div>` +
-              `<h3 class="bib-kachel-titel">${blatt.titel}</h3>` +
-              `<div class="bib-kachel-tags">${tagsHTML}</div>` +
-            `</a>` +
-            `<div class="bib-kachel-aktionen">` +
-              `<a href="${blatt.url}" class="bib-aktion-btn oeffnen">${
-                status.angefangen ? '▶️ Weiterarbeiten' : '▶️ Öffnen'
-              }</a>` +
-            `</div>`;
-          katalogGrid.appendChild(kachel);
+          const gruppenGrid = document.createElement('div');
+          gruppenGrid.className = 'bib-kachel-grid';
+          gruppenGrid.setAttribute('role', 'list');
+          blaetter.forEach((blatt) => gruppenGrid.appendChild(baueKatalogKachel(blatt)));
+          abschnitt.appendChild(gruppenGrid);
+          katalogGrid.appendChild(abschnitt);
         });
+      }
+
+      function baueKatalogKachel(blatt) {
+        const status = window.TabbiBibliothek.holeBlattStatus(blatt.blattId, blatt.zahlenFilter, blatt.url);
+
+        let statusText = '⚪ Neu';
+        let statusKlasse = 'bib-status-badge';
+        if (status.angefangen) {
+          statusText =
+            status.gesamt > 0
+              ? `✏️ ${status.anzahl} / ${status.gesamt} ausgefüllt`
+              : '✏️ Angefangen';
+          statusKlasse = 'bib-status-badge angefangen';
+        }
+
+        const tagsHTML = (blatt.tags || [])
+          .map((t) => `<span class="bib-tag">${t}</span>`)
+          .join('');
+
+        const kachel = document.createElement('div');
+        kachel.className = 'bib-kachel';
+        kachel.setAttribute('role', 'listitem');
+        kachel.innerHTML =
+          `<a href="${blatt.url}" style="text-decoration:none;color:inherit;display:block;">` +
+            `<div class="bib-kachel-top">` +
+              `<div class="bib-kachel-icon" aria-hidden="true">${blatt.icon || '📄'}</div>` +
+              `<span class="${statusKlasse}">${statusText}</span>` +
+            `</div>` +
+            `<h3 class="bib-kachel-titel">${blatt.titel}</h3>` +
+            `<div class="bib-kachel-tags">${tagsHTML}</div>` +
+          `</a>` +
+          `<div class="bib-kachel-aktionen">` +
+            `<a href="${blatt.url}" class="bib-aktion-btn oeffnen">${
+              status.angefangen ? '▶️ Weiterarbeiten' : '▶️ Öffnen'
+            }</a>` +
+          `</div>`;
+        return kachel;
       }
 
       function rendereTestbibliothek() {
