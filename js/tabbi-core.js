@@ -2775,123 +2775,21 @@
       }
     },
 
-    /**
-     * Erzeugt beim allerersten Start 3 fertige Beispiel-Arbeitsblätter,
-     * damit die Bibliothek sofort einsatzbereit ist.
-     */
-    erzeugeStartBeispiele() {
-      const jetzt = Date.now();
-      const iso1 = new Date(jetzt - 120000).toISOString();
-      const iso2 = new Date(jetzt - 60000).toISOString();
-      const iso3 = new Date(jetzt).toISOString();
-
-      return [
-        {
-          id: 'test_start_1',
-          titel: 'Zahlenhäuser (Zahlen 1 bis 5)',
-          fach: 'mathe',
-          icon: '🏠',
-          erstelltAm: iso3,
-          erstelltDatumText: this.formatiereDatum(iso3),
-          aufgabenTypen: ['zahlenhaus'],
-          zahlenText: 'Zahlen 1 bis 5',
-          tags: ['🔢 Mathematik', '🏠 Zahlenhäuser', 'Zahlen 1–5', '1 Druckseite'],
-          numpadMax: 10,
-          tastaturTyp: 'zahlen',
-          seitenAnzahl: 1,
-          gesamtFelder: 11,
-          html:
-            `<article class="druck-seite" aria-label="Arbeitsblatt Seite 1">` +
-              `<div class="druck-seite-kopf">` +
-                `<span>Name: Louis</span>` +
-                `<span>Zahlenhäuser (Zahlen 1 bis 5)</span>` +
-                `<span>Datum: _______________</span>` +
-              `</div>` +
-              `<div class="mix-aufgaben-block fokus-kandidat">` +
-                `<h2 class="mix-block-titel"><span class="aufgaben-nr">1</span><span>Zahlenhäuser ergänzen</span></h2>` +
-                `<div class="haeuser-grid" style="gap:24px;">` +
-                  `<div class="zahlenhaus" data-dach="4" data-prefix="st1_zh0" data-etagen="3:_, _:2, 0:_, _:4"></div>` +
-                  `<div class="zahlenhaus" data-dach="2" data-prefix="st1_zh1" data-etagen="1:_, _:0, 2:_"></div>` +
-                  `<div class="zahlenhaus" data-dach="5" data-prefix="st1_zh2" data-etagen="2:_, _:1, 5:_, _:3"></div>` +
-                `</div>` +
-              `</div>` +
-            `</article>`
-        },
-        {
-          id: 'test_start_2',
-          titel: 'Zahlenfreunde mit Zehnerstreifen (3, 5, 7)',
-          fach: 'mathe',
-          icon: '🔵🔴',
-          erstelltAm: iso2,
-          erstelltDatumText: this.formatiereDatum(iso2),
-          aufgabenTypen: ['zahlenfreunde'],
-          zahlenText: 'Zahlen: 3, 5, 7',
-          tags: ['🔢 Mathematik', '🔵🔴 Zahlenfreunde', 'Zahlen: 3, 5, 7', '1 Druckseite'],
-          numpadMax: 10,
-          tastaturTyp: 'zahlen',
-          seitenAnzahl: 1,
-          gesamtFelder: 8,
-          html:
-            `<article class="druck-seite" aria-label="Arbeitsblatt Seite 1">` +
-              `<div class="druck-seite-kopf">` +
-                `<span>Name: Louis</span>` +
-                `<span>Zahlenfreunde (3, 5, 7)</span>` +
-                `<span>Datum: _______________</span>` +
-              `</div>` +
-              `<div class="mix-aufgaben-block fokus-kandidat">` +
-                `<h2 class="mix-block-titel"><span class="aufgaben-nr">1</span><span>Zahlenfreunde (Dachzahl 5): Punkte antippen (Blau &amp; Rot) und eintragen</span></h2>` +
-                `<div class="zahlenfreund-block" data-dach="5" data-etagen-anzahl="4" data-prefix="st2_zf0"></div>` +
-              `</div>` +
-              `<div class="mix-aufgaben-block fokus-kandidat">` +
-                `<h2 class="mix-block-titel"><span class="aufgaben-nr">2</span><span>Zahlenfreunde (Dachzahl 3): Punkte antippen (Blau &amp; Rot) und eintragen</span></h2>` +
-                `<div class="zahlenfreund-block" data-dach="3" data-etagen-anzahl="4" data-prefix="st2_zf1"></div>` +
-              `</div>` +
-            `</article>`
-        },
-        {
-          id: 'test_start_3',
-          titel: 'Fingerbilder & Würfel erkennen (1 bis 5)',
-          fach: 'mathe',
-          icon: '✋🎲',
-          erstelltAm: iso1,
-          erstelltDatumText: this.formatiereDatum(iso1),
-          aufgabenTypen: ['finger', 'wuerfel_tuerme'],
-          zahlenText: 'Zahlen 1 bis 5',
-          tags: ['🔢 Mathematik', '✋ Fingerbilder', '🎲 Würfel & Türme', '1 Druckseite'],
-          numpadMax: 10,
-          tastaturTyp: 'zahlen',
-          seitenAnzahl: 1,
-          gesamtFelder: 14,
-          html:
-            `<article class="druck-seite" aria-label="Arbeitsblatt Seite 1">` +
-              `<div class="druck-seite-kopf">` +
-                `<span>Name: Louis</span>` +
-                `<span>Fingerbilder &amp; Würfel (1 bis 5)</span>` +
-                `<span>Datum: _______________</span>` +
-              `</div>` +
-              `<div class="mix-aufgaben-block fokus-kandidat">` +
-                `<h2 class="mix-block-titel"><span class="aufgaben-nr">1</span><span>Wie viele Finger sind es?</span></h2>` +
-                `<div class="zaehl-karten-reihe" data-baustein="finger" data-werte="L4,R2,L5,R1,L3,R4,L2" data-prefix="st3_fg"></div>` +
-              `</div>` +
-              `<div class="mix-aufgaben-block fokus-kandidat">` +
-                `<h2 class="mix-block-titel"><span class="aufgaben-nr">2</span><span>Würfelbilder erkennen</span></h2>` +
-                `<div class="zaehl-karten-reihe" data-baustein="wuerfel" data-werte="3,5,1,4,2,5,3" data-prefix="st3_wf"></div>` +
-              `</div>` +
-            `</article>`
-        }
-      ];
-    },
-
     holeAlleTests() {
       try {
         const raw = localStorage.getItem(TESTBIBLIOTHEK_STORAGE_KEY);
-        if (raw === null) {
-          const startListe = this.erzeugeStartBeispiele();
-          localStorage.setItem(TESTBIBLIOTHEK_STORAGE_KEY, JSON.stringify(startListe));
-          return startListe;
-        }
-        const liste = JSON.parse(raw);
+        if (raw === null) return [];
+        let liste = JSON.parse(raw);
         if (!Array.isArray(liste)) return [];
+        // Frühere Demo-Blätter (test_start_*) einmalig samt Eingaben entfernen
+        const ohneDemo = liste.filter((t) => !String(t.id || '').startsWith('test_start_'));
+        if (ohneDemo.length !== liste.length) {
+          liste.forEach((t) => {
+            if (String(t.id || '').startsWith('test_start_')) localStorage.removeItem(STORAGE_PREFIX + t.id);
+          });
+          localStorage.setItem(TESTBIBLIOTHEK_STORAGE_KEY, JSON.stringify(ohneDemo));
+          liste = ohneDemo;
+        }
         // Nach Erstellungsdatum absteigend sortieren (neueste zuerst)
         return liste.sort((a, b) => new Date(b.erstelltAm || 0) - new Date(a.erstelltAm || 0));
       } catch (e) {

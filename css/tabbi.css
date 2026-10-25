@@ -70,8 +70,9 @@ body {
   background-attachment: fixed;
 }
 
-/* Arbeitsblätter: nur ruhiges Rechenheft-Karo (reizarm, keine Illustration) */
-body[data-blatt-id] {
+/* Arbeitsblätter & Hilfe: nur ruhiges Rechenheft-Karo (reizarm, keine Illustration) */
+body[data-blatt-id],
+body.hilfe-seite {
   background-image:
     linear-gradient(var(--color-karo-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--color-karo-line) 1px, transparent 1px);
@@ -3233,4 +3234,361 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
   .freunde-liste {
     gap: 20px;
   }
+}
+
+/* ==========================================================================
+   12. Hilfe & Fragen (hilfe.html)
+   Heftseite mit rotem Rand auf Karo; Zeichenerklärung nutzt die echten Farben
+   ========================================================================== */
+.hilfe-blatt {
+  position: relative;
+  max-width: 880px;
+  margin: 20px auto 48px;
+  padding: 28px 32px 36px 64px;
+  background: #ffffff;
+  border: 1px solid var(--color-ui-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  color: var(--color-vorgabe);
+  line-height: 1.55;
+  font-size: 1.05rem;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Roter Heftrand links */
+.hilfe-blatt::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 40px;
+  width: 2px;
+  background: rgba(220, 38, 38, 0.45);
+}
+
+.hilfe-h1 {
+  font-size: 2rem;
+  line-height: 1.15;
+  margin: 0 0 10px;
+  color: var(--color-line-dark);
+}
+
+.hilfe-intro p,
+.hilfe-einleitung {
+  margin: 0 0 8px;
+  max-width: 64ch;
+  color: #334155;
+}
+
+.hilfe-h2 {
+  font-size: 1.4rem;
+  margin: 0 0 12px;
+  color: var(--color-line-dark);
+}
+
+.hilfe-h3 {
+  font-size: 1.1rem;
+  margin: 24px 0 4px;
+  color: var(--color-line-dark);
+}
+
+/* --- Zeichenerklärung ---------------------------------------------------- */
+.hilfe-legende {
+  margin: 24px 0 28px;
+  padding: 18px 20px 14px;
+  background-color: var(--color-paper);
+  background-image:
+    linear-gradient(var(--color-karo-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-karo-line) 1px, transparent 1px);
+  background-size: var(--karo-size) var(--karo-size);
+  border: 2px solid var(--color-line-dark);
+  border-radius: 4px;
+}
+
+.legende-reihen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 40px;
+  align-items: flex-start;
+}
+
+.legende-muster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.legende-item {
+  margin: 0;
+  width: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.legende-item figcaption {
+  font-size: 0.85rem;
+  line-height: 1.25;
+  color: #334155;
+}
+
+.muster-feld {
+  width: 56px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 2px solid var(--color-line-dark);
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.muster-vorgabe {
+  font-weight: 400;
+  color: var(--color-vorgabe);
+}
+
+.muster-aktiv {
+  background: var(--color-luecke-aktiv-bg);
+  box-shadow: inset 0 0 0 3px var(--color-luecke-aktiv-border);
+}
+
+.muster-cursor {
+  width: 2px;
+  height: 26px;
+  background: var(--color-fueller-blau);
+  opacity: 0.55;
+}
+
+.muster-eintrag {
+  font-weight: 700;
+  color: var(--color-fueller-blau);
+}
+
+.legende-plaettchen {
+  align-items: center;
+  gap: 8px;
+  padding-top: 6px;
+}
+
+.muster-kreis {
+  width: var(--kreis-size);
+  height: var(--kreis-size);
+  border-radius: 50%;
+  border: 2.2px solid var(--color-line-dark);
+  background: #ffffff;
+}
+
+.muster-blau {
+  background: var(--color-kreis-blau);
+  border-color: #1d4ed8;
+}
+
+.muster-rot {
+  background: var(--color-kreis-rot);
+  border-color: #b91c1c;
+}
+
+.muster-pfeil {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.legende-notiz {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: #334155;
+}
+
+/* --- Sprungmarken -------------------------------------------------------- */
+.hilfe-sprungmarken {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 8px;
+}
+
+/* --- Fragen (aufklappbar) ------------------------------------------------ */
+.hilfe-abschnitt {
+  padding-top: 28px;
+  scroll-margin-top: 80px;
+}
+
+.hilfe-frage {
+  border-bottom: 1px solid #dbe4ef;
+}
+
+.hilfe-frage summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 4px;
+  font-weight: 700;
+  font-size: 1.08rem;
+  color: var(--color-line-dark);
+  cursor: pointer;
+  list-style: none;
+}
+
+.hilfe-frage summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Plus/Minus-Zeichen wie ein handschriftliches Kästchen */
+.hilfe-frage summary::before {
+  content: '+';
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-line-dark);
+  border-radius: 4px;
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--color-line-dark);
+}
+
+.hilfe-frage[open] summary::before {
+  content: '−';
+  background: var(--color-luecke-aktiv-bg);
+  border-color: var(--color-luecke-aktiv-border);
+}
+
+.hilfe-frage summary:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.hilfe-antwort {
+  padding: 0 4px 16px 44px;
+  max-width: calc(64ch + 44px);
+}
+
+.hilfe-antwort p {
+  margin: 0 0 10px;
+}
+
+.hilfe-antwort ul,
+.hilfe-antwort ol {
+  margin: 0 0 10px;
+  padding-left: 22px;
+}
+
+.hilfe-antwort li {
+  margin-bottom: 6px;
+}
+
+.hilfe-antwort kbd {
+  display: inline-block;
+  min-width: 1.8em;
+  padding: 0 6px;
+  font-family: var(--font-main);
+  font-weight: 700;
+  text-align: center;
+  background: #f8fafc;
+  border: 2px solid #94a3b8;
+  border-radius: 6px;
+}
+
+.hilfe-achtung {
+  padding: 8px 12px;
+  background: #fef2f2;
+  border-left: 4px solid var(--color-kreis-rot);
+  color: #7f1d1d;
+}
+
+/* --- Aufgabentypen ------------------------------------------------------- */
+.typen-liste {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  column-gap: 32px;
+}
+
+.typ {
+  padding: 12px 0;
+  border-bottom: 1px solid #dbe4ef;
+}
+
+.typ dt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: var(--color-line-dark);
+}
+
+.typ-icon {
+  font-size: 1.3rem;
+  min-width: 1.6em;
+}
+
+.typ dd {
+  margin: 4px 0 0;
+  color: #334155;
+  font-size: 1rem;
+}
+
+.typ-eingabe {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 1px 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-fueller-blau);
+  border: 1.5px solid #c7d2fe;
+  border-radius: 6px;
+  background: #f5f7ff;
+}
+
+@media (max-width: 640px) {
+  .hilfe-blatt {
+    margin: 10px 8px 32px;
+    padding: 20px 16px 28px 36px;
+  }
+
+  .hilfe-blatt::before {
+    left: 20px;
+  }
+
+  .hilfe-h1 {
+    font-size: 1.6rem;
+  }
+
+  .hilfe-antwort {
+    padding-left: 8px;
+  }
+
+  .typen-liste {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  body.hilfe-seite .blatt-header,
+  .hilfe-sprungmarken {
+    display: none !important;
+  }
+}
+
+/* Hilfe-Knopf in der Bibliothek */
+.bib-header-aktionen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.bib-hilfe-btn {
+  min-height: 52px;
 }

@@ -168,6 +168,7 @@ tabbi/
 ├── AGENTS.md                     # System-Regeln & Eiserne Grundregel für KI-Agenten
 ├── README.md                     # Projektdokumentation (dieses Dokument)
 ├── index.html                    # Hauptübersicht & Kachel-Bibliothek mit Filtern
+├── hilfe.html                    # Hilfe & Fragen (Bedienung, Lehrkraft-Funktionen, Aufgabentypen)
 ├── manifest.json                 # Web App Manifest für PWA-Installation
 ├── sw.js                         # Service Worker für Offline-Betrieb (v10)
 ├── assets/                       # Vektor- & Bildressourcen

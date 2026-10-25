@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TABBI: Hilfe &amp; Fragen</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/figuren/tabbi-favicon-32.png">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/tabbi.css">
+</head>
+<body class="hilfe-seite">
+
+  <header class="blatt-header">
+    <div class="blatt-header-links">
+      <a href="index.html" class="ui-btn">⬅️ Bibliothek</a>
+    </div>
+    <div class="blatt-titel-gruppe">
+      <h1 class="blatt-titel">Hilfe &amp; Fragen</h1>
+      <p class="blatt-untertitel">Für Lehrkraft und Teilhabeassistenz</p>
+    </div>
+    <div class="blatt-header-rechts" aria-hidden="true"></div>
+  </header>
+
+  <main class="hilfe-blatt">
+
+    <section class="hilfe-intro" aria-labelledby="hilfe-titel">
+      <h2 id="hilfe-titel" class="hilfe-h1">So funktioniert TABBI</h2>
+      <p>
+        Louis füllt seine Arbeitsblätter durch Tippen statt Schreiben aus. TABBI nimmt ihm nur die Motorik ab,
+        nicht das Denken: Es gibt kein Richtig oder Falsch, keine Sterne und keine Lösungshinweise.
+        Korrigiert wird wie gewohnt auf Papier oder im PDF.
+      </p>
+    </section>
+
+    <!-- Zeichenerklärung: echte Zustände von Lücken und Plättchen -->
+    <section class="hilfe-legende" aria-labelledby="legende-titel">
+      <h2 id="legende-titel" class="hilfe-h2">Zeichenerklärung</h2>
+      <div class="legende-reihen">
+        <div class="legende-gruppe">
+          <div class="legende-muster">
+            <figure class="legende-item">
+              <span class="muster-feld muster-vorgabe">4</span>
+              <figcaption>Vorgabe vom Blatt</figcaption>
+            </figure>
+            <figure class="legende-item">
+              <span class="muster-feld"></span>
+              <figcaption>Leere Lücke</figcaption>
+            </figure>
+            <figure class="legende-item">
+              <span class="muster-feld muster-aktiv"><span class="muster-cursor"></span></span>
+              <figcaption>Hier landet die nächste Zahl</figcaption>
+            </figure>
+            <figure class="legende-item">
+              <span class="muster-feld muster-eintrag">7</span>
+              <figcaption>Eintrag von Louis</figcaption>
+            </figure>
+          </div>
+        </div>
+        <div class="legende-gruppe">
+          <div class="legende-muster legende-plaettchen" role="img"
+               aria-label="Plättchen: leer, einmal tippen blau, zweimal tippen rot, dreimal tippen wieder leer">
+            <span class="muster-kreis"></span>
+            <span class="muster-pfeil">1×</span>
+            <span class="muster-kreis muster-blau"></span>
+            <span class="muster-pfeil">2×</span>
+            <span class="muster-kreis muster-rot"></span>
+            <span class="muster-pfeil">3×</span>
+            <span class="muster-kreis"></span>
+          </div>
+          <p class="legende-notiz">Plättchen wechseln mit jedem Tipp: blau, rot, wieder leer.</p>
+        </div>
+      </div>
+    </section>
+
+    <nav class="hilfe-sprungmarken" aria-label="Abschnitte">
+      <a href="#bedienung" class="ui-btn">✋ Bedienung am Tablet</a>
+      <a href="#lehrkraft" class="ui-btn">🔒 Für Lehrkraft &amp; Assistenz</a>
+      <a href="#aufgabentypen" class="ui-btn">🧩 Die Aufgabentypen</a>
+    </nav>
+
+    <!-- ================================================================ -->
+    <section id="bedienung" class="hilfe-abschnitt" aria-labelledby="bedienung-titel">
+      <h2 id="bedienung-titel" class="hilfe-h2">✋ Bedienung am Tablet</h2>
+
+      <details class="hilfe-frage">
+        <summary>Wie trägt Louis eine Zahl ein?</summary>
+        <div class="hilfe-antwort">
+          <p>Lücke antippen, sie wird gelb. Dann die Zahl auf dem Ziffernblock unten tippen. Die Zahl erscheint in Blau, und die Markierung springt von selbst zur nächsten leeren Lücke.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Wie wird eine Zahl korrigiert?</summary>
+        <div class="hilfe-antwort">
+          <p>Die Lücke antippen und einfach die neue Zahl tippen. Der alte Wert wird sofort ersetzt.</p>
+          <p>Die Taste <kbd>⌫</kbd> arbeitet in zwei Stufen: Ist die gelbe Lücke gefüllt, wird sie geleert. Ist sie schon leer, springt die Markierung eine Lücke zurück.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Warum zeigt der Ziffernblock immer alle Zahlen?</summary>
+        <div class="hilfe-antwort">
+          <p>Damit TABBI nichts verrät. Auf Papier könnte Louis auch jede Zahl schreiben. Die Taste <kbd>0–20</kbd> schaltet auf den Zahlenraum bis 20 um und wieder zurück.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Wie funktionieren Plättchen, Anmalen und Abhaken?</summary>
+        <div class="hilfe-antwort">
+          <ul>
+            <li><strong>Plättchen im Zehnerstreifen:</strong> jeder Tipp wechselt blau, rot, leer.</li>
+            <li><strong>Anmalen mit Farbpalette:</strong> erst einen Farbstift oben wählen, dann die Bilder antippen. Nochmal tippen macht das Bild wieder weiß.</li>
+            <li><strong>Bündeln ohne Farbpalette:</strong> jeder Tipp wechselt blau, rot, grün, leer.</li>
+            <li><strong>Abhaken beim Zählen:</strong> ein Tier antippen markiert es als gezählt, nochmal tippen nimmt die Markierung weg.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Wie zieht Louis eine Verbindungslinie?</summary>
+        <div class="hilfe-antwort">
+          <p>Links ein Bild antippen, dann rechts die Zahl. Danach erscheinen zwei Knöpfe: <strong>✔</strong> zeichnet die Linie, <strong>✖</strong> bricht ab.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Wie macht Louis eine Strichliste?</summary>
+        <div class="hilfe-antwort">
+          <p>Mit den Knöpfen <strong>+ |</strong> (ein Strich mehr) und <strong>−</strong> (ein Strich weniger) neben der Liste. Jeder fünfte Strich wird automatisch als Querstrich gebündelt, wie auf Papier.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Was ist die Einzel-Ansicht?</summary>
+        <div class="hilfe-antwort">
+          <p><strong>🔍 Einzel-Ansicht</strong> zeigt nur eine Aufgabe auf einmal. Mit <strong>Weiter</strong> und <strong>Zurück</strong> blättert man, <strong>Ganzes Blatt zeigen</strong> kehrt zur normalen Ansicht zurück. Das hilft, wenn ein volles Blatt zu unruhig ist.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Wann ist ein Blatt fertig?</summary>
+        <div class="hilfe-antwort">
+          <p>Sind alle Aufgaben bearbeitet, erscheint unten <strong>„Fertig mit den Aufgaben?“</strong>. Nach Tipp auf die Zielflagge und <strong>„Ja, fertig!“</strong> geht es zurück zur Bibliothek. Ob die Antworten stimmen, prüft TABBI nicht.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Warum muss man „Zurück“ zweimal tippen?</summary>
+        <div class="hilfe-antwort">
+          <p>Als Schutz vor versehentlichem Tippen. Der erste Tipp färbt den Knopf rot (<strong>„Wirklich zurück?“</strong>), der zweite führt aus. Ohne zweiten Tipp springt der Knopf nach drei Sekunden zurück. Das gilt auch für <strong>Löschen</strong> und <strong>Neu würfeln</strong>.</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="lehrkraft" class="hilfe-abschnitt" aria-labelledby="lehrkraft-titel">
+      <h2 id="lehrkraft-titel" class="hilfe-h2">🔒 Für Lehrkraft &amp; Assistenz</h2>
+
+      <details class="hilfe-frage">
+        <summary>Wie erstelle ich ein neues Arbeitsblatt?</summary>
+        <div class="hilfe-antwort">
+          <ol>
+            <li>In der Bibliothek <strong>„🔒 ➕ Arbeitsblatt erstellen“</strong> drei Sekunden gedrückt halten und die kleine Rechenaufgabe lösen.</li>
+            <li>Einen oder mehrere Aufgabentypen wählen.</li>
+            <li>Zahlenraum wählen oder einzelne Zahlen antippen, zum Beispiel nur 3, 6 und 9.</li>
+            <li>Aufgaben pro Seite (2 bis 4), Seitenzahl (1 bis 3) und Kennzeichnung festlegen.</li>
+            <li>Die Live-Vorschau prüfen. <strong>„🎲 Andere Zahlen würfeln“</strong> erzeugt neue Zahlen.</li>
+            <li><strong>„💾 In Bibliothek speichern“</strong> legt das Blatt mit heutigem Datum ab.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Wozu die Rechenaufgabe beim Erstellen und Löschen?</summary>
+        <div class="hilfe-antwort">
+          <p>Sie ist die Freigabe für Erwachsene. So kann Louis nicht versehentlich Blätter anlegen oder löschen.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Was ist der Unterschied zwischen „Erstellte“ und „Fertige“ Arbeitsblätter?</summary>
+        <div class="hilfe-antwort">
+          <p><strong>Erstellte Arbeitsblätter</strong> haben Sie selbst zusammengestellt. Sie bleiben genau so, wie sie gespeichert wurden, und lassen sich löschen.</p>
+          <p><strong>Fertige Arbeitsblätter</strong> sind feste Vorlagen, die zu TABBI gehören. Viele davon lassen sich oben über <strong>Zahlenbereich / Mix</strong> anpassen oder mit <strong>Neu würfeln</strong> neu mischen.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Was bedeuten die Symbole auf den Kacheln?</summary>
+        <div class="hilfe-antwort">
+          <ul>
+            <li><strong>⚪ Neu</strong>: noch nichts eingetragen.</li>
+            <li><strong>✏️ 3 / 12 ausgefüllt</strong>: angefangen, mit Anzahl bearbeiteter Felder.</li>
+            <li><strong>🏁 Fertig</strong>: Louis hat das Blatt abgeschlossen.</li>
+          </ul>
+          <p>Mit dem Status-Filter lassen sich offene oder angefangene Blätter schnell finden.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Wie drucke ich ein Blatt oder speichere es als PDF?</summary>
+        <div class="hilfe-antwort">
+          <p>Oben rechts auf <strong>„🖨️ PDF / Drucken“</strong> tippen, bei gespeicherten Blättern geht das auch direkt auf der Kachel. Ziffernblock und Knöpfe verschwinden im Ausdruck. Louis’ Einträge bleiben blau, damit sie von den Vorgaben zu unterscheiden sind. Im Druckdialog „Als PDF speichern“ wählen, um eine Datei zu erhalten.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>„Eingaben leeren“ oder „Löschen“: was ist der Unterschied?</summary>
+        <div class="hilfe-antwort">
+          <ul>
+            <li><strong>🔄 Eingaben leeren</strong> entfernt nur Louis’ Antworten. Das Blatt bleibt in der Bibliothek.</li>
+            <li><strong>🗑️ Löschen</strong> auf der Kachel entfernt das ganze Blatt.</li>
+            <li><strong>Löschen</strong> oben im geöffneten Blatt leert alle Einträge dieses Blatts.</li>
+          </ul>
+          <p class="hilfe-achtung">Das lässt sich nicht rückgängig machen. Vorher bei Bedarf als PDF sichern.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Wo werden die Daten gespeichert?</summary>
+        <div class="hilfe-antwort">
+          <p>Nur im Browser auf diesem Tablet. Es gibt kein Konto und nichts wird ins Internet geschickt. Ein anderes Gerät sieht die Blätter deshalb nicht. Wer die Browserdaten löscht, löscht auch alle Blätter und Einträge.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Funktioniert TABBI ohne Internet?</summary>
+        <div class="hilfe-antwort">
+          <p>Ja. TABBI einmal mit Internet öffnen, dann im Browser <strong>„Zum Home-Bildschirm“</strong> wählen. Danach startet TABBI wie eine App und läuft auch im Klassenzimmer ohne WLAN.</p>
+        </div>
+      </details>
+
+      <details class="hilfe-frage">
+        <summary>Gibt es auch Deutsch-Arbeitsblätter?</summary>
+        <div class="hilfe-antwort">
+          <p>Noch nicht. Die Buchstaben-Tastatur mit A–Z und ÄÖÜ ist schon eingebaut, die Aufgabentypen für Deutsch folgen.</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="aufgabentypen" class="hilfe-abschnitt" aria-labelledby="typen-titel">
+      <h2 id="typen-titel" class="hilfe-h2">🧩 Die Aufgabentypen</h2>
+      <p class="hilfe-einleitung">Die meisten Typen gibt es als fertige Arbeitsblätter und beim Erstellen eigener Blätter. Dort lassen sie sich frei kombinieren.</p>
+
+      <h3 class="hilfe-h3">Zahlen zerlegen</h3>
+      <dl class="typen-liste">
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">🏠</span>Zahlenhäuser</dt>
+          <dd>Die Dachzahl in zwei Zahlen zerlegen und die leeren Wohnungen ergänzen. <span class="typ-eingabe">Ziffernblock</span></dd>
+        </div>
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">🔵🔴</span>Zahlenfreunde</dt>
+          <dd>Zu jeder Etage im Zahlenhaus Plättchen in Blau und Rot legen, dann die Zahlen eintragen. <span class="typ-eingabe">Plättchen + Ziffernblock</span></dd>
+        </div>
+      </dl>
+
+      <h3 class="hilfe-h3">Mengen erkennen</h3>
+      <dl class="typen-liste">
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">✋</span>Fingerbilder</dt>
+          <dd>Finger an linker und rechter Hand zählen und die Anzahl eintragen. <span class="typ-eingabe">Ziffernblock</span></dd>
+        </div>
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">🎲</span>Würfel &amp; Türme</dt>
+          <dd>Würfelaugen und Steckwürfel-Türme zählen und die Zahl eintragen. <span class="typ-eingabe">Ziffernblock</span></dd>
+        </div>
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">🫧</span>Punktebilder &amp; Zwanzigerfeld</dt>
+          <dd>Punkte im Zehnerstreifen zählen, im Zwanzigerfeld Zehner und Einer ablesen und selbst legen. <span class="typ-eingabe">Plättchen + Ziffernblock</span></dd>
+        </div>
+      </dl>
+
+      <h3 class="hilfe-h3">Zählen und bündeln</h3>
+      <dl class="typen-liste">
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">🐟</span>Fische im Aquarium</dt>
+          <dd>Meerestiere zählen, beim Zählen antippen zum Abhaken, dann die Anzahl eintragen. <span class="typ-eingabe">Antippen + Ziffernblock</span></dd>
+        </div>
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">🦀</span>Strichlisten</dt>
+          <dd>Tiere zählen, eine Strichliste mit Fünferbündeln führen und die Zahl eintragen. <span class="typ-eingabe">Strich-Knöpfe + Ziffernblock</span></dd>
+        </div>
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">🐚</span>Mengen bündeln</dt>
+          <dd>Immer so viele Dinge, wie die Zahl vorne angibt, in derselben Farbe antippen. <span class="typ-eingabe">Farben</span></dd>
+        </div>
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">🎨</span>Gleiche Mengen anmalen</dt>
+          <dd>Mengen vergleichen und gleich große Mengen mit derselben Farbe anmalen. <span class="typ-eingabe">Farbpalette</span></dd>
+        </div>
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">🔗</span>Mengen verbinden</dt>
+          <dd>Links ein Bild, rechts die passende Zahl antippen und mit ✔ verbinden. <span class="typ-eingabe">Linien</span></dd>
+        </div>
+      </dl>
+
+      <h3 class="hilfe-h3">Rechnen bis 20</h3>
+      <dl class="typen-liste">
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">↔️</span>Nachbarzahlen</dt>
+          <dd>Vorgänger (−1) und Nachfolger (+1) finden, Zahlenreihen vorwärts und rückwärts ergänzen. <span class="typ-eingabe">Ziffernblock</span></dd>
+        </div>
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">➕</span>Plus &amp; Minus</dt>
+          <dd>Kopfrechenaufgaben im gewählten Zahlenraum lösen. <span class="typ-eingabe">Ziffernblock</span></dd>
+        </div>
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">🧙‍♂️</span>Zwerg &amp; Riese</dt>
+          <dd>Die kleine Aufgabe hilft bei der großen: 3 + 4 und 13 + 4. Dazu Verdoppeln und Halbieren. <span class="typ-eingabe">Ziffernblock</span></dd>
+        </div>
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">🔟</span>Rechnen über die 10</dt>
+          <dd>Schrittweise rechnen: erst bis zur 10, dann weiter. Das Zwanzigerfeld hilft beim Legen. <span class="typ-eingabe">Plättchen + Ziffernblock</span></dd>
+        </div>
+        <div class="typ">
+          <dt><span class="typ-icon" aria-hidden="true">🧱</span>Zahlenmauern</dt>
+          <dd>Zwei Nachbarsteine ergeben zusammen den Stein darüber. <span class="typ-eingabe">Ziffernblock</span></dd>
+        </div>
+      </dl>
+    </section>
+
+  </main>
+
+</body>
+</html>
