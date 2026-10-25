@@ -34,7 +34,7 @@
   --spalte-width: 56px;
   --haus-width: calc(var(--spalte-width) * 2);
   --dach-height: 68px;
-  --kreis-size: 38px;
+  --kreis-size: 44px; /* Mindest-Tippfläche für Plättchen */
   --karo-size: 24px;
 }
 
@@ -52,19 +52,33 @@ html, body {
   font-family: var(--font-main);
   color: var(--color-vorgabe);
   background-color: var(--color-paper);
-  /* Dezent abgetönte Schreibtisch-Illustration (ca. 62% sanfter Schleier für ruhige, unaufdringliche Lesbarkeit) */
-  background-image: 
+  /* Fat-Finger-Schutz: verhindert Double-Tap-Zoom und Textmarkierung */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  min-height: 100vh;
+}
+
+/* Bibliothek: Dezent abgetönte Schreibtisch-Illustration (ca. 62% sanfter Schleier) */
+body {
+  background-image:
     linear-gradient(rgba(253, 253, 249, 0.62), rgba(253, 253, 249, 0.62)),
     url('../assets/schreibtisch-hintergrund.jpg');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
   background-attachment: fixed;
-  /* Fat-Finger-Schutz: verhindert Double-Tap-Zoom und Textmarkierung */
-  touch-action: manipulation;
-  -webkit-user-select: none;
-  user-select: none;
-  min-height: 100vh;
+}
+
+/* Arbeitsblätter: nur ruhiges Rechenheft-Karo (reizarm, keine Illustration) */
+body[data-blatt-id] {
+  background-image:
+    linear-gradient(var(--color-karo-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-karo-line) 1px, transparent 1px);
+  background-size: var(--karo-size) var(--karo-size);
+  background-repeat: repeat;
+  background-position: 0 0;
+  background-attachment: scroll;
 }
 
 /* Wenn ein Ziffernblock vorhanden ist, Platz am unteren Rand lassen */
@@ -412,6 +426,12 @@ button {
 
 .zahlenhaus .etage:last-child {
   border-bottom: none;
+}
+
+/* Zellen nie höher/breiter als die Etage, sonst überdecken sie die Trennlinien */
+.zahlenhaus .etage > * {
+  min-width: 0;
+  min-height: 0;
 }
 
 .zahlenhaus .etage > *:first-child {
@@ -1985,6 +2005,22 @@ button {
   gap: 24px;
 }
 
+/* Abschnitts-Überschriften der Bibliothek (Erstellte / Fertige Arbeitsblätter) */
+.bib-abschnitt-titel {
+  display: inline-block;
+  margin: 0 0 14px;
+  padding: 6px 16px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-line-dark);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+}
+
+#katalog-bereich {
+  margin-top: 36px;
+}
+
 .bib-kachel {
   position: relative;
   display: flex;
@@ -2686,11 +2722,10 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
 
 /* Auf kleineren Bildschirmen & Smartphones im Hochformat */
 @media (max-width: 768px) {
+  /* Etage bleibt hoch genug für 44px-Plättchen im Zehnerstreifen daneben */
   :root {
-    --etage-height: 48px;
     --spalte-width: 50px;
     --dach-height: 60px;
-    --kreis-size: 32px;
   }
 
   body[data-blatt-id] {
@@ -2747,6 +2782,29 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
 
   .zehnerstreifen-spalte {
     margin-top: 8px;
+  }
+
+  /* Zehnerstreifen als 2x5-Block, damit 44px-Plättchen ohne Querscrollen passen */
+  .zehnerstreifen-zeile {
+    height: auto;
+    margin-bottom: 6px;
+  }
+
+  .zehnerstreifen {
+    flex-direction: column;
+    height: auto;
+    padding: 4px 6px;
+  }
+
+  .zehnerstreifen .fuenfer-gruppe {
+    padding: 4px;
+  }
+
+  .zehnerstreifen .fuenfer-gruppe:first-child {
+    border-right: none;
+    border-bottom: 2.2px solid var(--color-line-dark);
+    padding-right: 4px;
+    margin-right: 0;
   }
 
   /* Zuordnungs-Spalten auf kleinen Handys etwas kompakter halten */

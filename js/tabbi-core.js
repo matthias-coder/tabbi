@@ -3317,6 +3317,8 @@
    */
   function initialisiereHintergrundSticker() {
     if (document.querySelector('.tabbi-bg-decorations')) return;
+    // Auf Arbeitsblättern keine Sticker: dort soll nichts vom Blatt ablenken
+    if (document.body.hasAttribute('data-blatt-id')) return;
 
     const istUnterordner = window.location.pathname.includes('/blaetter/');
     const prefix = istUnterordner ? '../assets/figuren/' : 'assets/figuren/';

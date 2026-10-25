@@ -68,9 +68,18 @@
     </div>
 
     <!-- Kachel-Grid der gespeicherten Arbeitsblätter / Tests -->
+    <h2 class="bib-abschnitt-titel">✏️ Erstellte Arbeitsblätter</h2>
     <div id="kachel-grid" class="bib-kachel-grid" role="list">
       <!-- Wird dynamisch aus TabbiTestbibliothek gerendert -->
     </div>
+
+    <!-- Kachel-Grid der fertigen Arbeitsblätter aus dem Katalog (blaetter/001–010) -->
+    <section id="katalog-bereich" aria-labelledby="katalog-titel">
+      <h2 id="katalog-titel" class="bib-abschnitt-titel">📚 Fertige Arbeitsblätter</h2>
+      <div id="katalog-grid" class="bib-kachel-grid" role="list">
+        <!-- Wird dynamisch aus TABBI_KATALOG gerendert -->
+      </div>
+    </section>
 
   </main>
 
@@ -100,20 +109,82 @@
       /**
        * Rendert alle gespeicherten Arbeitsblätter aus der Testbibliothek (neueste zuerst)
        */
+      /**
+       * Rendert die fertigen Arbeitsblätter aus TABBI_KATALOG (ohne Click-&-Mix-Generatoren)
+       */
+      function rendereKatalog(katalogBlaetter) {
+        const bereich = document.getElementById('katalog-bereich');
+        const katalogGrid = document.getElementById('katalog-grid');
+        katalogGrid.innerHTML = '';
+
+        const gefiltert = katalogBlaetter.filter((blatt) => {
+          if (aktuellesFach !== 'alle' && (blatt.fach || 'mathe') !== aktuellesFach) return false;
+          if (aktuellerStatus !== 'alle') {
+            const status = window.TabbiBibliothek.holeBlattStatus(blatt.blattId, blatt.zahlenFilter, blatt.url);
+            if (aktuellerStatus === 'neu' && status.angefangen) return false;
+            if (aktuellerStatus === 'angefangen' && !status.angefangen) return false;
+          }
+          return true;
+        });
+
+        bereich.style.display = gefiltert.length > 0 ? '' : 'none';
+
+        gefiltert.forEach((blatt) => {
+          const status = window.TabbiBibliothek.holeBlattStatus(blatt.blattId, blatt.zahlenFilter, blatt.url);
+
+          let statusText = '⚪ Neu';
+          let statusKlasse = 'bib-status-badge';
+          if (status.angefangen) {
+            statusText =
+              status.gesamt > 0
+                ? `✏️ ${status.anzahl} / ${status.gesamt} ausgefüllt`
+                : '✏️ Angefangen';
+            statusKlasse = 'bib-status-badge angefangen';
+          }
+
+          const tagsHTML = (blatt.tags || [])
+            .map((t) => `<span class="bib-tag">${t}</span>`)
+            .join('');
+
+          const kachel = document.createElement('div');
+          kachel.className = 'bib-kachel';
+          kachel.setAttribute('role', 'listitem');
+          kachel.innerHTML =
+            `<a href="${blatt.url}" style="text-decoration:none;color:inherit;display:block;">` +
+              `<div class="bib-kachel-top">` +
+                `<div class="bib-kachel-icon" aria-hidden="true">${blatt.icon || '📄'}</div>` +
+                `<span class="${statusKlasse}">${statusText}</span>` +
+              `</div>` +
+              `<h3 class="bib-kachel-titel">${blatt.titel}</h3>` +
+              `<div class="bib-kachel-tags">${tagsHTML}</div>` +
+            `</a>` +
+            `<div class="bib-kachel-aktionen">` +
+              `<a href="${blatt.url}" class="bib-aktion-btn oeffnen">${
+                status.angefangen ? '▶️ Weiterarbeiten' : '▶️ Öffnen'
+              }</a>` +
+            `</div>`;
+          katalogGrid.appendChild(kachel);
+        });
+      }
+
       function rendereTestbibliothek() {
         grid.innerHTML = '';
 
         const alleTests = window.TabbiTestbibliothek
           ? window.TabbiTestbibliothek.holeAlleTests()
           : [];
+        const katalogBlaetter = (window.TABBI_KATALOG || []).filter((b) => !b.istClickMix);
 
-        // Zähler auf den Fach-Tabs aktualisieren
-        const anzahlMathe = alleTests.filter((t) => (t.fach || 'mathe') === 'mathe').length;
+        // Zähler auf den Fach-Tabs aktualisieren (erstellte + fertige Arbeitsblätter)
+        const anzahlKatalogMathe = katalogBlaetter.filter((b) => (b.fach || 'mathe') === 'mathe').length;
+        const anzahlMathe = alleTests.filter((t) => (t.fach || 'mathe') === 'mathe').length + anzahlKatalogMathe;
         const anzahlDeutsch = alleTests.filter((t) => t.fach === 'deutsch').length;
         const btnAlle = document.getElementById('tab-fach-alle');
         const btnMathe = document.getElementById('tab-fach-mathe');
-        if (btnAlle) btnAlle.textContent = `🌟 Alle Fächer (${alleTests.length})`;
+        if (btnAlle) btnAlle.textContent = `🌟 Alle Fächer (${alleTests.length + katalogBlaetter.length})`;
         if (btnMathe) btnMathe.textContent = `🔢 Mathematik (${anzahlMathe})`;
+
+        rendereKatalog(katalogBlaetter);
 
         // Spezial-Hinweis wenn der Reiter "🔤 Deutsch" gewählt ist und noch keine Deutsch-Blätter existieren
         if (aktuellesFach === 'deutsch' && anzahlDeutsch === 0) {
@@ -149,7 +220,7 @@
           grid.innerHTML =
             `<div class="bib-leer-box">` +
               `<div style="font-size:3rem;margin-bottom:8px;">📋</div>` +
-              `<h2 style="margin:0 0 8px 0;color:#1e293b;">Keine Arbeitsblätter in dieser Ansicht</h2>` +
+              `<h2 style="margin:0 0 8px 0;color:#1e293b;">Keine erstellten Arbeitsblätter in dieser Ansicht</h2>` +
               `<p style="margin:0 0 18px 0;color:#475569;">` +
                 `Halte oben <strong>„🔒 ➕ Arbeitsblatt erstellen“</strong> 3 Sekunden lang gedrückt, um als Lehrkraft ein neues Arbeitsblatt anzulegen.` +
               `</p>` +
