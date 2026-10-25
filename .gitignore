@@ -3,3 +3,8 @@ Thumbs.db
 Desktop.ini
 node_modules/
 *.log
+
+# Lokale Vorlagen, Fotos und Roh-Assets
+gitignore/
+raw_assets/
+beispiele/
