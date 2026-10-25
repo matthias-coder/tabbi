@@ -2,7 +2,7 @@
    TABBI: Tipp-ArbeitsBlätter-Bibliothek – Offline Service Worker (sw.js)
    ========================================================================== */
 
-const CACHE_NAME = 'tabbi-offline-v5';
+const CACHE_NAME = 'tabbi-offline-v6';
 
 const CORE_ASSETS = [
   './',
@@ -13,6 +13,31 @@ const CORE_ASSETS = [
   './js/blaetter-katalog.js',
   './assets/icon.svg',
   './assets/schulheft-hintergrund.svg',
+  './assets/figuren/tabbi-favicon-16.png',
+  './assets/figuren/tabbi-favicon-32.png',
+  './assets/figuren/tabbi-favicon-64.png',
+  './assets/figuren/tabbi-lesend-128.png',
+  './assets/figuren/tabbi-lesend-256.png',
+  './assets/figuren/tabbi-schreibend-128.png',
+  './assets/figuren/tabbi-schreibend-256.png',
+  './assets/figuren/tabbi-meldet-sich-128.png',
+  './assets/figuren/tabbi-meldet-sich-256.png',
+  './assets/figuren/tabbi-jubel-128.png',
+  './assets/figuren/tabbi-jubel-256.png',
+  './assets/figuren/tabbi-malen-128.png',
+  './assets/figuren/tabbi-malen-256.png',
+  './assets/figuren/tabbi-fussball-128.png',
+  './assets/figuren/tabbi-fussball-256.png',
+  './assets/figuren/tabbi-winken-128.png',
+  './assets/figuren/tabbi-winken-256.png',
+  './assets/figuren/tabbi-pausenbrot-128.png',
+  './assets/figuren/tabbi-pausenbrot-256.png',
+  './assets/figuren/tabbi-rennen-128.png',
+  './assets/figuren/tabbi-rennen-256.png',
+  './assets/figuren/tabbi-seilspringen-128.png',
+  './assets/figuren/tabbi-seilspringen-256.png',
+  './assets/figuren/tabbi-regenmantel-128.png',
+  './assets/figuren/tabbi-regenmantel-256.png',
   './blaetter/001_zahlenhaeuser_und_freunde.html',
   './blaetter/001b_zahlenfreunde.html',
   './blaetter/002_zahlen_bis_5_finger_tuerme_wuerfel.html',

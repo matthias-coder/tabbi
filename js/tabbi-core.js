@@ -930,6 +930,9 @@
       // Allen .luecke und .kreis Elementen eine eindeutige data-id geben, falls noch nicht vorhanden
       this.vergebeElementIds();
 
+      // Maskottchen dezent in der Kopfzeile neben dem Titel einbinden
+      this.baueTitelMaskottchen();
+
       // Fixierten Ziffernblock am unteren Bildschirmrand sicherstellen
       this.baueNumpad();
 
@@ -972,9 +975,71 @@
         document.head.appendChild(link);
       }
 
+      // Browser-Tab-Icons (Favicons) automatisch sicherstellen
+      if (!document.querySelector('link[rel="icon"][sizes="32x32"]')) {
+        const f32 = document.createElement('link');
+        f32.rel = 'icon';
+        f32.type = 'image/png';
+        f32.sizes = '32x32';
+        f32.href = prefix + 'assets/figuren/tabbi-favicon-32.png';
+        document.head.appendChild(f32);
+      }
+      if (!document.querySelector('link[rel="icon"][sizes="16x16"]')) {
+        const f16 = document.createElement('link');
+        f16.rel = 'icon';
+        f16.type = 'image/png';
+        f16.sizes = '16x16';
+        f16.href = prefix + 'assets/figuren/tabbi-favicon-16.png';
+        document.head.appendChild(f16);
+      }
+      if (!document.querySelector('link[rel="apple-touch-icon"]')) {
+        const fa = document.createElement('link');
+        fa.rel = 'apple-touch-icon';
+        fa.sizes = '64x64';
+        fa.href = prefix + 'assets/figuren/tabbi-favicon-64.png';
+        document.head.appendChild(fa);
+      }
+
       if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         navigator.serviceWorker.register(prefix + 'sw.js').catch(() => {});
       }
+    }
+
+    /**
+     * Fügt das Tabbi-Maskottchen dezent in den Header des Arbeitsblatts ein (Titelzeile)
+     */
+    baueTitelMaskottchen() {
+      const titelEl = document.querySelector('.blatt-titel');
+      if (!titelEl || document.querySelector('.blatt-titel-mascot')) return;
+
+      const istUnterordner = window.location.pathname.includes('/blaetter/');
+      const prefix = istUnterordner ? '../assets/figuren/' : 'assets/figuren/';
+      const blattId = this.blattId || '';
+
+      let datei = 'tabbi-lesend-128.png';
+      if (blattId.includes('malen')) {
+        datei = 'tabbi-malen-128.png';
+      } else if (blattId.includes('zaehlen') || blattId.includes('punkte') || blattId.includes('strich')) {
+        datei = 'tabbi-schreibend-128.png';
+      } else if (blattId.includes('click_und_mix')) {
+        datei = 'tabbi-jubel-128.png';
+      } else if (blattId.includes('finger') || blattId.includes('freunde') || blattId.includes('nachbar')) {
+        datei = 'tabbi-meldet-sich-128.png';
+      }
+
+      const img = document.createElement('img');
+      img.src = prefix + datei;
+      img.alt = 'Tabbi';
+      img.className = 'blatt-titel-mascot print-hide';
+      img.setAttribute('aria-hidden', 'true');
+
+      // Titelzeilen-Wrapper erzeugen und Titel hineinsetzen
+      const eltern = titelEl.parentNode;
+      const zeile = document.createElement('div');
+      zeile.className = 'blatt-titel-zeile';
+      eltern.insertBefore(zeile, titelEl);
+      zeile.appendChild(img);
+      zeile.appendChild(titelEl);
     }
 
     setzeHeutigesDruckDatum() {
@@ -3214,8 +3279,49 @@
     formatiereStrichlisteHTML
   };
 
+  /**
+   * Verteilt freundliche Tabbi-Maskottchen dezent auf dem Hintergrund (Schulheft-Rand).
+   * Pointer-Events: none, kein Stören beim Tippen.
+   * Im Druck komplett ausgeblendet (@media print).
+   */
+  function initialisiereHintergrundSticker() {
+    if (document.querySelector('.tabbi-bg-decorations')) return;
+
+    const istUnterordner = window.location.pathname.includes('/blaetter/');
+    const prefix = istUnterordner ? '../assets/figuren/' : 'assets/figuren/';
+
+    // 4 freundliche Sticker für die Ecken / Ränder des Schulhefts
+    const stickerListe = [
+      { klasse: 'tabbi-sticker-oben-links', datei: 'tabbi-schreibend-128.png' },
+      { klasse: 'tabbi-sticker-oben-rechts', datei: 'tabbi-meldet-sich-128.png' },
+      { klasse: 'tabbi-sticker-unten-links', datei: 'tabbi-malen-128.png' },
+      { klasse: 'tabbi-sticker-unten-rechts', datei: 'tabbi-jubel-128.png' }
+    ];
+
+    const container = document.createElement('div');
+    container.className = 'tabbi-bg-decorations print-hide';
+    container.setAttribute('aria-hidden', 'true');
+
+    stickerListe.forEach((st) => {
+      const div = document.createElement('div');
+      div.className = `tabbi-bg-sticker ${st.klasse} print-hide`;
+      div.setAttribute('aria-hidden', 'true');
+      const img = document.createElement('img');
+      img.src = prefix + st.datei;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.width = 128;
+      img.height = 128;
+      div.appendChild(img);
+      container.appendChild(div);
+    });
+
+    document.body.prepend(container);
+  }
+
   // Automatische Initialisierung, sobald das DOM geladen ist
   document.addEventListener('DOMContentLoaded', () => {
+    initialisiereHintergrundSticker();
     const blattId = document.body.getAttribute('data-blatt-id');
     if (blattId) {
       window.tabbiApp = new TabbiBlatt(blattId);

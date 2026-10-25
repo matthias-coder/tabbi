@@ -14,6 +14,16 @@
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    },
+    {
+      "src": "assets/figuren/tabbi-lesend-256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/figuren/tabbi-favicon-64.png",
+      "sizes": "64x64",
+      "type": "image/png"
     }
   ]
 }

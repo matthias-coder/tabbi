@@ -111,6 +111,23 @@ button {
   text-align: center;
 }
 
+.blatt-titel-zeile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.blatt-titel-mascot {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.12));
+  flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
 .blatt-titel {
   font-size: 1.35rem;
   font-weight: 700;
@@ -1746,17 +1763,25 @@ button {
 }
 
 .bib-logo {
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
-  background: var(--color-primary);
-  color: #ffffff;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 2px solid #93c5fd;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  font-weight: 700;
-  box-shadow: 0 4px 10px rgba(29, 78, 216, 0.25);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.15);
+  overflow: hidden;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.bib-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .bib-titel {
@@ -2853,6 +2878,87 @@ body.fokus-modus .aufgaben-sektion.fokus-kandidat.fokus-aktiv {
 }
 
 /* ==========================================================================
+   10b. Maskottchen-Hintergrund-Sticker (Deko im Schulheft-Rand)
+   ========================================================================== */
+.tabbi-bg-decorations {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  user-select: none;
+}
+
+.tabbi-bg-sticker {
+  position: fixed;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  opacity: 0.92;
+  filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.08));
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tabbi-bg-sticker img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Sticker 1: Oben links */
+.tabbi-sticker-oben-links {
+  top: 85px;
+  left: max(12px, calc(50vw - 640px));
+  width: 95px;
+  transform: rotate(-5deg);
+}
+
+/* Sticker 2: Oben rechts */
+.tabbi-sticker-oben-rechts {
+  top: 95px;
+  right: max(12px, calc(50vw - 640px));
+  width: 95px;
+  transform: rotate(5deg);
+}
+
+/* Sticker 3: Unten links */
+.tabbi-sticker-unten-links {
+  bottom: 85px;
+  left: max(12px, calc(50vw - 645px));
+  width: 98px;
+  transform: rotate(4deg);
+}
+
+/* Sticker 4: Unten rechts */
+.tabbi-sticker-unten-rechts {
+  bottom: 80px;
+  right: max(12px, calc(50vw - 645px));
+  width: 95px;
+  transform: rotate(-4deg);
+}
+
+/* Auf Tablets im Querformat (ca. 1060px bis 1300px) dezenter als Wasserzeichen */
+@media (max-width: 1320px) {
+  .tabbi-bg-sticker {
+    opacity: 0.35;
+    width: 78px;
+  }
+}
+
+/* Auf schmalen Bildschirmen (< 1060px): Komplett ausblenden für maximale Klarheit */
+@media (max-width: 1060px) {
+  .tabbi-bg-decorations,
+  .tabbi-bg-sticker {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
    11. Druck- & PDF-Workflow (@media print) — ca. 15% kompaktere Darstellung
    ========================================================================== */
 @media print {
@@ -2893,6 +2999,9 @@ body.fokus-modus .aufgaben-sektion.fokus-kandidat.fokus-aktiv {
   .farb-palette,
   .farb-palette-leiste,
   .strich-buttons,
+  .tabbi-bg-decorations,
+  .tabbi-bg-sticker,
+  .blatt-titel-mascot,
   .print-hide {
     display: none !important;
   }
