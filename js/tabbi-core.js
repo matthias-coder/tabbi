@@ -2520,8 +2520,15 @@
 
       const id = this.historieEintrag.id;
       const zurKindAnsicht = () => {
+        // Erst alle Markierungen synchron entfernen (kein Aufblitzen), dann zur Kind-Ansicht
+        this.entferneAuswertung();
         window.location.replace('?historie=' + encodeURIComponent(id));
       };
+      // Verlassen auf beliebigem Weg (Link, Zurück, Neu laden): Freigabe sofort sperren,
+      // damit Vor/Zurück die Korrektur nicht erneut zeigt.
+      window.addEventListener('pagehide', () => {
+        window.TabbiLehrerGate.sperreLehrerbereich();
+      });
       // Ablauf der Freigabe: Auswertung verschwindet (Prüfung alle 30 s)
       this.auswertungsTimer = setInterval(() => {
         if (!window.TabbiLehrerGate.istFreigeschaltet()) {
@@ -2599,6 +2606,15 @@
 
       main.insertBefore(kopf, main.firstChild);
       document.body.classList.add('auswertung-aktiv');
+    }
+
+    /** Entfernt Kopf und alle Markierungen der Auswertung (synchron). */
+    entferneAuswertung() {
+      document.querySelectorAll('#ausw-kopf, .ausw-soll').forEach((n) => n.remove());
+      document.querySelectorAll('.ausw-falsch, .ausw-leer, .ausw-ziel').forEach((n) =>
+        n.classList.remove('ausw-falsch', 'ausw-leer', 'ausw-ziel')
+      );
+      document.body.classList.remove('auswertung-aktiv');
     }
 
     /** Setzt .ausw-falsch / .ausw-leer und .ausw-soll an die bewerteten Elemente. */

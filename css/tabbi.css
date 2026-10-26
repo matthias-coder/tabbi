@@ -3453,6 +3453,16 @@ body.blatt-gesperrt main .kreis {
   position: relative;
 }
 
+/* Auswertung: alle Tab-Panels untereinander zeigen (Bildschirm + Druck), damit keine
+   bewertete Aufgabe versteckt bleibt; Tab-Knöpfe sind dann überflüssig. */
+body.auswertung-aktiv main .tab-panel {
+  display: block !important;
+}
+
+body.auswertung-aktiv .tab-btn[data-tab] {
+  display: none !important;
+}
+
 /* Soll-Ziffer darf über den Rand der Lücke hinausragen (Zellen mit overflow: hidden) */
 body.auswertung-aktiv main :has(> .ausw-falsch),
 body.auswertung-aktiv main :has(> * > .ausw-falsch) {
