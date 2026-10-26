@@ -191,6 +191,6 @@ test('blattUrl: entfernt Sitzungs-Parameter, behaelt Blatt-Parameter', () => {
 
 test('ansichtsUrl: haengt historie-Parameter korrekt an', () => {
   assert.strictEqual(H.ansichtsUrl({ id: 'h_1_ab', url: 'blaetter/001_a.html' }), 'blaetter/001_a.html?historie=h_1_ab');
-  assert.strictEqual(H.ansichtsUrl({ id: 'h_2', url: 'blaetter/001_a.html?bereich=1-5' }), 'blaetter/001_a.html?bereich=1-5&historie=h_2');
+  assert.strictEqual(H.ansichtsUrl({ id: 'h_2', url: 'blaetter/001_a.html?bereich=1-5&zahlen=2,3&tab=freunde' }), 'blaetter/001_a.html?historie=h_2');
   assert.strictEqual(H.ansichtsUrl(null), '');
 });

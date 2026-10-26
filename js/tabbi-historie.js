@@ -119,11 +119,12 @@
     return teile.length ? basis + '?' + teile.join('&') : basis;
   }
 
-  // URL der gesperrten Ansicht eines Historien-Eintrags (relativ zur Bibliothek)
+  // URL der gesperrten Ansicht eines Historien-Eintrags (relativ zur Bibliothek).
+  // Nur die Seite + historie: Bereich/Zahlen/Tabs stecken bereits im Schnappschuss.
   function ansichtsUrl(eintrag) {
     if (!eintrag || !eintrag.id) return '';
-    var url = String(eintrag.url || '');
-    return url + (url.indexOf('?') === -1 ? '?' : '&') + 'historie=' + encodeURIComponent(eintrag.id);
+    var seite = String(eintrag.url || '').split('?')[0];
+    return seite + '?historie=' + encodeURIComponent(eintrag.id);
   }
 
   return {

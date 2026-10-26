@@ -904,9 +904,11 @@
         const params = new URLSearchParams(window.location.search);
         const historieId = params.get('historie');
         if (historieId) {
-          this.historieEintrag = window.TabbiHistorie
+          const eintrag = window.TabbiHistorie
             ? window.TabbiHistorie.erzeuge(localStorage).hole(historieId)
             : null;
+          // Nur auf der Seite des Eintrags anzeigen (nie fremdes HTML in ein anderes Blatt einsetzen)
+          this.historieEintrag = eintrag && eintrag.blattId === this.blattId ? eintrag : null;
           return this.historieEintrag ? 'historie' : 'nicht-gefunden';
         }
         const testId = params.get('testId');
@@ -2238,6 +2240,12 @@
         if (tab) {
           this.aktiviereTab(tab);
         }
+        if (this.istGesperrt) {
+          // Gesperrte Ansicht: Schnappschuss zeigt Reihenfolge/Auswahl wie beim Abschließen –
+          // kein Filtern, kein Mischen, keine Aktionen; nur Ansichtshilfen.
+          if (fokus === '1' || window.innerWidth <= 680) this.setzeFokusModus(true);
+          return;
+        }
         if (bereich) {
           this.aktiviereBereich(bereich);
         }
@@ -2459,11 +2467,22 @@
       }
 
       const ziel = document.getElementById('mix-seiten-container') || main;
-      if (!(eintrag.layout && this.wendeLayoutAn(eintrag.layout)) && typeof eintrag.html === 'string') {
+      // Immer das beim Abschließen gerenderte HTML (Layout-HTML nur als Rückfall für alte Einträge)
+      if (typeof eintrag.html === 'string' && eintrag.html !== '') {
         ziel.innerHTML = eintrag.html;
+      } else if (eintrag.layout) {
+        this.wendeLayoutAn(eintrag.layout);
       }
       // Reste der Bearbeitungsansicht aus dem Schnappschuss entfernen
       this.entferneBearbeitungsReste(main);
+      // Tab-Knöpfe (evtl. außerhalb von <main>) an den im Schnappschuss aktiven Tab angleichen
+      const aktivesPanel = main.querySelector('.tab-panel.aktiv[data-tab-panel]');
+      if (aktivesPanel) {
+        const tabName = aktivesPanel.getAttribute('data-tab-panel');
+        document.querySelectorAll('.tab-btn[data-tab]').forEach((btn) => {
+          btn.classList.toggle('aktiv', btn.getAttribute('data-tab') === tabName);
+        });
+      }
 
       if (eintrag.titel) {
         const h1 = document.querySelector('h1.blatt-titel');
@@ -2587,8 +2606,12 @@
         } catch (e) {
           layout = null;
         }
-        if (layout && layout.mainHTML) eintrag.layout = layout;
-        else eintrag.html = this.erzeugeSchnappschussHTML(wurzel);
+        // Immer das gerade angezeigte Blatt speichern (ein __layout kann älter sein als das Gesehene);
+        // vom Layout nur die kleinen Parameter, nicht dessen HTML (Speicher sparen).
+        eintrag.html = this.erzeugeSchnappschussHTML(wurzel);
+        if (layout && layout.mainHTML) {
+          eintrag.layout = { mixMin: layout.mixMin, mixMax: layout.mixMax, numpadMax: layout.numpadMax };
+        }
       }
 
       let ergebnis;
@@ -3503,6 +3526,10 @@
     const blattId = document.body.getAttribute('data-blatt-id');
     if (blattId) {
       window.tabbiApp = new TabbiBlatt(blattId);
+      // Zurück-Taste nach dem Abschließen: nie eine eingefrorene alte Seite (bfcache) mit Eingaben zeigen
+      window.addEventListener('pageshow', (e) => {
+        if (e.persisted) window.location.reload();
+      });
     }
   });
 })();
