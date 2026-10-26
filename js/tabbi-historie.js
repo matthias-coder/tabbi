@@ -3,6 +3,7 @@
    Append-only Liste abgeschlossener Blaetter. Reines Modul: kein DOM, kein
    direkter localStorage-Zugriff - der Speicher wird per erzeuge(storage)
    injiziert. Es gibt bewusst KEIN Loesch-API.
+   Dazu reine Hilfsfunktionen fuer das Abschliessen (Gruppen, Datum, URLs).
    ========================================================================== */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -72,5 +73,64 @@
     return { holeAlle: holeAlle, hole: hole, fuegeHinzu: fuegeHinzu };
   }
 
-  return { erzeuge: erzeuge };
+  /* ----------------------- reine Hilfsfunktionen ------------------------- */
+
+  // Eindeutige Gruppen (Reihenfolge des ersten Auftretens) aus Loesungen + Zusatz-Typen
+  function gruppenAusLoesungen(loesungen, zusatzTypen, gruppeFuerTyp) {
+    var erg = [];
+    function dazu(g) {
+      if (g && erg.indexOf(g) === -1) erg.push(g);
+    }
+    (Array.isArray(zusatzTypen) ? zusatzTypen : []).forEach(function (t) {
+      if (typeof gruppeFuerTyp === 'function') dazu(gruppeFuerTyp(t));
+    });
+    if (loesungen && typeof loesungen === 'object') {
+      ['luecken', 'gruppen'].forEach(function (feld) {
+        var map = loesungen[feld];
+        if (!map || typeof map !== 'object') return;
+        Object.keys(map).forEach(function (id) {
+          var v = map[id];
+          dazu(v && typeof v === 'object' ? v.gruppe : v);
+        });
+      });
+    }
+    return erg;
+  }
+
+  // ISO-Zeitpunkt -> "TT.MM.JJJJ" (lokale Zeit); ungueltig -> ''
+  function formatiereDatum(iso) {
+    var d = new Date(iso);
+    if (!iso || isNaN(d.getTime())) return '';
+    function zwei(n) { return (n < 10 ? '0' : '') + n; }
+    return zwei(d.getDate()) + '.' + zwei(d.getMonth() + 1) + '.' + d.getFullYear();
+  }
+
+  // Seiten-URL (relativ zur Bibliothek) ohne Sitzungs-Parameter, z. B. "blaetter/001.html?bereich=1-5"
+  var SITZUNGS_PARAMETER = ['historie', 'testId', 'aktion', 'print', 'fokus'];
+  function blattUrl(dateiname, search) {
+    var basis = 'blaetter/' + String(dateiname || '');
+    var q = String(search || '').replace(/^\?/, '');
+    if (!q) return basis;
+    var teile = q.split('&').filter(function (teil) {
+      if (!teil) return false;
+      var name = decodeURIComponent(teil.split('=')[0]);
+      return SITZUNGS_PARAMETER.indexOf(name) === -1;
+    });
+    return teile.length ? basis + '?' + teile.join('&') : basis;
+  }
+
+  // URL der gesperrten Ansicht eines Historien-Eintrags (relativ zur Bibliothek)
+  function ansichtsUrl(eintrag) {
+    if (!eintrag || !eintrag.id) return '';
+    var url = String(eintrag.url || '');
+    return url + (url.indexOf('?') === -1 ? '?' : '&') + 'historie=' + encodeURIComponent(eintrag.id);
+  }
+
+  return {
+    erzeuge: erzeuge,
+    gruppenAusLoesungen: gruppenAusLoesungen,
+    formatiereDatum: formatiereDatum,
+    blattUrl: blattUrl,
+    ansichtsUrl: ansichtsUrl
+  };
 });

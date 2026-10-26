@@ -3309,6 +3309,77 @@ body.fokus-modus .mix-aufgaben-block.fokus-kandidat.fokus-aktiv .mix-block-titel
   line-height: 1;
 }
 
+/* Neutraler Hinweis, wenn das Abschließen nicht gespeichert werden konnte (kein Bezug auf den Inhalt) */
+.blatt-fertig-hinweis {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--ui-text);
+  background: var(--ui-surface-muted);
+  border: 2px solid var(--ui-border-strong);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+/* ==========================================================================
+   10a. Gesperrte Ansicht (abgeschlossenes Blatt, ?historie=<id>)
+   Nur Anzeige: keine Eingabe, kein Ziffernblock, keine Bearbeitungs-Knöpfe.
+   ========================================================================== */
+body.blatt-gesperrt[data-blatt-id] {
+  padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+}
+
+body.blatt-gesperrt #numpad,
+body.blatt-gesperrt #btn-reset,
+body.blatt-gesperrt #btn-neu-wuerfeln,
+body.blatt-gesperrt #blatt-fertig-bereich,
+body.blatt-gesperrt #blatt-click-mix-bar,
+body.blatt-gesperrt .lehrer-mix-toggle-btn,
+body.blatt-gesperrt #erstellen-konfigurator,
+body.blatt-gesperrt #vorschau-aktionen-leiste {
+  display: none !important;
+}
+
+body.blatt-gesperrt main .luecke,
+body.blatt-gesperrt main .kreis {
+  cursor: default;
+}
+
+.blatt-abgeschlossen-banner {
+  display: block;
+  width: fit-content;
+  margin: 0 auto var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--ui-text-muted);
+  background: var(--ui-surface-muted);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius-pill);
+}
+
+.blatt-hinweis-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-7) auto;
+  padding: var(--space-5);
+  max-width: 480px;
+  background: var(--ui-surface);
+  border: 2px solid var(--ui-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+}
+
+.blatt-hinweis-text {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--ui-text);
+}
+
 /* ==========================================================================
    10b. Maskottchen-Hintergrund-Sticker (Deko im Schulheft-Rand)
    ========================================================================== */

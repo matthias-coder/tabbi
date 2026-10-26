@@ -157,3 +157,40 @@ test('fuegeHinzu mutiert uebergebenes Objekt nicht', () => {
   api.fuegeHinzu(e);
   assert.strictEqual(e.id, undefined);
 });
+
+/* ---------------------- reine Hilfsfunktionen ---------------------- */
+
+const G = require('../js/tabbi-gruppen.js');
+
+test('gruppenAusLoesungen: eindeutig, Reihenfolge des ersten Auftretens, Zusatz-Typen zuerst', () => {
+  const loes = {
+    luecken: { a: { soll: 3, gruppe: 'zerlegen' }, b: { soll: null, gruppe: null }, c: { soll: 1, gruppe: 'rechnen' } },
+    striche: {}, verbindungen: {},
+    gruppen: { s1: 'mengen', s2: 'zerlegen' }
+  };
+  assert.deepStrictEqual(H.gruppenAusLoesungen(loes, ['nachbarn'], G.gruppeFuerTyp), ['ordnen', 'zerlegen', 'rechnen', 'mengen']);
+});
+
+test('gruppenAusLoesungen: robust bei fehlenden Daten', () => {
+  assert.deepStrictEqual(H.gruppenAusLoesungen(null, null, null), []);
+  assert.deepStrictEqual(H.gruppenAusLoesungen({}, ['gibtsnicht'], G.gruppeFuerTyp), []);
+});
+
+test('formatiereDatum: TT.MM.JJJJ, ungueltig -> leer', () => {
+  const d = new Date(2026, 2, 5, 10, 0, 0);
+  assert.strictEqual(H.formatiereDatum(d.toISOString()), '05.03.2026');
+  assert.strictEqual(H.formatiereDatum('quatsch'), '');
+  assert.strictEqual(H.formatiereDatum(''), '');
+});
+
+test('blattUrl: entfernt Sitzungs-Parameter, behaelt Blatt-Parameter', () => {
+  assert.strictEqual(H.blattUrl('001_a.html', ''), 'blaetter/001_a.html');
+  assert.strictEqual(H.blattUrl('001_a.html', '?bereich=1-5&historie=h_1&fokus=1'), 'blaetter/001_a.html?bereich=1-5');
+  assert.strictEqual(H.blattUrl('011_b.html', '?testId=test_1&print=1'), 'blaetter/011_b.html');
+});
+
+test('ansichtsUrl: haengt historie-Parameter korrekt an', () => {
+  assert.strictEqual(H.ansichtsUrl({ id: 'h_1_ab', url: 'blaetter/001_a.html' }), 'blaetter/001_a.html?historie=h_1_ab');
+  assert.strictEqual(H.ansichtsUrl({ id: 'h_2', url: 'blaetter/001_a.html?bereich=1-5' }), 'blaetter/001_a.html?bereich=1-5&historie=h_2');
+  assert.strictEqual(H.ansichtsUrl(null), '');
+});

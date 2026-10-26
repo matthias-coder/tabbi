@@ -180,8 +180,10 @@
 
   <nav id="numpad" class="print-hide" aria-label="Ziffernblock"></nav>
 
-  <script src="../js/tabbi-core.js"></script>
   <script src="../js/tabbi-gruppen.js"></script>
+  <script src="../js/tabbi-historie.js"></script>
+  <script src="../js/tabbi-auswertung.js"></script>
+  <script src="../js/tabbi-core.js"></script>
   <script>
     (function () {
       'use strict';
@@ -224,6 +226,13 @@
         zwerg_riese: { icon: '🧙‍♂️', kurz: 'Zwerg & Riese', voll: 'Zwergen- & Riesenaufgaben' },
         zahlenmauern: { icon: '🧱', kurz: 'Zahlenmauern', voll: 'Zahlenmauern' }
       };
+
+      // ======================================================================
+      // MODUS H: ABGESCHLOSSENES BLATT (?historie=<id>) – gesperrte Ansicht, baut der Core auf
+      // ======================================================================
+      if (params.get('historie')) {
+        return;
+      }
 
       // ======================================================================
       // MODUS A: GESPEICHERTES ARBEITSBLATT AUS DER TESTBIBLIOTHEK ÖFFNEN
@@ -281,6 +290,8 @@
           }
           return;
         }
+        // Unbekannte / bereits abgeschlossene testId: der Core zeigt "Blatt nicht gefunden" (kein Erstell-Modus)
+        return;
       }
 
       // ======================================================================
