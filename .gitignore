@@ -11,3 +11,6 @@ beispiele/
 
 # Brainstorming-Mockups
 .superpowers/
+
+# Lokale KI-Tool-Konfigurationen
+.claude/
