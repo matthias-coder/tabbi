@@ -2081,6 +2081,7 @@
           const hauptBtn = document.getElementById('btn-blatt-fertig-frage');
           const frageBox = document.getElementById('blatt-fertig-frage-box');
           if (aktion === 'ok') {
+            if (this.istGesperrt) return; // Doppeltipp: Abschluss läuft bereits
             const ergebnis = this.schliesseAb();
             if (ergebnis.ok) {
               window.location.href = '../index.html';
@@ -2530,12 +2531,18 @@
         window.TabbiLehrerGate.sperreLehrerbereich();
       });
       // Ablauf der Freigabe: Auswertung verschwindet (Prüfung alle 30 s)
-      this.auswertungsTimer = setInterval(() => {
+      const pruefeFreigabe = () => {
         if (!window.TabbiLehrerGate.istFreigeschaltet()) {
           clearInterval(this.auswertungsTimer);
           zurKindAnsicht();
         }
-      }, 30 * 1000);
+      };
+      this.auswertungsTimer = setInterval(pruefeFreigabe, 30 * 1000);
+      // Tablet im Standby: Timer pausiert, daher auch beim Aufwachen/Fokus prüfen
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) pruefeFreigabe();
+      });
+      window.addEventListener('focus', pruefeFreigabe);
       // Zurück-Navigation aus dem Seiten-Cache: Freigabe erneut prüfen
       window.addEventListener('pageshow', (ev) => {
         if (ev.persisted && !window.TabbiLehrerGate.istFreigeschaltet()) zurKindAnsicht();

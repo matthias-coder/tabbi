@@ -45,14 +45,14 @@ TABBI transferiert analoge Schul-Arbeitsblätter in eine digitale, tablet-optimi
 
 ## 🚀 2. Aktueller Entwicklungsstand
 
-Der aktuelle Stand (**v10 Offline-Release**) umfasst:
+Der aktuelle Stand (Offline-Release) umfasst:
 
 * **12 fertige Arbeitsblatt-Module** mit über 20 Einzel-Varianten und Zahlenraum-Filtern.
 * **Click & Mix Generator:** Individuelles Zusammenstellen, Mischen und Differenzieren von Aufgaben.
 * **Test-Bibliothek ("Mein Test"):** Eigenes Erstellen von 1- bis 2-seitigen Mathe-Tests, dauerhaftes Speichern im Browser (`localStorage`), Wiederaufrufen und Drucken.
 * **Einzel-Ansicht (Fokus-Modus):** Großes, ablenkungsfreies Anzeigen jeweils einer einzigen Aufgabe mit Vor- und Zurück-Navigation. Verschachtelungsfehler behoben, saubere Zentrierung.
 * **Grafisches TABBI-Theming:** Eigenes Maskottchen (TABBI) in Web-Icons, Favicons (16/32/64/128px), Titelbalken sowie dezent transparent im Schreibtisch-/Schulheft-Hintergrund.
-* **Vollständiger PWA-Offline-Support:** Service Worker Cache v10 für lückenloses Arbeiten im Klassenzimmer ohne Internetverbindung.
+* **Vollständiger PWA-Offline-Support:** Service Worker (Cache-Version siehe `CACHE_NAME` in `sw.js`) für lückenloses Arbeiten im Klassenzimmer ohne Internetverbindung.
 
 ---
 
@@ -167,13 +167,18 @@ Die Auswertung wertet nur Lücken, deren Lösung eindeutig aus gedruckten Vorgab
 * **Kreise, Plättchen, Anmalen, Einkreisen, Bündeln:** reine Markierungen, werden nicht bewertet.
 * **Deutsch-Demo-Lücken** im Builder.
 * **Zahlenhaus/Zahlenfreunde mit zwei leeren Lücken:** gewertet wird nur, ob die Summe stimmt, wenn beide gefüllt sind.
+* **Ordnen:** gewertet nur, wenn die Anzahl der gedruckten Zahlen der Anzahl der Lücken entspricht.
+
+### Speicherplatz
+
+Jedes abgeschlossene Blatt speichert sein komplettes HTML im `localStorage` (ca. 5 MB pro Origin, gemeinsam mit allen anderen Daten). Ist der Speicher voll, zeigt „Fertig“ den neutralen Hinweis und das Blatt bleibt bearbeitbar. Ein Export bzw. Archiv wäre eine mögliche spätere Erweiterung.
 
 ---
 
 ## 📱 9. Offline-Betrieb (PWA & Service Worker)
 
 * **`manifest.json`:** Ermöglicht das "Zum Home-Bildschirm hinzufügen" auf iPads und Tablets als vollwertige Standalone-App ohne Browser-URL-Leiste.
-* **`sw.js` (Cache v10):**
+* **`sw.js` (Cache-Version: `CACHE_NAME`):**
   * Cached alle Core-Assets, Icons, Stylesheets und Arbeitsblätter.
   * Cache-First-Strategie mit Fallback auf Netzwerk.
   * Bei Updates wird der alte Cache beim Aktivieren automatisch aufgeräumt.
@@ -190,7 +195,7 @@ tabbi/
 ├── index.html                    # Hauptübersicht & Kachel-Bibliothek mit Filtern
 ├── hilfe.html                    # Hilfe & Fragen (Bedienung, Lehrkraft-Funktionen, Aufgabentypen)
 ├── manifest.json                 # Web App Manifest für PWA-Installation
-├── sw.js                         # Service Worker für Offline-Betrieb (v10)
+├── sw.js                         # Service Worker für Offline-Betrieb
 ├── assets/                       # Vektor- & Bildressourcen
 │   ├── icon.svg                  # App-Icon
 │   ├── schulheft-hintergrund.svg # Karo-Muster

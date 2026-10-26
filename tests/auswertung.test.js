@@ -188,6 +188,23 @@ test('ermittleLoesungen: Zahlenhaus (Builder) – Differenz und summe-Regel', ()
   assert.strictEqual(l.p_r2_r.partner, 'p_r2_l');
 });
 
+test('ermittleLoesungen: ausgeblendete Aufgaben (.aufgabe-versteckt) liefern keinen Eintrag', () => {
+  const root = main(
+    h('.aufgabe-versteckt', {}, [
+      h('.nachbarzahlen-grid', { 'data-baustein': 'nachbarzahlen', 'data-zahlen': '12' }, [
+        h('.nachbar-trio', {}, [L('v_0_v'), V(12), L('v_0_n')])
+      ])
+    ]),
+    h('.nachbarzahlen-grid', { 'data-baustein': 'nachbarzahlen', 'data-zahlen': '5' }, [
+      h('.nachbar-trio', {}, [L('s_0_v'), V(5), L('s_0_n')])
+    ])
+  );
+  const l = A.ermittleLoesungen(root, G.gruppeFuerTyp).luecken;
+  assert.strictEqual(l.v_0_v, undefined);
+  assert.strictEqual(l.v_0_n, undefined);
+  assert.strictEqual(l.s_0_v.soll, 4);
+});
+
 test('ermittleLoesungen: Nachbarzahlen (Katalog, ohne Builder-Block)', () => {
   const root = main(h('.nachbarzahlen-grid', { 'data-baustein': 'nachbarzahlen', 'data-zahlen': '12,1' }, [
     h('.nachbar-trio', {}, [L('nb_0_0_v'), V(12), L('nb_0_0_n')]),

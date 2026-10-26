@@ -20,7 +20,10 @@
   /* ------------------------------ Hilfen ---------------------------------- */
 
   function alle(el, sel) {
-    return Array.prototype.slice.call(el.querySelectorAll(sel));
+    // Per Bereichsfilter ausgeblendete Aufgaben (.aufgabe-versteckt) zählen nicht mit
+    return Array.prototype.slice.call(el.querySelectorAll(sel)).filter(function (x) {
+      return !(x.closest && x.closest('.aufgabe-versteckt'));
+    });
   }
 
   function attr(el, name) {
