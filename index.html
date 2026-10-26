@@ -28,6 +28,7 @@
 
       <div class="bib-header-aktionen">
         <a href="hilfe.html" class="ui-btn bib-hilfe-btn">❓ Hilfe &amp; Fragen</a>
+        <button type="button" id="btn-druckname" class="ui-btn bib-hilfe-btn" title="Für Lehrkräfte: Name im Druckkopf hinterlegen">🔒 ✏️ Name für den Druck</button>
         <button type="button" id="btn-lehrer-erstellen" class="bib-erstellen-hauptbtn" title="Für Lehrkräfte: 3 Sekunden gedrückt halten">
           🔒 ➕ Arbeitsblatt erstellen <small style="font-size:0.82rem;opacity:0.9;font-weight:400;">(3 Sek. halten)</small>
         </button>
@@ -67,11 +68,14 @@
         <button type="button" class="bib-subfilter-btn" data-status="angefangen">
           ✏️ Angefangen / Fertig
         </button>
+        <button type="button" class="bib-subfilter-btn" data-status="abgeschlossen">
+          📁 Abgeschlossen
+        </button>
       </nav>
     </div>
 
     <!-- Kachel-Grid der gespeicherten Arbeitsblätter / Tests -->
-    <h2 class="bib-abschnitt-titel">✏️ Erstellte Arbeitsblätter</h2>
+    <h2 id="erstellt-titel" class="bib-abschnitt-titel">✏️ Erstellte Arbeitsblätter</h2>
     <div id="kachel-grid" class="bib-kachel-grid" role="list">
       <!-- Wird dynamisch aus TabbiTestbibliothek gerendert -->
     </div>
@@ -79,14 +83,22 @@
     <!-- Kachel-Grid der fertigen Arbeitsblätter aus dem Katalog (blaetter/001–010) -->
     <section id="katalog-bereich" aria-labelledby="katalog-titel">
       <h2 id="katalog-titel" class="bib-abschnitt-titel">📚 Fertige Arbeitsblätter</h2>
-      <div id="katalog-grid" class="bib-kachel-grid" role="list">
-        <!-- Wird dynamisch aus TABBI_KATALOG gerendert -->
+      <div id="katalog-grid" class="bib-gruppen">
+        <!-- Wird dynamisch aus TABBI_KATALOG gerendert, gegliedert nach TabbiGruppen.GRUPPEN -->
       </div>
+    </section>
+
+    <!-- Abgeschlossene Blätter (Historie) -->
+    <section id="abgeschlossen-bereich" aria-labelledby="abgeschlossen-titel" style="display:none;">
+      <h2 id="abgeschlossen-titel" class="bib-abschnitt-titel">📁 Abgeschlossen</h2>
+      <div id="abgeschlossen-grid" class="bib-kachel-grid" role="list"></div>
     </section>
 
   </main>
 
   <script src="js/tabbi-core.js"></script>
+  <script src="js/tabbi-gruppen.js"></script>
+  <script src="js/tabbi-historie.js"></script>
   <script src="js/blaetter-katalog.js"></script>
   <script>
     (function () {
@@ -132,46 +144,138 @@
 
         bereich.style.display = gefiltert.length > 0 ? '' : 'none';
 
-        gefiltert.forEach((blatt) => {
-          const status = window.TabbiBibliothek.holeBlattStatus(blatt.blattId, blatt.zahlenFilter, blatt.url);
+        const gruppen = window.TabbiGruppen.GRUPPEN;
+        gruppen.forEach((gruppe) => {
+          const blaetter = gefiltert.filter((b) => b.gruppe === gruppe.id);
+          if (blaetter.length === 0) return;
 
-          let statusText = '⚪ Neu';
-          let statusKlasse = 'bib-status-badge';
-          if (status.angefangen) {
-            statusText =
-              status.gesamt > 0
-                ? `✏️ ${status.anzahl} / ${status.gesamt} ausgefüllt`
-                : '✏️ Angefangen';
-            statusKlasse = 'bib-status-badge angefangen';
-          }
+          const abschnitt = document.createElement('section');
+          abschnitt.className = 'bib-gruppe';
+          abschnitt.setAttribute('aria-labelledby', 'gruppe-titel-' + gruppe.id);
+          const ueberschrift = document.createElement('h3');
+          ueberschrift.className = 'bib-gruppe-titel';
+          ueberschrift.id = 'gruppe-titel-' + gruppe.id;
+          ueberschrift.textContent = gruppe.icon + ' ' + gruppe.titel;
+          abschnitt.appendChild(ueberschrift);
 
-          const tagsHTML = (blatt.tags || [])
-            .map((t) => `<span class="bib-tag">${t}</span>`)
-            .join('');
+          const gruppenGrid = document.createElement('div');
+          gruppenGrid.className = 'bib-kachel-grid';
+          gruppenGrid.setAttribute('role', 'list');
+          blaetter.forEach((blatt) => gruppenGrid.appendChild(baueKatalogKachel(blatt)));
+          abschnitt.appendChild(gruppenGrid);
+          katalogGrid.appendChild(abschnitt);
+        });
+      }
 
+      function baueKatalogKachel(blatt) {
+        const status = window.TabbiBibliothek.holeBlattStatus(blatt.blattId, blatt.zahlenFilter, blatt.url);
+
+        let statusText = '⚪ Neu';
+        let statusKlasse = 'bib-status-badge';
+        if (status.angefangen) {
+          statusText =
+            status.gesamt > 0
+              ? `✏️ ${status.anzahl} / ${status.gesamt} ausgefüllt`
+              : '✏️ Angefangen';
+          statusKlasse = 'bib-status-badge angefangen';
+        }
+
+        const tagsHTML = (blatt.tags || [])
+          .map((t) => `<span class="bib-tag">${t}</span>`)
+          .join('');
+
+        const kachel = document.createElement('div');
+        kachel.className = 'bib-kachel';
+        kachel.setAttribute('role', 'listitem');
+        kachel.innerHTML =
+          `<a href="${blatt.url}" style="text-decoration:none;color:inherit;display:block;">` +
+            `<div class="bib-kachel-top">` +
+              `<div class="bib-kachel-icon" aria-hidden="true">${blatt.icon || '📄'}</div>` +
+              `<span class="${statusKlasse}">${statusText}</span>` +
+            `</div>` +
+            `<h3 class="bib-kachel-titel">${blatt.titel}</h3>` +
+            `<div class="bib-kachel-tags">${tagsHTML}</div>` +
+          `</a>` +
+          `<div class="bib-kachel-aktionen">` +
+            `<a href="${blatt.url}" class="bib-aktion-btn oeffnen">${
+              status.angefangen ? '▶️ Weiterarbeiten' : '▶️ Öffnen'
+            }</a>` +
+          `</div>`;
+        return kachel;
+      }
+
+      /** Rendert den Bereich "Abgeschlossen": nur Icon, Titel, Datum, Knöpfe (kein Ergebnis, keine Zähler). */
+      function rendereAbgeschlossen() {
+        const bereich = document.getElementById('abgeschlossen-bereich');
+        const agrid = document.getElementById('abgeschlossen-grid');
+        agrid.innerHTML = '';
+        let eintraege = [];
+        try {
+          eintraege = window.TabbiHistorie.erzeuge(window.localStorage).holeAlle();
+        } catch (e) {
+          eintraege = [];
+        }
+        eintraege = eintraege.filter(
+          (e) => e && e.id && (aktuellesFach === 'alle' || (e.fach || 'mathe') === aktuellesFach)
+        );
+        bereich.style.display = eintraege.length > 0 ? '' : 'none';
+        eintraege.forEach((e) => {
           const kachel = document.createElement('div');
-          kachel.className = 'bib-kachel';
+          kachel.className = 'bib-kachel bib-kachel-abgeschlossen';
           kachel.setAttribute('role', 'listitem');
-          kachel.innerHTML =
-            `<a href="${blatt.url}" style="text-decoration:none;color:inherit;display:block;">` +
-              `<div class="bib-kachel-top">` +
-                `<div class="bib-kachel-icon" aria-hidden="true">${blatt.icon || '📄'}</div>` +
-                `<span class="${statusKlasse}">${statusText}</span>` +
-              `</div>` +
-              `<h3 class="bib-kachel-titel">${blatt.titel}</h3>` +
-              `<div class="bib-kachel-tags">${tagsHTML}</div>` +
-            `</a>` +
-            `<div class="bib-kachel-aktionen">` +
-              `<a href="${blatt.url}" class="bib-aktion-btn oeffnen">${
-                status.angefangen ? '▶️ Weiterarbeiten' : '▶️ Öffnen'
-              }</a>` +
-            `</div>`;
-          katalogGrid.appendChild(kachel);
+          const icon = document.createElement('div');
+          icon.className = 'bib-kachel-icon';
+          icon.setAttribute('aria-hidden', 'true');
+          icon.textContent = '📁';
+          const titel = document.createElement('h2');
+          titel.className = 'bib-kachel-titel';
+          titel.textContent = e.titel || 'Arbeitsblatt';
+          const datum = document.createElement('span');
+          datum.className = 'bib-datum-badge';
+          datum.textContent = 'Abgeschlossen am ' + window.TabbiHistorie.formatiereDatum(e.abgeschlossenAm);
+          const aktionen = document.createElement('div');
+          aktionen.className = 'bib-kachel-aktionen';
+          const ansehen = document.createElement('a');
+          ansehen.className = 'bib-aktion-btn oeffnen';
+          ansehen.href = window.TabbiHistorie.ansichtsUrl(e);
+          ansehen.textContent = '👁️ Ansehen';
+          const nochmal = document.createElement('a');
+          nochmal.className = 'bib-aktion-btn wuerfeln';
+          nochmal.href =
+            e.quelle === 'katalog' ? e.url : 'blaetter/011_click_und_mix.html?neuAus=' + encodeURIComponent(e.id);
+          nochmal.textContent = '🔁 Nochmal neu';
+          const ausw = document.createElement('button');
+          ausw.type = 'button';
+          ausw.className = 'bib-aktion-btn lehrkraft';
+          ausw.setAttribute('data-auswertung-id', e.id);
+          ausw.textContent = '🔒 Auswertung (3 Sek. halten)';
+          if (window.TabbiLehrerGate) {
+            const auswUrl = window.TabbiHistorie.ansichtsUrl(e) + '&auswertung=1';
+            window.TabbiLehrerGate.bindeDreiSekundenButton(ausw, () => {
+              window.location.href = auswUrl;
+            });
+          }
+          aktionen.append(ansehen, nochmal, ausw);
+          const kopf = document.createElement('div');
+          kopf.className = 'bib-kachel-top';
+          kopf.append(icon);
+          kachel.append(kopf, titel, datum, aktionen);
+          agrid.appendChild(kachel);
         });
       }
 
       function rendereTestbibliothek() {
         grid.innerHTML = '';
+        rendereAbgeschlossen();
+
+        // Filter "Abgeschlossen": nur dieser Bereich
+        const nurAbgeschlossen = aktuellerStatus === 'abgeschlossen';
+        document.getElementById('erstellt-titel').style.display = nurAbgeschlossen ? 'none' : '';
+        grid.style.display = nurAbgeschlossen ? 'none' : '';
+        if (nurAbgeschlossen) {
+          document.getElementById('katalog-bereich').style.display = 'none';
+          return;
+        }
 
         const alleTests = window.TabbiTestbibliothek
           ? window.TabbiTestbibliothek.holeAlleTests()
@@ -334,7 +438,7 @@
             });
           };
 
-          // 1. "🔄 Eingaben leeren" (leert nur Louis' Antworten, behält das Blatt)
+          // 1. "🔄 Eingaben leeren" (leert nur die Antworten des Kindes, behält das Blatt)
           richteGeschuetztenLehrerButtonEin(
             kachel.querySelector('[data-leeren-id]'),
             'Eingaben leeren?',
@@ -390,6 +494,121 @@
           rendereTestbibliothek();
         });
       });
+
+      // ----------------------------------------------------------------
+      // Lehrkraft: Name für den Druckkopf (nur lokal in localStorage, nie im Code)
+      // Anzeige-div + Buchstaben-Kacheln, kein <input>, keine Systemtastatur.
+      // ----------------------------------------------------------------
+      const DRUCKNAME_KEY = 'tabbi_druckname';
+      const DRUCKNAME_MAX = 30;
+
+      function leseDruckname() {
+        try {
+          return (localStorage.getItem(DRUCKNAME_KEY) || '').trim();
+        } catch (e) {
+          return '';
+        }
+      }
+
+      function oeffneDrucknameOverlay() {
+        const alt = document.getElementById('druckname-overlay');
+        if (alt) alt.remove();
+
+        let name = leseDruckname();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'druckname-overlay';
+        overlay.className = 'druckname-overlay print-hide';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-label', 'Name für den Druck');
+
+        const tasten = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ'
+          .split('')
+          .map((b) => `<button type="button" class="druckname-taste" data-buchstabe="${b}">${b}</button>`)
+          .join('');
+
+        overlay.innerHTML =
+          `<div class="druckname-karte">` +
+            `<h2 class="druckname-titel">✏️ Name für den Druck</h2>` +
+            `<p class="druckname-hinweis">Wird nur auf diesem Gerät gespeichert und im Kopf des Ausdrucks als „Name: …“ eingesetzt.</p>` +
+            `<div class="druckname-anzeige leer" id="druckname-anzeige" aria-live="polite"></div>` +
+            `<div class="druckname-tasten">` +
+              tasten +
+              `<button type="button" class="druckname-taste breit" data-leer="1">Leertaste</button>` +
+              `<button type="button" class="druckname-taste zurueck" data-zurueck="1" aria-label="Letzten Buchstaben löschen">⌫</button>` +
+            `</div>` +
+            `<div class="druckname-aktionen">` +
+              `<button type="button" class="druckname-btn entfernen" data-entfernen="1">Entfernen</button>` +
+              `<button type="button" class="druckname-btn" data-abbrechen="1">Abbrechen</button>` +
+              `<button type="button" class="druckname-btn speichern" data-speichern="1">Speichern</button>` +
+            `</div>` +
+          `</div>`;
+
+        const anzeige = overlay.querySelector('#druckname-anzeige');
+        const zeigeAn = () => {
+          anzeige.textContent = name || 'Noch kein Name';
+          anzeige.classList.toggle('leer', !name);
+        };
+        zeigeAn();
+
+        const schliesse = () => overlay.remove();
+
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            schliesse();
+            return;
+          }
+          const btn = e.target.closest('button');
+          if (!btn) return;
+          if (btn.dataset.buchstabe) {
+            if (name.length < DRUCKNAME_MAX) {
+              // Groß-/Kleinschreibung automatisch: Wortanfang groß, sonst klein
+              const wortanfang = name === '' || name.endsWith(' ');
+              name += wortanfang ? btn.dataset.buchstabe : btn.dataset.buchstabe.toLowerCase();
+              zeigeAn();
+            }
+          } else if (btn.dataset.leer) {
+            if (name !== '' && !name.endsWith(' ') && name.length < DRUCKNAME_MAX) {
+              name += ' ';
+              zeigeAn();
+            }
+          } else if (btn.dataset.zurueck) {
+            name = name.slice(0, -1);
+            zeigeAn();
+          } else if (btn.dataset.speichern) {
+            try {
+              const sauber = name.trim();
+              if (sauber) {
+                localStorage.setItem(DRUCKNAME_KEY, sauber);
+              } else {
+                localStorage.removeItem(DRUCKNAME_KEY);
+              }
+            } catch (err) {}
+            schliesse();
+          } else if (btn.dataset.entfernen) {
+            try {
+              localStorage.removeItem(DRUCKNAME_KEY);
+            } catch (err) {}
+            schliesse();
+          } else if (btn.dataset.abbrechen) {
+            schliesse();
+          }
+        });
+
+        document.body.appendChild(overlay);
+      }
+
+      const drucknameBtn = document.getElementById('btn-druckname');
+      if (drucknameBtn) {
+        drucknameBtn.addEventListener('click', () => {
+          if (window.TabbiLehrerGate && window.TabbiLehrerGate.mitFreigabe) {
+            window.TabbiLehrerGate.mitFreigabe(oeffneDrucknameOverlay);
+          } else {
+            oeffneDrucknameOverlay();
+          }
+        });
+      }
 
       window.addEventListener('pageshow', rendereTestbibliothek);
       rendereTestbibliothek();

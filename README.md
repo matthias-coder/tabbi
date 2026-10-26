@@ -1,7 +1,7 @@
 # TABBI: Tipp-ArbeitsBlätter-Bibliothek
 
 > **Digitale, barrierearme Arbeitsblätter für die Grundschule (Klasse 1)**  
-> Entwickelt für Louis zur motorischen Entlastung (Tippen statt Schreiben/Ausmalen) mit Begleitung einer Teilhabeassistentin – lauffähig als PWA direkt im Browser / GitHub Pages ohne Backend oder Build-Step.
+> Entwickelt für ein Kind (1. Klasse) zur motorischen Entlastung (Tippen statt Schreiben/Ausmalen) mit Begleitung einer Teilhabeassistentin – lauffähig als PWA direkt im Browser / GitHub Pages ohne Backend oder Build-Step.
 
 ---
 
@@ -45,14 +45,14 @@ TABBI transferiert analoge Schul-Arbeitsblätter in eine digitale, tablet-optimi
 
 ## 🚀 2. Aktueller Entwicklungsstand
 
-Der aktuelle Stand (**v10 Offline-Release**) umfasst:
+Der aktuelle Stand (Offline-Release) umfasst:
 
 * **12 fertige Arbeitsblatt-Module** mit über 20 Einzel-Varianten und Zahlenraum-Filtern.
 * **Click & Mix Generator:** Individuelles Zusammenstellen, Mischen und Differenzieren von Aufgaben.
 * **Test-Bibliothek ("Mein Test"):** Eigenes Erstellen von 1- bis 2-seitigen Mathe-Tests, dauerhaftes Speichern im Browser (`localStorage`), Wiederaufrufen und Drucken.
 * **Einzel-Ansicht (Fokus-Modus):** Großes, ablenkungsfreies Anzeigen jeweils einer einzigen Aufgabe mit Vor- und Zurück-Navigation. Verschachtelungsfehler behoben, saubere Zentrierung.
 * **Grafisches TABBI-Theming:** Eigenes Maskottchen (TABBI) in Web-Icons, Favicons (16/32/64/128px), Titelbalken sowie dezent transparent im Schreibtisch-/Schulheft-Hintergrund.
-* **Vollständiger PWA-Offline-Support:** Service Worker Cache v10 für lückenloses Arbeiten im Klassenzimmer ohne Internetverbindung.
+* **Vollständiger PWA-Offline-Support:** Service Worker (Cache-Version siehe `CACHE_NAME` in `sw.js`) für lückenloses Arbeiten im Klassenzimmer ohne Internetverbindung.
 
 ---
 
@@ -66,7 +66,11 @@ Der aktuelle Stand (**v10 Offline-Release**) umfasst:
 | **2-Tipp-Löschung** | Blatt leeren verlangt eine Zwei-Tipp-Bestätigung direkt im UI (kein nerviges System-Popup). |
 | **Status & Speicherung** | Fortschritt (`⚪ Neu`, `✏️ Angefangen`, `✅ Fertig`) wird live im `localStorage` gespeichert. |
 | **Einzel-Ansicht (Fokus-Modus)** | Per Knopfdruck wird nur eine einzige Aufgabe im Großformat fokussiert. |
-| **Druck-Optimierung** | Ein Klick auf `🖨️ PDF / Drucken` erzeugt eine saubere Druckseite ohne UI-Bedienelemente. |
+| **Druck-Optimierung** | Ein Klick auf `🖨️ PDF / Drucken` erzeugt eine kompakte Druckseite mit Heftrand und optionalem Namen (`tabbi_druckname`), ohne UI-Bedienelemente. |
+| **Schwebender Ziffernblock** | Auf großen Bildschirmen schwebt der Ziffernblock neben dem Blatt, auf dem Tablet liegt er am unteren Rand. |
+| **Gruppen-Builder** | Aufgabentypen in 5 Übergruppen, seltene Optionen unter „Mehr Optionen“. |
+| **✅ Fertig / 📁 Abgeschlossen** | Endgültiger Abschluss (zwei Tipps): Blatt gesperrt, in `tabbi_historie_v1` verschoben, nicht löschbar. Dort *Ansehen* und *Nochmal neu*. |
+| **Auswertung (nur Lehrkraft)** | 3-Sekunden-Halten plus Einmaleins-Aufgabe. Rote Markierungen mit Sollwert, „nicht bearbeitet“, Zusammenfassung je Gruppe, `Mit Korrektur drucken`. Sperrt beim Verlassen wieder. Der normale Druck zeigt nie Korrekturen, das Kind sieht nie Richtig/Falsch. |
 
 ---
 
@@ -142,18 +146,39 @@ TABBI basiert auf einem strikten **Vanilla-Web-Stack**:
 * Direktes Hosting auf **GitHub Pages**.
 * **Zentrale Komponenten:**
   * `js/tabbi-core.js`: Universeller Controller für alle Blätter (Numpad, Navigation, Fokus, Persistenz, Event-Handling).
+  * `js/tabbi-gruppen.js`: Aufgabengruppen des Builders und Zuordnung Typ -> Gruppe.
+  * `js/tabbi-historie.js`: Verwaltung der abgeschlossenen Blätter (`tabbi_historie_v1`).
+  * `js/tabbi-auswertung.js`: Lösungen aus gedruckten Vorgaben ableiten und vergleichen (nur Lehrkraft-Ansicht, schreibt nie ins DOM).
   * `js/blaetter-katalog.js`: Zentrale Metadaten aller Arbeitsblätter und Filterkategorien.
   * `css/tabbi.css`: Globales Designsystem, responsive Breakpoints und Drucklayouts.
 * **Datenspeicherung:**
   * Jeder Zustand wird in `localStorage` unter `tabbi_daten_<blattId>` als JSON persistiert.
+  * Abgeschlossene Blätter unter `tabbi_historie_v1`, optionaler Druckname unter `tabbi_druckname`.
   * Fehlerresistente Speicherung über `try/catch`.
+
+### Auswertung – Grenzen
+
+Die Auswertung wertet nur Lücken, deren Lösung eindeutig aus gedruckten Vorgaben im selben Baustein folgt (Regeln nach Struktur, nicht nach Blatt). Alles andere zählt als „nicht ausgewertet“ und nie als falsch:
+
+* **Punkte bis 20, Stellenwerttafel bei genau 20:** Zehner/Einer sind aus dem Bild nicht eindeutig (1 Zehner + 10 Einzelpunkte). Die Gleichung `10 + 10 = 20` wird gewertet.
+* **Strichlisten im Katalogblatt 004:** Zahlenfelder (`zahl_*`) und Striche haben keine gedruckte Zählvorlage (Tiere nur als Bild).
+* **Zahlenreihen mit nur einer gedruckten Zahl** oder Schrittweite ungleich ±1, sowie Ordnen mit doppelten Zahlen.
+* **Halbieren mit ungeradem n** und `n = _ + _` ohne „Halbieren“-Kennzeichnung (mehrere Zerlegungen möglich).
+* **Kreise, Plättchen, Anmalen, Einkreisen, Bündeln:** reine Markierungen, werden nicht bewertet.
+* **Deutsch-Demo-Lücken** im Builder.
+* **Zahlenhaus/Zahlenfreunde mit zwei leeren Lücken:** gewertet wird nur, ob die Summe stimmt, wenn beide gefüllt sind.
+* **Ordnen:** gewertet nur, wenn die Anzahl der gedruckten Zahlen der Anzahl der Lücken entspricht.
+
+### Speicherplatz
+
+Jedes abgeschlossene Blatt speichert sein komplettes HTML im `localStorage` (ca. 5 MB pro Origin, gemeinsam mit allen anderen Daten). Ist der Speicher voll, zeigt „Fertig“ den neutralen Hinweis und das Blatt bleibt bearbeitbar. Ein Export bzw. Archiv wäre eine mögliche spätere Erweiterung.
 
 ---
 
 ## 📱 9. Offline-Betrieb (PWA & Service Worker)
 
 * **`manifest.json`:** Ermöglicht das "Zum Home-Bildschirm hinzufügen" auf iPads und Tablets als vollwertige Standalone-App ohne Browser-URL-Leiste.
-* **`sw.js` (Cache v10):**
+* **`sw.js` (Cache-Version: `CACHE_NAME`):**
   * Cached alle Core-Assets, Icons, Stylesheets und Arbeitsblätter.
   * Cache-First-Strategie mit Fallback auf Netzwerk.
   * Bei Updates wird der alte Cache beim Aktivieren automatisch aufgeräumt.
@@ -170,7 +195,7 @@ tabbi/
 ├── index.html                    # Hauptübersicht & Kachel-Bibliothek mit Filtern
 ├── hilfe.html                    # Hilfe & Fragen (Bedienung, Lehrkraft-Funktionen, Aufgabentypen)
 ├── manifest.json                 # Web App Manifest für PWA-Installation
-├── sw.js                         # Service Worker für Offline-Betrieb (v10)
+├── sw.js                         # Service Worker für Offline-Betrieb
 ├── assets/                       # Vektor- & Bildressourcen
 │   ├── icon.svg                  # App-Icon
 │   ├── schulheft-hintergrund.svg # Karo-Muster
@@ -180,6 +205,9 @@ tabbi/
 │   └── tabbi.css                 # Gesamtes Designsystem, Komponenten & Print-Styles
 ├── js/
 │   ├── tabbi-core.js             # Kernlogik (Numpad, Lücken, Fokus-Modus, Storage)
+│   ├── tabbi-gruppen.js          # Aufgabengruppen des Builders
+│   ├── tabbi-historie.js         # Abgeschlossene Blätter
+│   ├── tabbi-auswertung.js       # Lösungen & Auswertung (nur Lehrkraft)
 │   └── blaetter-katalog.js       # Katalog aller Blätter & Metadaten
 ├── blaetter/                     # Alle interaktiven Arbeitsblätter
 │   ├── 001_zahlenhaeuser_und_freunde.html

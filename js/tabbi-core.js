@@ -867,6 +867,11 @@
     constructor(blattId) {
       this.blattId = blattId;
       this.istGespeicherterTest = this.pruefeObGespeicherterTest();
+      // Gesperrte Ansicht: ?historie=<id> (abgeschlossenes Blatt) bzw. unbekannte ?testId.
+      // Muss vor init() feststehen, damit nichts gespeichert und kein Ziffernblock gebaut wird.
+      this.historieEintrag = null;
+      this.sperrGrund = this.ermittleSperrGrund();
+      this.istGesperrt = this.sperrGrund !== null;
       // Eigener Storage-Key pro gespeicherten Test (testId) oder Kachel/Zahlenbereich
       this.storageKey = this.berechneStorageKey(blattId);
       this.aktiveLuecke = null;
@@ -876,7 +881,6 @@
       this.aktiveFarbe = 'farbe-blau';
       this.fokusModus = false;
       this.fokusIndex = 0;
-      this.istAbgeschlossen = false;
       this.zweiTippTimer = new WeakMap();
 
       this.init();
@@ -889,6 +893,28 @@
       } catch (e) {
         return false;
       }
+    }
+
+    /**
+     * null = normales, bearbeitbares Blatt; 'historie' = abgeschlossener Eintrag gefunden;
+     * 'nicht-gefunden' = ?historie=<id> bzw. ?testId=<id> existiert nicht (mehr).
+     */
+    ermittleSperrGrund() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const historieId = params.get('historie');
+        if (historieId) {
+          const eintrag = window.TabbiHistorie
+            ? window.TabbiHistorie.erzeuge(localStorage).hole(historieId)
+            : null;
+          // Nur auf der Seite des Eintrags anzeigen (nie fremdes HTML in ein anderes Blatt einsetzen)
+          this.historieEintrag = eintrag && eintrag.blattId === this.blattId ? eintrag : null;
+          return this.historieEintrag ? 'historie' : 'nicht-gefunden';
+        }
+        const testId = params.get('testId');
+        if (testId && !TabbiTestbibliothek.holeTest(testId)) return 'nicht-gefunden';
+      } catch (e) {}
+      return null;
     }
 
     /**
@@ -921,8 +947,13 @@
       // Aktuelles Tagesdatum im Druck-Header eintragen (z. B. "25.10.2026")
       this.setzeHeutigesDruckDatum();
 
-      // Falls auf diesem Blatt zuvor "🎲 Neu würfeln" genutzt wurde, gespeicherte Aufgaben-Attribute vor dem Rendern wiederherstellen!
-      this.ladeGespeicherteWuerfelAufgaben();
+      if (this.istGesperrt) {
+        // Abgeschlossenes Blatt: Schnappschuss statt Neugenerierung einsetzen (bzw. "Blatt nicht gefunden")
+        this.setzeGesperrtenInhalt();
+      } else {
+        // Falls auf diesem Blatt zuvor "🎲 Neu würfeln" genutzt wurde, gespeicherte Aufgaben-Attribute vor dem Rendern wiederherstellen!
+        this.ladeGespeicherteWuerfelAufgaben();
+      }
 
       // Deklarative Bausteine zuerst in echtes DOM umwandeln
       rendereDeklarativeBausteine();
@@ -933,17 +964,19 @@
       // Maskottchen dezent in der Kopfzeile neben dem Titel einbinden
       this.baueTitelMaskottchen();
 
-      // Fixierten Ziffernblock am unteren Bildschirmrand sicherstellen
-      this.baueNumpad();
+      if (!this.istGesperrt) {
+        // Fixierten Ziffernblock am unteren Bildschirmrand sicherstellen
+        this.baueNumpad();
 
-      // Eingebettete Click & Mix Leiste für jedes Blatt aufbauen (selbe Aufgabe, andere Zahlen/Zahlenbereich wählbar!)
-      this.baueBlattClickAndMixLeiste();
+        // Eingebettete Click & Mix Leiste für jedes Blatt aufbauen (selbe Aufgabe, andere Zahlen/Zahlenbereich wählbar!)
+        this.baueBlattClickAndMixLeiste();
+      }
 
       // Fokus-Modus (1-Aufgaben-Ansicht für Tablet/Mobilgeräte) vorbereiten
       this.baueFokusSteuerung();
 
       // Unten am Arbeitsblatt den Fertigstellen-Bereich (Zielflagge mit Fragezeichen 🏁❓) vorbereiten
-      this.baueFertigstellenBereich();
+      if (!this.istGesperrt) this.baueFertigstellenBereich();
 
       // Event-Listener für Lücken, Kreise, Tabs, Bereichsfilter & Aktions-Buttons binden
       this.bindeEvents();
@@ -962,6 +995,9 @@
 
       // Prüfen, ob alle Aufgaben bereits ausgefüllt sind -> Fertigstellen-Button einblenden
       this.aktualisiereFertigstellenButton(false);
+
+      // Lehrkraft-Auswertung: nur ?historie=<id>&auswertung=1 UND aktive Freigabe (sonst reine Kind-Ansicht)
+      if (this.istGesperrt && this.historieEintrag) this.pruefeAuswertungsModus();
     }
 
     registrierePWA() {
@@ -1043,7 +1079,11 @@
     }
 
     setzeHeutigesDruckDatum() {
-      const heute = new Date().toLocaleDateString('de-DE', {
+      const datumQuelle =
+        this.historieEintrag && this.historieEintrag.abgeschlossenAm
+          ? new Date(this.historieEintrag.abgeschlossenAm)
+          : new Date();
+      const heute = datumQuelle.toLocaleDateString('de-DE', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
@@ -1053,6 +1093,19 @@
           sp.textContent = `Datum: ${heute}`;
         }
       });
+
+      // Optionaler Name für den Druckkopf (von der Lehrkraft lokal hinterlegt, nie im Code/Repo)
+      let druckName = '';
+      try {
+        druckName = (localStorage.getItem('tabbi_druckname') || '').trim();
+      } catch (e) {
+        druckName = '';
+      }
+      if (druckName) {
+        document.querySelectorAll('.druck-name').forEach((sp) => {
+          sp.textContent = `Name: ${druckName}`;
+        });
+      }
     }
 
     vergebeElementIds() {
@@ -1504,7 +1557,7 @@
           `<button type="button" class="blatt-fertig-hauptbtn" id="btn-blatt-fertig-frage">` +
             erstelleZielflaggeFragezeichenSVG() +
             `<span class="blatt-fertig-text-gruppe">` +
-              `<span class="blatt-fertig-titel">Fertig mit den Aufgaben?</span>` +
+              `<span class="blatt-fertig-titel">✅ Fertig</span>` +
               `<span class="blatt-fertig-sub">Tippe auf die Zielflagge zum Abschließen</span>` +
             `</span>` +
           `</button>` +
@@ -1523,7 +1576,8 @@
                 `<span>Weiterarbeiten</span>` +
               `</button>` +
             `</div>` +
-          `</div>`;
+          `</div>` +
+          `<p class="blatt-fertig-hinweis" id="blatt-fertig-hinweis" role="status" hidden></p>`;
       }
       // Immer ganz ans Ende von <main> hängen
       if (bereich.parentNode !== main || main.lastElementChild !== bereich) {
@@ -1536,6 +1590,11 @@
      * und blendet dann unten den Fertigstellen-Button (Zielflagge mit Fragezeichen 🏁❓) ein.
      */
     aktualisiereFertigstellenButton(scrollWennNeuFertig = false) {
+      if (this.istGesperrt) {
+        const vorhanden = document.getElementById('blatt-fertig-bereich');
+        if (vorhanden) vorhanden.style.display = 'none';
+        return;
+      }
       this.baueFertigstellenBereich();
       const bereich = document.getElementById('blatt-fertig-bereich');
       if (!bereich) return;
@@ -1570,71 +1629,10 @@
         return;
       }
 
-      const lueckenAlleGefuellt = alleLuecken.every((l) => l.textContent.trim() !== '');
-
-      const zuordnungenAlleVerbunden = alleZuordnungen.every((zo) => {
-        const linksKnoten = zo.querySelectorAll('.zuordnung-knoten.links').length;
-        if (linksKnoten === 0) return true;
-        const raw = (zo.getAttribute('data-verbindungen') || '').trim();
-        const paare = raw ? raw.split(',').filter(Boolean) : [];
-        return paare.length >= linksKnoten;
-      });
-
-      const farbenKlassen = [
-        'farbe-blau',
-        'farbe-rot',
-        'farbe-gruen',
-        'farbe-gelb',
-        'farbe-lila',
-        'farbe-orange'
-      ];
-      const einkreisAlleBearbeitet = alleEinkreisZeilen.every((zeile) => {
-        const items = Array.from(zeile.querySelectorAll('.einkreis-item'));
-        return items.some((it) => farbenKlassen.some((f) => it.classList.contains(f)));
-      });
-
-      const blasenBearbeitet =
-        alleMengenBlasen.length === 0 ||
-        alleMengenBlasen.some((b) => farbenKlassen.some((f) => b.classList.contains(f)));
-
-      const istDurch =
-        lueckenAlleGefuellt &&
-        zuordnungenAlleVerbunden &&
-        einkreisAlleBearbeitet &&
-        blasenBearbeitet;
-
-      const warSichtbar = bereich.style.display !== 'none';
-
-      if (istDurch) {
-        bereich.style.display = 'flex';
-        if (scrollWennNeuFertig && !warSichtbar) {
-          setTimeout(() => {
-            bereich.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 180);
-        }
-      } else {
-        bereich.style.display = 'none';
-        const hauptBtn = document.getElementById('btn-blatt-fertig-frage');
-        const frageBox = document.getElementById('blatt-fertig-frage-box');
-        if (hauptBtn) hauptBtn.style.display = 'inline-flex';
-        if (frageBox) frageBox.style.display = 'none';
-
-        // Wenn nicht mehr alle Aufgaben ausgefüllt sind (z. B. Feld per Backspace geleert),
-        // wird der Status "abgeschlossen" sofort zurückgesetzt!
-        if (this.istAbgeschlossen) {
-          this.istAbgeschlossen = false;
-          try {
-            const raw = localStorage.getItem(this.storageKey);
-            if (raw) {
-              const d = JSON.parse(raw);
-              if (d && d.abgeschlossen) {
-                d.abgeschlossen = false;
-                localStorage.setItem(this.storageKey, JSON.stringify(d));
-              }
-            }
-          } catch (e) {}
-        }
-      }
+      // "✅ Fertig" ist immer erreichbar – auch bei teilweise ausgefülltem Blatt.
+      // Es wird bewusst NICHT geprüft, ob alles ausgefüllt ist (keine Rückmeldung an das Kind);
+      // die Zwei-Tipp-Bestätigung schützt vor versehentlichem Abschließen.
+      bereich.style.display = 'flex';
     }
 
     /**
@@ -1656,6 +1654,10 @@
 
     setzeAktiveLuecke(el, scrollIntoView = false) {
       document.querySelectorAll('.luecke.aktiv').forEach((l) => l.classList.remove('aktiv'));
+      if (this.istGesperrt) {
+        this.aktiveLuecke = null;
+        return;
+      }
       this.aktiveLuecke = el || null;
       if (this.aktiveLuecke) {
         this.aktiveLuecke.classList.add('aktiv');
@@ -1688,6 +1690,7 @@
      * und springt automatisch zur nächsten leeren Lücke.
      */
     trageZahlEin(wert) {
+      if (this.istGesperrt) return;
       const sichtbare = this.holeSichtbareLuecken();
       if (sichtbare.length === 0) return;
 
@@ -1750,6 +1753,7 @@
      * 2. Ist das aktive Feld bereits leer -> Fokus springt ein Feld zurück.
      */
     verarbeiteBackspace() {
+      if (this.istGesperrt) return;
       const sichtbare = this.holeSichtbareLuecken();
       if (sichtbare.length === 0) return;
 
@@ -1830,8 +1834,38 @@
     }
 
     bindeEvents() {
+      // 0. Gesperrte Ansicht: Klicks im Blatt gar nicht erst durchlassen (auch nicht an blatt-eigene Skripte).
+      //    Nur Tabs (reine Ansicht) und Links (z. B. "Zur Bibliothek") bleiben bedienbar.
+      if (this.istGesperrt) {
+        document.addEventListener(
+          'click',
+          (e) => {
+            const t = e.target;
+            if (!t || !t.closest || !t.closest('main')) return;
+            const tabBtn = t.closest('.tab-btn[data-tab]');
+            if (tabBtn) {
+              e.stopPropagation();
+              this.aktiviereTab(tabBtn.getAttribute('data-tab'));
+              return;
+            }
+            if (t.closest('a[href]')) return;
+            // Lehrkraft-Auswertung: eigene Knöpfe (Drucken / Schließen) bleiben bedienbar
+            if (t.closest('#ausw-kopf')) return;
+            e.stopPropagation();
+            e.preventDefault();
+          },
+          true
+        );
+      }
+
       // 1. Klick auf Lücke oder Kreis (Event Delegation am Dokument)
       document.addEventListener('click', (e) => {
+        if (this.istGesperrt) {
+          // Außerhalb von <main> (z. B. Tabs in der Steuerleiste): nur Ansicht umschalten, nichts eintragen
+          const tabBtnG = e.target.closest('.tab-btn[data-tab]');
+          if (tabBtnG) this.aktiviereTab(tabBtnG.getAttribute('data-tab'));
+          return;
+        }
         const luecke = e.target.closest('.luecke');
         if (luecke) {
           this.setzeAktiveLuecke(luecke, false);
@@ -2047,13 +2081,16 @@
           const hauptBtn = document.getElementById('btn-blatt-fertig-frage');
           const frageBox = document.getElementById('blatt-fertig-frage-box');
           if (aktion === 'ok') {
-            this.istAbgeschlossen = true;
-            this.speichereStand();
-            const btnZurueck = document.getElementById('btn-zurueck');
-            const ziel =
-              (btnZurueck && (btnZurueck.getAttribute('href') || btnZurueck.getAttribute('data-href'))) ||
-              '../index.html';
-            window.location.href = ziel;
+            if (this.istGesperrt) return; // Doppeltipp: Abschluss läuft bereits
+            const ergebnis = this.schliesseAb();
+            if (ergebnis.ok) {
+              window.location.href = '../index.html';
+            } else {
+              // Nichts gelöscht, Blatt bleibt bearbeitbar – neutraler Hinweis ohne Bezug auf den Inhalt
+              if (frageBox) frageBox.style.display = 'none';
+              if (hauptBtn) hauptBtn.style.display = 'inline-flex';
+              this.zeigeFertigHinweis('Speichern nicht möglich – bitte Lehrkraft holen');
+            }
           } else {
             if (frageBox) frageBox.style.display = 'none';
             if (hauptBtn) hauptBtn.style.display = 'inline-flex';
@@ -2069,7 +2106,7 @@
       });
 
       // 2b. "🎲 Neu würfeln"-Button automatisch vor dem Löschen-Button einfügen (nur wenn NICHT eingefrorener Test und nicht Click & Mix)
-      if (btnReset && !document.getElementById('btn-neu-wuerfeln') && !this.istGespeicherterTest && this.blattId !== '011_click_und_mix') {
+      if (btnReset && !this.istGesperrt && !document.getElementById('btn-neu-wuerfeln') && !this.istGespeicherterTest && this.blattId !== '011_click_und_mix') {
         const btnWuerfel = document.createElement('button');
         btnWuerfel.type = 'button';
         btnWuerfel.id = 'btn-neu-wuerfeln';
@@ -2209,6 +2246,12 @@
         if (tab) {
           this.aktiviereTab(tab);
         }
+        if (this.istGesperrt) {
+          // Gesperrte Ansicht: Schnappschuss zeigt Reihenfolge/Auswahl wie beim Abschließen –
+          // kein Filtern, kein Mischen, keine Aktionen; nur Ansichtshilfen.
+          if (fokus === '1' || window.innerWidth <= 680) this.setzeFokusModus(true);
+          return;
+        }
         if (bereich) {
           this.aktiviereBereich(bereich);
         }
@@ -2246,6 +2289,7 @@
      * und leert dabei alle bisherigen Eingaben (Reset + Zufalls-Aufgaben).
      */
     wuerfleBlattNeu() {
+      if (this.istGesperrt) return;
       // Falls Click & Mix einen eigenen Generator-Button hat, diesen auslösen
       const mixBtn = document.getElementById('btn-mix-neu');
       if (mixBtn) {
@@ -2360,6 +2404,7 @@
      * im localStorage, damit die neuen Zufallszahlen auch beim Neuladen erhalten bleiben!
      */
     speichereWuerfelAufgaben() {
+      if (this.istGesperrt) return;
       try {
         const main = document.querySelector('main.blatt-inhalt');
         if (!main) return;
@@ -2384,21 +2429,378 @@
       try {
         const raw = localStorage.getItem(this.storageKey + '__layout');
         if (!raw) return;
-        const layout = JSON.parse(raw);
-        const main = document.querySelector('main.blatt-inhalt');
-        if (main && layout && layout.mainHTML) {
-          main.innerHTML = layout.mainHTML;
-          this.mixMin = layout.mixMin || 1;
-          this.mixMax = layout.mixMax || 10;
-          this.numpadMax = layout.numpadMax || 10;
-        }
+        this.wendeLayoutAn(JSON.parse(raw));
       } catch (e) {}
+    }
+
+    /** Setzt ein gespeichertes Layout ({mixMin, mixMax, numpadMax, mainHTML}) in <main> ein. */
+    wendeLayoutAn(layout) {
+      const main = document.querySelector('main.blatt-inhalt');
+      if (!main || !layout || !layout.mainHTML) return false;
+      main.innerHTML = layout.mainHTML;
+      this.mixMin = layout.mixMin || 1;
+      this.mixMax = layout.mixMax || 10;
+      this.numpadMax = layout.numpadMax || 10;
+      return true;
+    }
+
+    /**
+     * Gesperrte Ansicht aufbauen: Historien-Schnappschuss (Layout bzw. HTML) einsetzen,
+     * Titel + neutraler Hinweis "Abgeschlossen am …". Ohne Eintrag: "Blatt nicht gefunden".
+     * Es werden hier nie Lösungen oder Korrekturen angezeigt.
+     */
+    setzeGesperrtenInhalt() {
+      document.body.classList.add('blatt-gesperrt');
+      ['erstellen-konfigurator', 'vorschau-aktionen-leiste'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      const main = document.querySelector('main.blatt-inhalt');
+      if (!main) return;
+
+      const eintrag = this.historieEintrag;
+      if (!eintrag) {
+        const h1 = document.querySelector('h1.blatt-titel');
+        if (h1) h1.textContent = '📄 Blatt nicht gefunden';
+        const sub = document.getElementById('aktueller-bereich-text');
+        if (sub) sub.textContent = '';
+        main.innerHTML =
+          `<section class="blatt-hinweis-box" role="status">` +
+            `<p class="blatt-hinweis-text">Blatt nicht gefunden</p>` +
+            `<a class="ui-btn" href="../index.html">📚 Zur Bibliothek</a>` +
+          `</section>`;
+        return;
+      }
+
+      const ziel = document.getElementById('mix-seiten-container') || main;
+      // Immer das beim Abschließen gerenderte HTML (Layout-HTML nur als Rückfall für alte Einträge)
+      if (typeof eintrag.html === 'string' && eintrag.html !== '') {
+        ziel.innerHTML = eintrag.html;
+      } else if (eintrag.layout) {
+        this.wendeLayoutAn(eintrag.layout);
+      }
+      // Reste der Bearbeitungsansicht aus dem Schnappschuss entfernen
+      this.entferneBearbeitungsReste(main);
+      // Tab-Knöpfe (evtl. außerhalb von <main>) an den im Schnappschuss aktiven Tab angleichen
+      const aktivesPanel = main.querySelector('.tab-panel.aktiv[data-tab-panel]');
+      if (aktivesPanel) {
+        const tabName = aktivesPanel.getAttribute('data-tab-panel');
+        document.querySelectorAll('.tab-btn[data-tab]').forEach((btn) => {
+          btn.classList.toggle('aktiv', btn.getAttribute('data-tab') === tabName);
+        });
+      }
+
+      if (eintrag.titel) {
+        const h1 = document.querySelector('h1.blatt-titel');
+        if (h1) h1.textContent = eintrag.titel;
+        document.title = `TABBI – ${eintrag.titel}`;
+      }
+      const sub = document.getElementById('aktueller-bereich-text');
+      if (sub) sub.textContent = '';
+
+      const datum = window.TabbiHistorie ? window.TabbiHistorie.formatiereDatum(eintrag.abgeschlossenAm) : '';
+      const banner = document.createElement('p');
+      banner.className = 'blatt-abgeschlossen-banner print-hide';
+      banner.setAttribute('role', 'status');
+      banner.textContent = datum ? `Abgeschlossen am ${datum}` : 'Abgeschlossen';
+      if (ziel === main) main.insertBefore(banner, main.firstChild);
+      else ziel.parentNode.insertBefore(banner, ziel);
+    }
+
+    /**
+     * Auswertung (nur Lehrkraft): Overlay erscheint ausschließlich bei ?auswertung=1 UND aktiver
+     * TabbiLehrerGate-Freigabe. Die normale ?historie=<id>-Ansicht bleibt immer markierungsfrei.
+     */
+    pruefeAuswertungsModus() {
+      let gewuenscht = false;
+      try {
+        gewuenscht = new URLSearchParams(window.location.search).get('auswertung') === '1';
+      } catch (e) {}
+      if (!gewuenscht || !window.TabbiLehrerGate || !window.TabbiLehrerGate.istFreigeschaltet()) return;
+      this.zeigeAuswertung();
+
+      const id = this.historieEintrag.id;
+      const zurKindAnsicht = () => {
+        // Erst alle Markierungen synchron entfernen (kein Aufblitzen), dann zur Kind-Ansicht
+        this.entferneAuswertung();
+        window.location.replace('?historie=' + encodeURIComponent(id));
+      };
+      // Verlassen auf beliebigem Weg (Link, Zurück, Neu laden): Freigabe sofort sperren,
+      // damit Vor/Zurück die Korrektur nicht erneut zeigt.
+      window.addEventListener('pagehide', () => {
+        window.TabbiLehrerGate.sperreLehrerbereich();
+      });
+      // Ablauf der Freigabe: Auswertung verschwindet (Prüfung alle 30 s)
+      const pruefeFreigabe = () => {
+        if (!window.TabbiLehrerGate.istFreigeschaltet()) {
+          clearInterval(this.auswertungsTimer);
+          zurKindAnsicht();
+        }
+      };
+      this.auswertungsTimer = setInterval(pruefeFreigabe, 30 * 1000);
+      // Tablet im Standby: Timer pausiert, daher auch beim Aufwachen/Fokus prüfen
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) pruefeFreigabe();
+      });
+      window.addEventListener('focus', pruefeFreigabe);
+      // Zurück-Navigation aus dem Seiten-Cache: Freigabe erneut prüfen
+      window.addEventListener('pageshow', (ev) => {
+        if (ev.persisted && !window.TabbiLehrerGate.istFreigeschaltet()) zurKindAnsicht();
+      });
+    }
+
+    /** Baut Kopf + Markierungen der Auswertung (DOM nur in diesem Modus). */
+    zeigeAuswertung() {
+      const main = document.querySelector('main.blatt-inhalt');
+      if (!main) return;
+      const eintrag = this.historieEintrag;
+      const A = window.TabbiAuswertung;
+      const gruppenListe = window.TabbiGruppen ? window.TabbiGruppen.GRUPPEN : [];
+
+      const kopf = document.createElement('section');
+      kopf.id = 'ausw-kopf';
+      kopf.setAttribute('aria-label', 'Auswertung für die Lehrkraft');
+      const titel = document.createElement('h2');
+      titel.className = 'ausw-kopf-titel';
+      const datum = window.TabbiHistorie ? window.TabbiHistorie.formatiereDatum(eintrag.abgeschlossenAm) : '';
+      titel.textContent = '🔒 Auswertung' + (datum ? ` · abgeschlossen am ${datum}` : '');
+      kopf.appendChild(titel);
+
+      const hatLoesungen = Boolean(A && eintrag.loesungen && typeof eintrag.loesungen === 'object');
+      if (!hatLoesungen) {
+        const p = document.createElement('p');
+        p.className = 'ausw-kopf-summe';
+        p.textContent = 'Für dieses Blatt sind keine Lösungen hinterlegt';
+        kopf.appendChild(p);
+      } else {
+        const erg = A.werteAus(eintrag.loesungen, eintrag.eingaben);
+        const summe = document.createElement('p');
+        summe.className = 'ausw-kopf-summe';
+        summe.textContent = A.zusammenfassungsText(erg);
+        kopf.appendChild(summe);
+        const zeilen = A.gruppenAufteilung(erg.proGruppe, gruppenListe);
+        if (zeilen.length) {
+          const ul = document.createElement('ul');
+          ul.className = 'ausw-kopf-gruppen';
+          zeilen.forEach((z) => {
+            const li = document.createElement('li');
+            li.textContent = `${z.titel}: ${z.text}`;
+            ul.appendChild(li);
+          });
+          kopf.appendChild(ul);
+        }
+        this.markiereAuswertung(main, erg);
+      }
+
+      const leiste = document.createElement('div');
+      leiste.className = 'ausw-kopf-aktionen print-hide';
+      const druck = document.createElement('button');
+      druck.type = 'button';
+      druck.className = 'ui-btn ausw-btn-drucken';
+      druck.textContent = '🖨️ Mit Korrektur drucken';
+      druck.addEventListener('click', () => window.print());
+      const schliessen = document.createElement('button');
+      schliessen.type = 'button';
+      schliessen.className = 'ui-btn ausw-btn-schliessen';
+      schliessen.textContent = 'Schließen';
+      schliessen.addEventListener('click', () => {
+        if (this.auswertungsTimer) clearInterval(this.auswertungsTimer);
+        window.TabbiLehrerGate.sperreLehrerbereich();
+        window.location.replace('../index.html');
+      });
+      leiste.append(druck, schliessen);
+      kopf.appendChild(leiste);
+
+      main.insertBefore(kopf, main.firstChild);
+      document.body.classList.add('auswertung-aktiv');
+    }
+
+    /** Entfernt Kopf und alle Markierungen der Auswertung (synchron). */
+    entferneAuswertung() {
+      document.querySelectorAll('#ausw-kopf, .ausw-soll').forEach((n) => n.remove());
+      document.querySelectorAll('.ausw-falsch, .ausw-leer, .ausw-ziel').forEach((n) =>
+        n.classList.remove('ausw-falsch', 'ausw-leer', 'ausw-ziel')
+      );
+      document.body.classList.remove('auswertung-aktiv');
+    }
+
+    /** Setzt .ausw-falsch / .ausw-leer und .ausw-soll an die bewerteten Elemente. */
+    markiereAuswertung(main, erg) {
+      const A = window.TabbiAuswertung;
+      const finde = (id) => {
+        const sel = ['.luecke', '.striche-anzeige', '.zuordnung-container'];
+        for (const s of sel) {
+          const el = Array.from(main.querySelectorAll(`${s}[data-id]`)).find((n) => n.getAttribute('data-id') === id);
+          if (el) return el;
+        }
+        return null;
+      };
+      Object.entries(erg.details || {}).forEach(([id, status]) => {
+        if (status !== 'falsch' && status !== 'leer') return; // richtig / nicht ausgewertet: keine Markierung
+        const el = finde(id);
+        if (!el) return;
+        el.classList.add(status === 'falsch' ? 'ausw-falsch' : 'ausw-leer');
+        if (status !== 'falsch') return;
+        const soll = document.createElement('span');
+        soll.className = 'ausw-soll';
+        let text = erg.soll ? erg.soll[id] : '';
+        if (el.classList.contains('zuordnung-container')) {
+          const werte = [];
+          el.querySelectorAll('.zuordnung-knoten.rechts').forEach((k) => {
+            const z = k.querySelector('.zuordnung-zahl');
+            werte[parseInt(k.getAttribute('data-zo-index'), 10)] = z ? z.textContent : '';
+          });
+          text = A.zuordnungSollText(text, werte);
+          soll.classList.add('ausw-soll-block');
+        } else if (el.classList.contains('striche-anzeige')) {
+          el.classList.add('ausw-ziel');
+        }
+        soll.textContent = text || '';
+        el.appendChild(soll);
+      });
+    }
+
+    /** Neutraler Hinweis im Fertig-Bereich (z. B. Speicher voll). */
+    zeigeFertigHinweis(text) {
+      const hinweis = document.getElementById('blatt-fertig-hinweis');
+      if (!hinweis) return;
+      hinweis.textContent = text;
+      hinweis.hidden = false;
+    }
+
+    /**
+     * Entfernt flüchtige Bearbeitungs-Zustände (Fertig-Bereich, aktive Lücke, halbe Verbindung,
+     * offene Rückfrage, Fokus-Ansicht). Gespeicherte Eingaben bleiben unberührt.
+     */
+    entferneBearbeitungsReste(wurzel) {
+      wurzel.querySelectorAll('#blatt-fertig-bereich').forEach((n) => n.remove());
+      wurzel.querySelectorAll('.luecke.aktiv').forEach((n) => n.classList.remove('aktiv'));
+      wurzel.querySelectorAll('.zuordnung-knoten.ausgewaehlt').forEach((n) => n.classList.remove('ausgewaehlt'));
+      wurzel.querySelectorAll('[data-pending-links], [data-pending-rechts]').forEach((n) => {
+        n.removeAttribute('data-pending-links');
+        n.removeAttribute('data-pending-rechts');
+      });
+      wurzel.querySelectorAll('.zuordnung-frage-box').forEach((n) => {
+        n.style.display = 'none';
+      });
+      wurzel.querySelectorAll('.fokus-aktiv').forEach((n) => n.classList.remove('fokus-aktiv'));
+      wurzel.querySelectorAll('.druck-seite-inaktiv').forEach((n) => n.classList.remove('druck-seite-inaktiv'));
+    }
+
+    /** Kopie des Blatt-HTML ohne Bearbeitungs-Reste. */
+    erzeugeSchnappschussHTML(wurzel) {
+      const kopie = wurzel.cloneNode(true);
+      this.entferneBearbeitungsReste(kopie);
+      return kopie.innerHTML;
+    }
+
+    /**
+     * Endgültiges Abschließen ("✅ Fertig" → ✔): legt einen eingefrorenen Historien-Eintrag an
+     * (Schnappschuss + Eingaben + Lösungen, append-only) und entfernt danach den Arbeitsstand
+     * (Testbibliothek-Eintrag bzw. Katalog-Schlüssel <key> und <key>__layout).
+     * Schlägt das Speichern fehl, bleibt alles unverändert und bearbeitbar.
+     * Es gibt keinerlei Rückmeldung zu Richtig/Falsch.
+     * @returns {{ ok: boolean, eintrag?: object }}
+     */
+    schliesseAb() {
+      if (this.istGesperrt || !window.TabbiHistorie) return { ok: false };
+      const main = document.querySelector('main.blatt-inhalt');
+      if (!main) return { ok: false };
+      const H = window.TabbiHistorie;
+      const wurzel = document.getElementById('mix-seiten-container') || main;
+      const gruppeFuerTyp = window.TabbiGruppen ? window.TabbiGruppen.gruppeFuerTyp : null;
+
+      // Lösungen aus den bereits gerenderten Bausteinen (schreibt nichts ins DOM)
+      let loesungen = null;
+      try {
+        if (window.TabbiAuswertung) {
+          loesungen = window.TabbiAuswertung.ermittleLoesungen(wurzel, gruppeFuerTyp);
+        }
+      } catch (e) {
+        loesungen = null;
+      }
+
+      let test = null;
+      try {
+        const testId = new URLSearchParams(window.location.search).get('testId');
+        test = testId ? TabbiTestbibliothek.holeTest(testId) : null;
+      } catch (e) {
+        test = null;
+      }
+      const einstellungen = test ? test.einstellungen || null : null;
+      const typen = Array.from(wurzel.querySelectorAll('[data-mix-typ]')).map((el) =>
+        el.getAttribute('data-mix-typ')
+      );
+      if (einstellungen && Array.isArray(einstellungen.typen)) typen.push(...einstellungen.typen);
+
+      const h1 = document.querySelector('h1.blatt-titel');
+      const dateiname = window.location.pathname.split('/').pop();
+      const fach =
+        (test && test.fach) ||
+        document.body.getAttribute('data-fach') ||
+        (document.body.getAttribute('data-tastatur') === 'buchstaben' ? 'deutsch' : 'mathe');
+
+      const eintrag = {
+        titel: test ? test.titel : h1 ? h1.textContent.trim() : document.title,
+        fach,
+        gruppen: H.gruppenAusLoesungen(loesungen, typen, gruppeFuerTyp),
+        quelle: test ? 'test' : 'katalog',
+        quelleId: test ? test.id : this.blattId,
+        blattId: this.blattId,
+        url: H.blattUrl(dateiname, test ? '' : window.location.search),
+        html: null,
+        layout: null,
+        eingaben: this.sammleStand(),
+        loesungen,
+        einstellungen
+      };
+
+      if (test) {
+        eintrag.html = test.html || '';
+      } else {
+        let layout = null;
+        try {
+          const raw = localStorage.getItem(this.storageKey + '__layout');
+          layout = raw ? JSON.parse(raw) : null;
+        } catch (e) {
+          layout = null;
+        }
+        // Immer das gerade angezeigte Blatt speichern (ein __layout kann älter sein als das Gesehene);
+        // vom Layout nur die kleinen Parameter, nicht dessen HTML (Speicher sparen).
+        eintrag.html = this.erzeugeSchnappschussHTML(wurzel);
+        if (layout && layout.mainHTML) {
+          eintrag.layout = { mixMin: layout.mixMin, mixMax: layout.mixMax, numpadMax: layout.numpadMax };
+        }
+      }
+
+      let ergebnis;
+      try {
+        ergebnis = H.erzeuge(localStorage).fuegeHinzu(eintrag);
+      } catch (e) {
+        ergebnis = { ok: false, fehler: 'speicher' };
+      }
+      if (!ergebnis || !ergebnis.ok) return { ok: false };
+
+      // Erst nach erfolgreichem Schreiben den Arbeitsstand entfernen
+      if (test) {
+        TabbiTestbibliothek.entferneTest(test.id);
+      } else {
+        try {
+          localStorage.removeItem(this.storageKey);
+          localStorage.removeItem(this.storageKey + '__layout');
+          localStorage.removeItem(this.storageKey + '__total');
+        } catch (e) {}
+      }
+      // Ab jetzt nichts mehr speichern (bis zur Navigation)
+      this.istGesperrt = true;
+      return { ok: true, eintrag: ergebnis.eintrag };
     }
 
     /**
      * Speichert die Gesamtanzahl der ausfüllbaren Lücken/Blasen für die Fortschrittsanzeige ("✏️ 8 / 12 ausgefüllt")
      */
     aktualisiereGesamtFelderStatistik() {
+      if (this.istGesperrt) return;
       try {
         const sichtbareLuecken = Array.from(document.querySelectorAll('.luecke')).filter(
           (el) => !el.closest('.aufgabe-versteckt')
@@ -2423,7 +2825,7 @@
     /**
      * Speichert alle Lücken, Kreise, Strichlisten, Verbindungen und Markierungen sofort in localStorage
      */
-    speichereStand() {
+    sammleStand() {
       const daten = {
         luecken: {},
         kreise: {},
@@ -2431,7 +2833,6 @@
         farben: {},
         verbindungen: {},
         markiert: [],
-        abgeschlossen: Boolean(this.istAbgeschlossen),
         updatedAt: new Date().toISOString()
       };
 
@@ -2489,6 +2890,16 @@
         daten.markiert.push(el.getAttribute('data-id'));
       });
 
+      return daten;
+    }
+
+    /**
+     * Speichert den aktuellen Stand sofort in localStorage (nie in der gesperrten Ansicht).
+     */
+    speichereStand() {
+      if (this.istGesperrt) return;
+      const daten = this.sammleStand();
+
       try {
         const hatEintraege =
           Object.keys(daten.luecken).length > 0 ||
@@ -2496,8 +2907,7 @@
           Object.keys(daten.striche).length > 0 ||
           Object.keys(daten.farben).length > 0 ||
           Object.keys(daten.verbindungen).length > 0 ||
-          daten.markiert.length > 0 ||
-          daten.abgeschlossen;
+          daten.markiert.length > 0;
         if (hatEintraege) {
           localStorage.setItem(this.storageKey, JSON.stringify(daten));
         } else {
@@ -2515,9 +2925,17 @@
      */
     ladeStand() {
       try {
-        const raw = localStorage.getItem(this.storageKey);
-        if (!raw) return;
-        const daten = JSON.parse(raw);
+        // Gesperrte Ansicht: Eingaben aus dem Historien-Eintrag, sonst aus localStorage.
+        // Ein altes Feld "abgeschlossen" wird ignoriert (kein Migrieren, Blatt bleibt bearbeitbar).
+        let daten = null;
+        if (this.istGesperrt) {
+          daten = this.historieEintrag ? this.historieEintrag.eingaben || null : null;
+        } else {
+          const raw = localStorage.getItem(this.storageKey);
+          if (!raw) return;
+          daten = JSON.parse(raw);
+        }
+        if (!daten) return;
 
         if (daten && daten.luecken) {
           Object.entries(daten.luecken).forEach(([id, val]) => {
@@ -2578,7 +2996,6 @@
           });
         }
 
-        this.istAbgeschlossen = Boolean(daten && daten.abgeschlossen);
       } catch (err) {
         console.warn('TABBI: Laden aus localStorage fehlgeschlagen:', err);
       }
@@ -2589,7 +3006,7 @@
      * Leert das gesamte Arbeitsblatt und entfernt den localStorage-Eintrag
      */
     leereBlatt() {
-      this.istAbgeschlossen = false;
+      if (this.istGesperrt) return;
       document.querySelectorAll('.luecke').forEach((el) => {
         el.textContent = '';
       });
@@ -2823,7 +3240,9 @@
         tastaturTyp: testDaten.tastaturTyp || 'zahlen',
         seitenAnzahl: testDaten.seitenAnzahl || 1,
         gesamtFelder: testDaten.gesamtFelder || 0,
-        html: testDaten.html || ''
+        html: testDaten.html || '',
+        // Erstellungs-Einstellungen (typen, bereich, zahlen, anzahl, praefix) für "Nochmal neu"
+        einstellungen: testDaten.einstellungen || null
       };
 
       alle.unshift(neuerTest);
@@ -2839,7 +3258,15 @@
     },
 
     loescheTest(testId) {
-      if (!testId) return;
+      this.entferneTest(testId);
+    },
+
+    /**
+     * Entfernt einen Test samt Eingaben aus der Testbibliothek (intern, z. B. nach dem Abschließen).
+     * Betrifft nie die Historie. @returns {boolean}
+     */
+    entferneTest(testId) {
+      if (!testId) return false;
       try {
         const alle = this.holeAlleTests().filter((t) => t.id !== testId);
         localStorage.setItem(TESTBIBLIOTHEK_STORAGE_KEY, JSON.stringify(alle));
@@ -2847,7 +3274,10 @@
         localStorage.removeItem(key);
         localStorage.removeItem(key + '__layout');
         localStorage.removeItem(key + '__total');
-      } catch (e) {}
+        return true;
+      } catch (e) {
+        return false;
+      }
     },
 
     leereTestEingaben(testId) {
@@ -2906,14 +3336,13 @@
           ...markiertKeys
         ];
         const anzahl = hauptEintraege.length || alleKeys.length;
-        const abgeschlossen = Boolean(daten.abgeschlossen);
-        const angefangen = alleKeys.length > 0 || abgeschlossen;
-        const fertig = (gesamt > 0 && anzahl >= gesamt) || (abgeschlossen && (gesamt === 0 || anzahl >= gesamt));
+        // Altes Flag "abgeschlossen" wird ignoriert: Abschließen entfernt den Test aus der Testbibliothek.
+        const angefangen = alleKeys.length > 0;
+        const fertig = gesamt > 0 && anzahl >= gesamt;
 
         return {
           angefangen,
           fertig,
-          abgeschlossen,
           anzahl,
           gesamt,
           storageKey: key
@@ -3256,6 +3685,10 @@
     const blattId = document.body.getAttribute('data-blatt-id');
     if (blattId) {
       window.tabbiApp = new TabbiBlatt(blattId);
+      // Zurück-Taste nach dem Abschließen: nie eine eingefrorene alte Seite (bfcache) mit Eingaben zeigen
+      window.addEventListener('pageshow', (e) => {
+        if (e.persisted) window.location.reload();
+      });
     }
   });
 })();

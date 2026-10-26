@@ -28,7 +28,7 @@
 
     <div class="blatt-titel-gruppe">
       <h1 class="blatt-titel" id="haupt-blatt-titel">➕ Neues Arbeitsblatt erstellen</h1>
-      <p class="blatt-untertitel" id="aktueller-bereich-text">1. Einstellungen wählen ➔ 2. Unten in der Live-Vorschau prüfen ➔ 3. In Bibliothek speichern</p>
+      <p class="blatt-untertitel" id="aktueller-bereich-text">1. Gruppe, Aufgabentyp und Zahlenraum wählen ➔ 2. In der Live-Vorschau prüfen ➔ 3. Erstellen</p>
     </div>
 
     <div class="blatt-header-rechts">
@@ -85,88 +85,74 @@
       <!-- MATHE-EINSTELLUNGEN -->
       <div id="mathe-konfig-bereich">
 
-        <!-- SCHRITT 2: AUFGABENTYP(EN) WÄHLEN -->
-        <div class="mix-konfig-zeile" style="border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px;">
-          <div class="mix-konfig-gruppe" style="flex: 1 1 100%;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-              <span class="mix-konfig-label">2. Aufgabentyp(en) wählen (einzeln oder mehrere kombinieren):</span>
-              <div style="display:flex; gap:6px;">
-                <button type="button" class="bcm-chip" id="btn-alle-typen-aus" style="font-size:0.8rem;padding:4px 10px;">Nur 1 Typ wählen</button>
-                <button type="button" class="bcm-chip" id="btn-bunter-mix" style="font-size:0.8rem;padding:4px 10px;">🎲 Bunter Mix (3 Typen)</button>
+        <!-- SCHRITT 2: ÜBERGRUPPE (5 große Kacheln aus TabbiGruppen.GRUPPEN, leere Gruppen entfallen) -->
+        <div class="bau-schritt" id="bau-schritt-gruppe">
+          <span class="bau-label">2. Übergruppe wählen</span>
+          <div class="bau-gruppen" id="bau-gruppen-wahl" role="group" aria-label="Übergruppe"></div>
+        </div>
+
+        <!-- SCHRITT 3: AUFGABENTYPEN DER GRUPPE (Mehrfachwahl) -->
+        <div class="bau-schritt">
+          <span class="bau-label" id="bau-typen-label">3. Aufgabentyp(en) wählen</span>
+          <div class="bau-typen" id="mix-typen-wahl" role="group" aria-labelledby="bau-typen-label"></div>
+        </div>
+
+        <!-- SCHRITT 4: ZAHLENRAUM -->
+        <div class="bau-schritt">
+          <span class="bau-label">4. Zahlenraum</span>
+          <div class="mix-chip-leiste" id="mix-bereich-wahl" role="group" aria-label="Zahlenraum">
+            <button type="button" class="mix-chip" data-mix-bereich="1-5">bis 5</button>
+            <button type="button" class="mix-chip aktiv" data-mix-bereich="1-10">bis 10</button>
+            <button type="button" class="mix-chip" data-mix-bereich="1-20">bis 20</button>
+          </div>
+        </div>
+
+        <!-- MEHR OPTIONEN (standardmäßig eingeklappt) -->
+        <details class="bau-mehr" id="bau-mehr-optionen">
+          <summary class="bau-mehr-kopf">⚙️ Mehr Optionen</summary>
+
+          <div class="bau-mehr-inhalt">
+            <div class="bau-schritt">
+              <span class="bau-label">Einzelne Zahlen wählen</span>
+              <div class="mix-chip-leiste" id="mix-einzelzahlen-wahl">
+                <!-- Wird mit den Zahlen-Chips 1 bis 20 befüllt -->
               </div>
             </div>
 
-            <div class="mix-chip-leiste" id="mix-typen-wahl" style="margin-top:4px;">
-              <button type="button" class="mix-chip aktiv" data-mix-typ="zahlenhaus">🏠 Zahlenhäuser</button>
-              <button type="button" class="mix-chip" data-mix-typ="zahlenfreunde">🔵🔴 Zahlenfreunde (2×5)</button>
-              <button type="button" class="mix-chip" data-mix-typ="finger">✋ Fingerbilder (L/R)</button>
-              <button type="button" class="mix-chip" data-mix-typ="wuerfel_tuerme">🎲 Würfel &amp; Türme</button>
-              <button type="button" class="mix-chip" data-mix-typ="punkte">🫧 Punktebilder / 20er</button>
-              <button type="button" class="mix-chip" data-mix-typ="aquarium">🐟 Fische im Aquarium</button>
-              <button type="button" class="mix-chip" data-mix-typ="strichlisten">🦀 Strichlisten</button>
-              <button type="button" class="mix-chip" data-mix-typ="buendeln">🐚 Mengen bündeln</button>
-              <button type="button" class="mix-chip" data-mix-typ="seifenblasen">🔗 Mengen verbinden (Bild ↔ Zahl)</button>
-              <button type="button" class="mix-chip" data-mix-typ="nachbarn">↔️ Nachbarzahlen</button>
-              <button type="button" class="mix-chip" data-mix-typ="rechnen">➕➖ Plus &amp; Minus</button>
-              <button type="button" class="mix-chip" data-mix-typ="zwerg_riese">🧙‍♂️🦣 Zwerg &amp; Riese</button>
-              <button type="button" class="mix-chip" data-mix-typ="zahlenmauern">🧱 Zahlenmauern</button>
+            <div class="bau-schritt">
+              <span class="bau-label">Anzahl Aufgaben</span>
+              <div class="mix-chip-leiste" id="mix-anzahl-wahl" role="group" aria-label="Anzahl Aufgaben">
+                <button type="button" class="mix-chip" data-mix-anzahl="wenig">Wenig</button>
+                <button type="button" class="mix-chip aktiv" data-mix-anzahl="mittel">Mittel</button>
+                <button type="button" class="mix-chip" data-mix-anzahl="viel">Viel</button>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <!-- SCHRITT 3: ZAHLENBEREICH ODER EINZELZAHLEN (MEHRFACHWAHL) -->
-        <div class="mix-konfig-zeile" style="border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px;">
-          <div class="mix-konfig-gruppe" style="flex: 1 1 100%;">
-            <span class="mix-konfig-label">3. Zahlenraum (Schnellwahl) oder Einzelzahlen antippen (Mehrfachwahl):</span>
-            <div class="mix-chip-leiste" id="mix-bereich-wahl">
-              <button type="button" class="mix-chip" data-mix-bereich="1-5">1️⃣–5️⃣ Zahlen 1–5</button>
-              <button type="button" class="mix-chip" data-mix-bereich="5-10">5️⃣–🔟 Zahlen 5–10</button>
-              <button type="button" class="mix-chip aktiv" data-mix-bereich="1-10">📚 Zahlen 1–10</button>
-              <button type="button" class="mix-chip" data-mix-bereich="10-20">🔟–2️⃣0️⃣ Zahlen 10–20</button>
-              <button type="button" class="mix-chip" data-mix-bereich="1-20">🌟 Alle 1–20</button>
+            <div class="bau-schritt">
+              <span class="bau-label">Kennzeichnung in der Bibliothek</span>
+              <div class="mix-chip-leiste" id="mix-praefix-wahl" role="group" aria-label="Kennzeichnung">
+                <button type="button" class="mix-chip aktiv" data-mix-praefix="">📄 Standard</button>
+                <button type="button" class="mix-chip" data-mix-praefix="Übungsblatt: ">📋 Übungsblatt</button>
+                <button type="button" class="mix-chip" data-mix-praefix="Wochenplan: ">⭐ Wochenplan</button>
+                <button type="button" class="mix-chip" data-mix-praefix="Lerncheck: ">🎯 Lerncheck</button>
+              </div>
             </div>
-            <div class="mix-chip-leiste" id="mix-einzelzahlen-wahl" style="margin-top:6px;">
-              <!-- Wird mit den Zahlen-Chips 1 bis 20 befüllt -->
-            </div>
-          </div>
-        </div>
 
-        <!-- SCHRITT 4: AUFGABENZAHL, SEITEN & ART DES ARBEITSBLATTS -->
-        <div class="mix-konfig-zeile" style="margin-bottom: 0;">
-          <div class="mix-konfig-gruppe">
-            <span class="mix-konfig-label">4. Aufgaben pro DIN-A4-Seite:</span>
-            <div class="mix-chip-leiste" id="mix-anzahl-wahl">
-              <button type="button" class="mix-chip" data-mix-anzahl="2">2 Aufgaben (Groß)</button>
-              <button type="button" class="mix-chip aktiv" data-mix-anzahl="3">3 Aufgaben (Optimal)</button>
-              <button type="button" class="mix-chip" data-mix-anzahl="4">4 Aufgaben</button>
+            <div class="bau-schritt">
+              <button type="button" class="mix-chip bau-schalter" id="bau-mischen-schalter" role="switch" aria-checked="false">
+                <span class="bau-schalter-punkt" aria-hidden="true"></span>
+                Typen aus mehreren Gruppen mischen
+              </button>
             </div>
           </div>
-
-          <div class="mix-konfig-gruppe">
-            <span class="mix-konfig-label">5. Seitenanzahl:</span>
-            <div class="mix-chip-leiste" id="mix-seiten-wahl">
-              <button type="button" class="mix-chip aktiv" data-mix-seiten="1">📄 1 Seite</button>
-              <button type="button" class="mix-chip" data-mix-seiten="2">📄📄 2 Seiten</button>
-              <button type="button" class="mix-chip" data-mix-seiten="3">📄📄📄 3 Seiten</button>
-            </div>
-          </div>
-
-          <div class="mix-konfig-gruppe">
-            <span class="mix-konfig-label">6. Kennzeichnung in Bibliothek:</span>
-            <div class="mix-chip-leiste" id="mix-praefix-wahl">
-              <button type="button" class="mix-chip aktiv" data-mix-praefix="">📄 Standard</button>
-              <button type="button" class="mix-chip" data-mix-praefix="Übungsblatt: ">📋 Übungsblatt</button>
-              <button type="button" class="mix-chip" data-mix-praefix="Wochenplan: ">⭐ Wochenplan</button>
-              <button type="button" class="mix-chip" data-mix-praefix="Lerncheck: ">🎯 Lerncheck</button>
-            </div>
-          </div>
-        </div>
+        </details>
 
       </div>
+
     </section>
 
     <!-- ====================================================================
-         LIVE-VORSCHAU-AKTIONSLEISTE (Lehrkraft kann hier würfeln & in Bibliothek speichern!)
+         LIVE-VORSCHAU-AKTIONSLEISTE (Lehrkraft kann hier würfeln & das Blatt erstellen!)
          ==================================================================== -->
     <section id="vorschau-aktionen-leiste" class="vorschau-aktionen-leiste print-hide" aria-label="Vorschau prüfen und speichern">
       <div class="vorschau-info">
@@ -179,7 +165,7 @@
           🎲 Andere Zahlen würfeln
         </button>
         <button type="button" id="btn-in-bibliothek-speichern" class="vorschau-btn-speichern">
-          💾 In Bibliothek speichern
+          ✅ Erstellen
         </button>
       </div>
     </section>
@@ -194,6 +180,9 @@
 
   <nav id="numpad" class="print-hide" aria-label="Ziffernblock"></nav>
 
+  <script src="../js/tabbi-gruppen.js"></script>
+  <script src="../js/tabbi-historie.js"></script>
+  <script src="../js/tabbi-auswertung.js"></script>
   <script src="../js/tabbi-core.js"></script>
   <script>
     (function () {
@@ -202,13 +191,26 @@
       const params = new URLSearchParams(window.location.search);
       const gespeicherteTestId = params.get('testId');
       const sollDirektDrucken = params.get('print') === '1';
+      const neuAusId = params.get('neuAus'); // "Nochmal neu" aus der Historie (Wiederholung, keine Lehrkraft-Sperre)
 
       let aktuellesFach = 'mathe';
       let bereich = '1-10';
       let ausgewaehlteZahlen = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-      let anzahlProSeite = '3';
+      let anzahlProSeite = '4';
       let seitenAnzahl = 1;
       let titelPraefix = '';
+
+      // Entschlackte Erstellung: Gruppe -> Typen -> Zahlenraum (Voreinstellung: Zahlenhäuser, bis 10, Mittel)
+      const G = window.TabbiGruppen;
+      const STANDARD_GRUPPE = 'zerlegen';
+      const STANDARD_TYP = 'zahlenhaus';
+      let aktuelleGruppe = STANDARD_GRUPPE;
+      let ausgewaehlteTypen = [STANDARD_TYP];
+      let mischenAktiv = false;
+      let anzahlStufe = 'mittel';
+      let zahlenAngepasst = false; // true, sobald Einzelzahlen von Hand gewählt wurden
+      // Anzahl Aufgaben -> (Aufgaben pro Seite, Seitenanzahl)
+      const ANZAHL_STUFEN = { wenig: [2, 1], mittel: [4, 1], viel: [4, 2] };
 
       const TYP_META = {
         zahlenhaus: { icon: '🏠', kurz: 'Zahlenhäuser', voll: 'Zahlenhäuser' },
@@ -225,6 +227,13 @@
         zwerg_riese: { icon: '🧙‍♂️', kurz: 'Zwerg & Riese', voll: 'Zwergen- & Riesenaufgaben' },
         zahlenmauern: { icon: '🧱', kurz: 'Zahlenmauern', voll: 'Zahlenmauern' }
       };
+
+      // ======================================================================
+      // MODUS H: ABGESCHLOSSENES BLATT (?historie=<id>) – gesperrte Ansicht, baut der Core auf
+      // ======================================================================
+      if (params.get('historie')) {
+        return;
+      }
 
       // ======================================================================
       // MODUS A: GESPEICHERTES ARBEITSBLATT AUS DER TESTBIBLIOTHEK ÖFFNEN
@@ -282,12 +291,14 @@
           }
           return;
         }
+        // Unbekannte / bereits abgeschlossene testId: der Core zeigt "Blatt nicht gefunden" (kein Erstell-Modus)
+        return;
       }
 
       // ======================================================================
       // MODUS B: NEUES ARBEITSBLATT ERSTELLEN (MIT LIVE-VORSCHAU)
       // ======================================================================
-      if (window.TabbiLehrerGate && !window.TabbiLehrerGate.istFreigeschaltet()) {
+      if (!neuAusId && window.TabbiLehrerGate && !window.TabbiLehrerGate.istFreigeschaltet()) {
         window.TabbiLehrerGate.oeffneMatheGate(
           () => {},
           () => {
@@ -311,6 +322,97 @@
         ausgewaehlteZahlen.clear();
         for (let z = min; z <= max; z++) ausgewaehlteZahlen.add(z);
         baueEinzelzahlenChips();
+      }
+
+      // ---- Gruppen- und Typ-Kacheln -----------------------------------------
+      function sichtbareGruppen() {
+        return G.GRUPPEN.filter((g) => g.typen.length > 0);
+      }
+
+      function aktuellerZahlenMax() {
+        return ausgewaehlteZahlen.size > 0 ? Math.max(...ausgewaehlteZahlen) : 10;
+      }
+
+      function baueGruppenKacheln() {
+        const container = document.getElementById('bau-gruppen-wahl');
+        const schritt = document.getElementById('bau-schritt-gruppe');
+        if (!container) return;
+        if (schritt) schritt.hidden = mischenAktiv;
+        container.innerHTML = sichtbareGruppen()
+          .map((g) => {
+            const aktiv = g.id === aktuelleGruppe;
+            return (
+              `<button type="button" class="bau-gruppe-kachel${aktiv ? ' aktiv' : ''}" ` +
+              `data-gruppe="${g.id}" aria-pressed="${aktiv}">` +
+                `<span class="bau-gruppe-icon" aria-hidden="true">${g.icon}</span>` +
+                `<span class="bau-gruppe-name">${g.titel}</span>` +
+              `</button>`
+            );
+          })
+          .join('');
+      }
+
+      function typKachelHTML(typ) {
+        const m = TYP_META[typ] || { icon: '📄', kurz: typ };
+        const aktiv = ausgewaehlteTypen.includes(typ);
+        const typMax = G.maxZahlFuerTyp(typ);
+        const hinweis =
+          aktuellerZahlenMax() > typMax
+            ? `<span class="bau-typ-hinweis">Zahlen bis ${typMax}</span>`
+            : '';
+        return (
+          `<button type="button" class="bau-typ-kachel${aktiv ? ' aktiv' : ''}" ` +
+          `data-mix-typ="${typ}" aria-pressed="${aktiv}">` +
+            `<span class="bau-typ-icon" aria-hidden="true">${m.icon}</span>` +
+            `<span class="bau-typ-name">${m.kurz}</span>` +
+            hinweis +
+          `</button>`
+        );
+      }
+
+      function baueTypKacheln() {
+        const container = document.getElementById('mix-typen-wahl');
+        const label = document.getElementById('bau-typen-label');
+        if (!container) return;
+        if (label) {
+          label.textContent = mischenAktiv
+            ? '3. Aufgabentypen aus allen Gruppen wählen'
+            : '3. Aufgabentyp(en) wählen';
+        }
+        if (!mischenAktiv) {
+          container.innerHTML = G.typenDerGruppe(aktuelleGruppe).map(typKachelHTML).join('');
+          return;
+        }
+        container.innerHTML = sichtbareGruppen()
+          .map(
+            (g) =>
+              `<div class="bau-typ-gruppe">` +
+                `<span class="bau-typ-gruppe-titel">${g.icon} ${g.titel}</span>` +
+                `<div class="bau-typen-reihe">${g.typen.map(typKachelHTML).join('')}</div>` +
+              `</div>`
+          )
+          .join('');
+      }
+
+      function aktualisiereBauUI() {
+        baueGruppenKacheln();
+        baueTypKacheln();
+      }
+
+      function markiereChip(leisteId, attr, wert) {
+        document.querySelectorAll(`#${leisteId} .mix-chip`).forEach((b) => {
+          const aktiv = wert !== null && b.getAttribute(attr) === wert;
+          b.classList.toggle('aktiv', aktiv);
+          b.setAttribute('aria-pressed', String(aktiv));
+        });
+      }
+
+      // Wert der Bereichs-Schnellwahl, der die gewählten Zahlen abdeckt (1-5 | 1-10 | 1-20)
+      function bereichFuerEinstellungen() {
+        // Bei Einzelzahlen zählt allein die tatsächliche Obergrenze, nie die zuletzt gewählte Schnellwahl
+        if (!zahlenAngepasst && ['1-5', '1-10', '1-20'].includes(bereich)) return bereich;
+        const m = aktuellerZahlenMax();
+        return m <= 5 ? '1-5' : m <= 10 ? '1-10' : '1-20';
       }
 
       function randInt(min, max) {
@@ -678,12 +780,9 @@
        * Ermittelt die aktuell gewählten Aufgabentypen und bildet automatisch einen sprechenden Titel + Icon + Tags
        */
       function ermittleAktuelleMetadaten() {
-        const aktiveTypButtons = Array.from(
-          document.querySelectorAll('#mix-typen-wahl .mix-chip.aktiv')
-        );
-        let aktiveTypen = aktiveTypButtons.map((b) => b.getAttribute('data-mix-typ'));
+        let aktiveTypen = ausgewaehlteTypen.slice();
         if (aktiveTypen.length === 0) {
-          aktiveTypen = ['zahlenhaus'];
+          aktiveTypen = [STANDARD_TYP];
         }
 
         const zahlenArr = Array.from(ausgewaehlteZahlen).sort((a, b) => a - b);
@@ -723,6 +822,17 @@
           `${seitenAnzahl} ${seitenAnzahl === 1 ? 'Druckseite' : 'Druckseiten'}`
         ];
 
+        // Einstellungen für "Nochmal neu" (Task 9) – dieselben Werte treiben die Generierung.
+        // Vertrag: bereich ist immer '1-5' | '1-10' | '1-20'; zahlen ist null oder ein Array und
+        // hat Vorrang vor bereich, sobald es gesetzt ist (bereich deckt dann dessen Maximum ab).
+        const einstellungen = {
+          typen: aktiveTypen.slice(),
+          bereich: bereichFuerEinstellungen(),
+          zahlen: zahlenAngepasst ? zahlenArr.slice() : null,
+          anzahl: anzahlStufe,
+          praefix: titelPraefix
+        };
+
         return {
           aktiveTypen,
           min,
@@ -730,7 +840,8 @@
           zahlenText,
           icon,
           titel: vollerTitel,
-          tags
+          tags,
+          einstellungen
         };
       }
 
@@ -769,8 +880,14 @@
             const blockPrefix = `mix_s${s}_b${b}`;
             const blockDaten = erzeugeAufgabenBlock(typ, min, max, blockPrefix);
 
+            // Schmale Aufgabentypen teilen sich im Druck eine Zeile (zwei Blöcke nebeneinander)
+            const schmaleTypen = ['zahlenhaus', 'zahlenfreunde', 'rechnen', 'zahlenmauern', 'nachbarn', 'zwerg_riese'];
+            const blockKlasse = schmaleTypen.includes(typ)
+              ? 'mix-aufgaben-block mix-aufgaben-block--halb fokus-kandidat'
+              : 'mix-aufgaben-block fokus-kandidat';
+
             seitenBloeckeHTML +=
-              `<div class="mix-aufgaben-block fokus-kandidat">` +
+              `<div class="${blockKlasse}" data-mix-typ="${typ}">` +
                 `<h2 class="mix-block-titel">` +
                   `<span class="aufgaben-nr">${globaleAufgabenNr}</span>` +
                   `<span>${blockDaten.titel}</span>` +
@@ -785,7 +902,7 @@
           gesamtHTML +=
             `<article class="druck-seite" aria-label="Arbeitsblatt Seite ${s}">` +
               `<div class="druck-seite-kopf">` +
-                `<span>Name: Louis</span>` +
+                `<span class="druck-name">Name: ________</span>` +
                 `<span>${titel}${seitenTitelZusatz}</span>` +
                 `<span>Datum: _______________</span>` +
               `</div>` +
@@ -862,50 +979,64 @@
         if (matheBtn) matheBtn.click();
       });
 
-      // 2. Aufgabentypen-Auswahl
+      // 2. Übergruppe, Aufgabentypen und Mischen über mehrere Gruppen
+      document.getElementById('bau-gruppen-wahl').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-gruppe]');
+        if (!btn) return;
+        const gruppe = btn.getAttribute('data-gruppe');
+        if (gruppe === aktuelleGruppe) return;
+        aktuelleGruppe = gruppe;
+        // Voreinstellung: der erste Typ der Gruppe, damit sofort ein Blatt entsteht
+        ausgewaehlteTypen = G.typenDerGruppe(gruppe).slice(0, 1);
+        aktualisiereBauUI();
+        generiereZufallsBlatt();
+      });
+
       document.getElementById('mix-typen-wahl').addEventListener('click', (e) => {
         const btn = e.target.closest('[data-mix-typ]');
         if (!btn) return;
-        const aktive = document.querySelectorAll('#mix-typen-wahl .mix-chip.aktiv');
-        if (btn.classList.contains('aktiv') && aktive.length <= 1) {
+        const typ = btn.getAttribute('data-mix-typ');
+        const idx = ausgewaehlteTypen.indexOf(typ);
+        if (idx !== -1) {
           // Mindestens 1 Aufgabentyp bleibt aktiv
-          return;
+          if (ausgewaehlteTypen.length <= 1) return;
+          ausgewaehlteTypen.splice(idx, 1);
+        } else {
+          ausgewaehlteTypen.push(typ);
         }
-        btn.classList.toggle('aktiv');
+        baueTypKacheln();
         generiereZufallsBlatt();
       });
 
-      document.getElementById('btn-alle-typen-aus').addEventListener('click', () => {
-        const alle = document.querySelectorAll('#mix-typen-wahl .mix-chip');
-        let ersterGefunden = false;
-        alle.forEach((b) => {
-          if (b.classList.contains('aktiv') && !ersterGefunden) {
-            ersterGefunden = true;
-          } else {
-            b.classList.remove('aktiv');
-          }
-        });
-        if (!ersterGefunden && alle[0]) alle[0].classList.add('aktiv');
+      document.getElementById('bau-mischen-schalter').addEventListener('click', () => {
+        setzeMischen(!mischenAktiv);
+        aktualisiereBauUI();
         generiereZufallsBlatt();
       });
 
-      document.getElementById('btn-bunter-mix').addEventListener('click', () => {
-        const alle = Array.from(document.querySelectorAll('#mix-typen-wahl .mix-chip'));
-        alle.forEach((b) => b.classList.remove('aktiv'));
-        const zufallsDrei = shuffleNichtAufsteigend(alle).slice(0, 3);
-        zufallsDrei.forEach((b) => b.classList.add('aktiv'));
-        generiereZufallsBlatt();
-      });
+      function setzeMischen(an) {
+        mischenAktiv = an;
+        const schalter = document.getElementById('bau-mischen-schalter');
+        schalter.classList.toggle('aktiv', an);
+        schalter.setAttribute('aria-checked', String(an));
+        if (!an) {
+          // Zurück auf eine einzelne Gruppe: die der ersten gewählten Auswahl
+          const erste = ausgewaehlteTypen[0];
+          aktuelleGruppe = (erste && G.gruppeFuerTyp(erste)) || STANDARD_GRUPPE;
+          ausgewaehlteTypen = ausgewaehlteTypen.filter((t) => G.gruppeFuerTyp(t) === aktuelleGruppe);
+          if (ausgewaehlteTypen.length === 0) ausgewaehlteTypen = G.typenDerGruppe(aktuelleGruppe).slice(0, 1);
+        }
+      }
 
       // 3. Zahlenbereich & Einzelzahlen
       document.getElementById('mix-bereich-wahl').addEventListener('click', (e) => {
         const btn = e.target.closest('[data-mix-bereich]');
         if (!btn) return;
         bereich = btn.getAttribute('data-mix-bereich');
-        document
-          .querySelectorAll('#mix-bereich-wahl .mix-chip')
-          .forEach((b) => b.classList.toggle('aktiv', b === btn));
+        zahlenAngepasst = false;
+        markiereChip('mix-bereich-wahl', 'data-mix-bereich', bereich);
         setzeZahlenAusBereich(bereich);
+        baueTypKacheln();
         generiereZufallsBlatt();
       });
 
@@ -922,40 +1053,33 @@
           ausgewaehlteZahlen.add(z);
           btn.classList.add('aktiv');
         }
-        document
-          .querySelectorAll('#mix-bereich-wahl .mix-chip')
-          .forEach((b) => b.classList.remove('aktiv'));
+        zahlenAngepasst = true;
+        markiereChip('mix-bereich-wahl', 'data-mix-bereich', null);
+        baueTypKacheln();
         generiereZufallsBlatt();
       });
 
-      // 4. Aufgaben pro Seite, Seitenanzahl & Präfix
+      // 4. Anzahl Aufgaben (Wenig | Mittel | Viel) & Kennzeichnung
       document.getElementById('mix-anzahl-wahl').addEventListener('click', (e) => {
         const btn = e.target.closest('[data-mix-anzahl]');
         if (!btn) return;
-        anzahlProSeite = btn.getAttribute('data-mix-anzahl');
-        document
-          .querySelectorAll('#mix-anzahl-wahl .mix-chip')
-          .forEach((b) => b.classList.toggle('aktiv', b === btn));
+        setzeAnzahlStufe(btn.getAttribute('data-mix-anzahl'));
         generiereZufallsBlatt();
       });
 
-      document.getElementById('mix-seiten-wahl').addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-mix-seiten]');
-        if (!btn) return;
-        seitenAnzahl = parseInt(btn.getAttribute('data-mix-seiten'), 10);
-        document
-          .querySelectorAll('#mix-seiten-wahl .mix-chip')
-          .forEach((b) => b.classList.toggle('aktiv', b === btn));
-        generiereZufallsBlatt();
-      });
+      function setzeAnzahlStufe(stufe) {
+        if (!ANZAHL_STUFEN[stufe]) stufe = 'mittel';
+        anzahlStufe = stufe;
+        anzahlProSeite = String(ANZAHL_STUFEN[stufe][0]);
+        seitenAnzahl = ANZAHL_STUFEN[stufe][1];
+        markiereChip('mix-anzahl-wahl', 'data-mix-anzahl', stufe);
+      }
 
       document.getElementById('mix-praefix-wahl').addEventListener('click', (e) => {
         const btn = e.target.closest('[data-mix-praefix]');
         if (!btn) return;
         titelPraefix = btn.getAttribute('data-mix-praefix') || '';
-        document
-          .querySelectorAll('#mix-praefix-wahl .mix-chip')
-          .forEach((b) => b.classList.toggle('aktiv', b === btn));
+        markiereChip('mix-praefix-wahl', 'data-mix-praefix', titelPraefix);
         generiereZufallsBlatt();
       });
 
@@ -993,7 +1117,8 @@
           tastaturTyp: 'zahlen',
           seitenAnzahl: seitenAnzahl,
           gesamtFelder: gesamtFelder,
-          html: seitenContainer.innerHTML
+          html: seitenContainer.innerHTML,
+          einstellungen: meta.einstellungen
         });
 
         // Zurück zur Testbibliothek navigieren (mit Highlight des neu angelegten Blatts!)
@@ -1004,32 +1129,83 @@
       function wendeStartParameterAn() {
         const urlTyp = params.get('typ');
         const urlBereich = params.get('bereich');
-        if (urlBereich) {
-          bereich = urlBereich;
-          document.querySelectorAll('#mix-bereich-wahl .mix-chip').forEach((b) => {
-            b.classList.toggle('aktiv', b.getAttribute('data-mix-bereich') === urlBereich);
-          });
+        if (urlBereich && /^\d+-\d+$/.test(urlBereich)) {
           setzeZahlenAusBereich(urlBereich);
+          if (['1-5', '1-10', '1-20'].includes(urlBereich)) {
+            bereich = urlBereich;
+            markiereChip('mix-bereich-wahl', 'data-mix-bereich', urlBereich);
+          } else {
+            // Teilbereich (z.B. 10-20): als Einzelzahlen führen, Schnellwahl bleibt ohne Markierung
+            zahlenAngepasst = true;
+            markiereChip('mix-bereich-wahl', 'data-mix-bereich', null);
+          }
         }
         if (urlTyp) {
-          const typListe = urlTyp.split(',').map((s) => s.trim()).filter(Boolean);
+          const typListe = urlTyp
+            .split(',')
+            .map((t) => t.trim())
+            .filter((t) => TYP_META[t]);
           if (typListe.length > 0) {
-            document.querySelectorAll('#mix-typen-wahl .mix-chip').forEach((b) => {
-              b.classList.toggle('aktiv', typListe.includes(b.getAttribute('data-mix-typ')));
-            });
+            ausgewaehlteTypen = typListe;
+            aktuelleGruppe = G.gruppeFuerTyp(typListe[0]) || STANDARD_GRUPPE;
+            const gruppen = new Set(typListe.map((t) => G.gruppeFuerTyp(t)));
+            if (gruppen.size > 1) setzeMischen(true);
           }
         }
       }
 
-      baueEinzelzahlenChips();
-      wendeStartParameterAn();
+      // "Nochmal neu": Einstellungen eines abgeschlossenen Blatts uebernehmen, frisch wuerfeln, speichern.
+      let neuAusAktiv = false;
+      function wendeNeuAusAn() {
+        const konfigEl = document.getElementById('erstellen-konfigurator');
+        const vorschauEl = document.getElementById('vorschau-aktionen-leiste');
+        if (konfigEl) konfigEl.style.display = 'none';
+        if (vorschauEl) vorschauEl.style.display = 'none';
+        const eintrag = window.TabbiHistorie
+          ? window.TabbiHistorie.erzeuge(window.localStorage).hole(neuAusId)
+          : null;
+        const z = eintrag
+          ? window.TabbiHistorie.zustandAusEinstellungen(eintrag.einstellungen, Object.keys(TYP_META))
+          : null;
+        if (!z) {
+          document.getElementById('mix-seiten-container').innerHTML =
+            '<div class="bib-leer-box" style="margin:24px auto;max-width:560px;text-align:center;">' +
+            '<p>Dieses Blatt kann nicht neu erstellt werden.</p>' +
+            '<p><a href="../index.html">Zurück zur Bibliothek</a></p></div>';
+          return false;
+        }
+        ausgewaehlteTypen = z.typen;
+        aktuelleGruppe = G.gruppeFuerTyp(z.typen[0]) || STANDARD_GRUPPE;
+        if (new Set(z.typen.map((t) => G.gruppeFuerTyp(t))).size > 1) setzeMischen(true);
+        bereich = z.bereich;
+        if (z.zahlen) {
+          ausgewaehlteZahlen = new Set(z.zahlen);
+          zahlenAngepasst = true;
+        } else {
+          setzeZahlenAusBereich(z.bereich);
+        }
+        titelPraefix = z.praefix;
+        setzeAnzahlStufe(z.anzahl);
+        return true;
+      }
 
-      if (window.tabbiApp) {
+      baueEinzelzahlenChips();
+      if (neuAusId) neuAusAktiv = wendeNeuAusAn();
+      else wendeStartParameterAn();
+      setzeAnzahlStufe(anzahlStufe);
+      markiereChip('mix-praefix-wahl', 'data-mix-praefix', titelPraefix);
+      markiereChip('mix-bereich-wahl', 'data-mix-bereich', zahlenAngepasst ? null : bereich);
+      aktualisiereBauUI();
+
+      function startGenerierung() {
+        if (neuAusId && !neuAusAktiv) return; // unbekannte Id: nur Hinweis zeigen
         generiereZufallsBlatt();
+        if (neuAusAktiv) document.getElementById('btn-in-bibliothek-speichern').click();
+      }
+      if (window.tabbiApp) {
+        startGenerierung();
       } else {
-        document.addEventListener('DOMContentLoaded', () => {
-          generiereZufallsBlatt();
-        });
+        document.addEventListener('DOMContentLoaded', startGenerierung);
       }
     })();
   </script>
