@@ -381,3 +381,64 @@ test('zuordnungSollText: Indizes auf angezeigte Zahlen abbilden, sortiert nach B
   assert.strictEqual(A.zuordnungSollText('', ['1']), 'Verbindungen');
   assert.strictEqual(A.zuordnungSollText(null), 'Verbindungen');
 });
+
+/* ===================== statische Katalog-Bausteine ======================== */
+
+const zelle = (kind) => h('.schreib-zelle', {}, [kind]);
+
+test('ermittleLoesungen: Schreibstreifen – Luecken wiederholen die gedruckte Ziffer', () => {
+  const spur = h('.vorgabe.spur', {}, '4');
+  const root = main(h('.schreib-reihe', {}, [zelle(V(4)), zelle(spur), zelle(L('a1_z4_c3')), zelle(L('a1_z4_c4'))]));
+  const l = A.ermittleLoesungen(root, G.gruppeFuerTyp).luecken;
+  assert.strictEqual(l.a1_z4_c3.soll, 4);
+  assert.strictEqual(l.a1_z4_c4.soll, 4);
+});
+
+test('ermittleLoesungen: Zahlenstrahl-Reihe auf- und absteigend, Schritt nicht 1 -> null', () => {
+  const reihe = (ids, werte) => h('.schreib-reihe', {}, werte.map((w, i) => zelle(w === '_' ? L(ids + i) : V(w))));
+  const root = main(
+    reihe('auf', [10, 11, '_', 13, '_']),
+    reihe('ab', [20, 19, '_', 17]),
+    reihe('vorn', ['_', 12, 13]),
+    reihe('sprung', [2, '_', 6])
+  );
+  const l = A.ermittleLoesungen(root, G.gruppeFuerTyp).luecken;
+  assert.deepStrictEqual([l.auf2.soll, l.auf4.soll], [12, 14]);
+  assert.strictEqual(l.ab2.soll, 18);
+  assert.strictEqual(l.vorn0.soll, 11);
+  assert.strictEqual(l.sprung1.soll, null);
+});
+
+test('ermittleLoesungen: Ordnen – gedruckte Zahlen aufsteigend', () => {
+  const zeile = (zahlen, ids) => h('.zwanziger-aufgabe-zeile', {}, [
+    h('div', {}, zahlen.join('  •  ')),
+    h('.gleichung-zeile', {}, ids.flatMap((id, i) => [
+      ...(i ? [h('span', {}, '<')] : []), h('.gleichung-box', {}, [L(id)])
+    ]))
+  ]);
+  const root = main(zeile([16, 11, 19], ['o1', 'o2', 'o3']), zeile([5, 5, 7], ['p1', 'p2', 'p3']));
+  const l = A.ermittleLoesungen(root, G.gruppeFuerTyp).luecken;
+  assert.deepStrictEqual([l.o1.soll, l.o2.soll, l.o3.soll], [11, 16, 19]);
+  assert.strictEqual(l.o1.gruppe, 'ordnen');
+  assert.strictEqual(l.p1.soll, null);
+});
+
+test('ermittleLoesungen: Halbieren nur mit Halbieren-Label und geradem n', () => {
+  const karte = (label, formel, p) => h('.zwerg-riese-karte', {}, [
+    h('.zwerg-riese-label', {}, label), gleichung(formel, p)
+  ]);
+  const root = main(karte('Halbieren:', '10 = _ + _', 'h'), karte('Halbieren:', '9 = _ + _', 'u'),
+    karte('Zerlegen:', '10 = _ + _', 'z'));
+  const l = A.ermittleLoesungen(root, G.gruppeFuerTyp).luecken;
+  assert.deepStrictEqual([l.h_l1.soll, l.h_l2.soll], [5, 5]);
+  assert.strictEqual(l.u_l1.soll, null);
+  assert.strictEqual(l.z_l1.soll, null);
+});
+
+test('ermittleLoesungen: Zehnerstopp Schritt 2 aus der Hauptaufgabe', () => {
+  const box = (haupt, s2) => h('.schritt-box', {}, [gleichung(haupt, 'h'), h('div', {}, [gleichung(s2, 's')])]);
+  const root = main(box('8 + 5 = _', '10 + _ = _'));
+  const l = A.ermittleLoesungen(root, G.gruppeFuerTyp).luecken;
+  assert.strictEqual(l.h_l1.soll, 13);
+  assert.deepStrictEqual([l.s_l1.soll, l.s_l2.soll], [3, 13]);
+});

@@ -55,10 +55,19 @@ Die Korrektur erfolgt analog durch die Lehrkraft auf Papier oder im exportierten
   - `index.html` (Visuelle Bibliothek mit großen Kacheln, Vorschaubild und Fortschrittsstatus `⚪ Neu`, `✏️ Angefangen`).
   - `css/tabbi.css` (Zentrales Stylesheet für Heft-Karo, Ziffernblock, Bausteine, Print-Styles).
   - `js/tabbi-core.js` (Zentrale Logik für Numpad, Fokus-Steuerung, Backspace, `localStorage` Sync, Zwei-Tipp-Reset).
+  - `js/tabbi-gruppen.js` (5 Aufgabengruppen des Builders und Zuordnung Typ -> Gruppe, auch für die Auswertung).
+  - `js/tabbi-historie.js` (Liste der abgeschlossenen Blätter: speichern, lesen, Ansichts-URL).
+  - `js/tabbi-auswertung.js` (nur Lehrkraft: leitet Lösungen aus den gedruckten Vorgaben ab und vergleicht; schreibt nie ins DOM).
   - `blaetter/*.html` (Einzelne Arbeitsblätter, eindeutig identifiziert über `data-blatt-id`).
 - **Speicherung (`localStorage`):**
   - Schlüssel-Format: `tabbi_daten_<blatt_id>` (mit `try/catch` abgesichert).
   - Speichert alle Lücken-Werte und Plättchen-Zustände bei jeder Änderung sofort ab und stellt sie beim Laden wieder her.
+  - `tabbi_historie_v1`: abgeschlossene Blätter (Eingaben, Titel, Datum, Gruppen). Nur über „✅ Fertig“ befüllt, nicht löschbar.
+  - `tabbi_druckname`: optionaler Name für den Druckkopf, von der Lehrkraft lokal gesetzt, nie im Code/Repo.
+- **Fertig-Verhalten:** „✅ Fertig“ (zwei Tipps) schließt ein Blatt endgültig ab: Blatt gesperrt, in `tabbi_historie_v1` verschoben, nicht löschbar. In „📁 Abgeschlossen“ gibt es *Ansehen* (schreibgeschützt) und *Nochmal neu* (leere Kopie).
+- **Auswertung (nur Lehrkraft):** Zugang per 3-Sekunden-Halten plus Einmaleins-Aufgabe; sperrt beim Verlassen wieder. Rote Markierungen mit Sollwert, „nicht bearbeitet“, Zusammenfassung je Gruppe, „Mit Korrektur drucken“. Das Kind sieht nie Richtig/Falsch; der normale Druck zeigt nie Korrekturen. Nicht eindeutig ableitbare Lücken werden nicht gewertet (README „Auswertung – Grenzen“).
+- **Druck:** kompakt mit Heftrand; optionaler Name aus `tabbi_druckname`.
+- **Builder:** Typen in 5 Übergruppen, seltene Einstellungen unter „Mehr Optionen“. Auf großen Bildschirmen schwebt der Ziffernblock.
 
 ---
 

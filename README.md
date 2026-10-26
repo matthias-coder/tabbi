@@ -66,7 +66,11 @@ Der aktuelle Stand (**v10 Offline-Release**) umfasst:
 | **2-Tipp-Löschung** | Blatt leeren verlangt eine Zwei-Tipp-Bestätigung direkt im UI (kein nerviges System-Popup). |
 | **Status & Speicherung** | Fortschritt (`⚪ Neu`, `✏️ Angefangen`, `✅ Fertig`) wird live im `localStorage` gespeichert. |
 | **Einzel-Ansicht (Fokus-Modus)** | Per Knopfdruck wird nur eine einzige Aufgabe im Großformat fokussiert. |
-| **Druck-Optimierung** | Ein Klick auf `🖨️ PDF / Drucken` erzeugt eine saubere Druckseite ohne UI-Bedienelemente. |
+| **Druck-Optimierung** | Ein Klick auf `🖨️ PDF / Drucken` erzeugt eine kompakte Druckseite mit Heftrand und optionalem Namen (`tabbi_druckname`), ohne UI-Bedienelemente. |
+| **Schwebender Ziffernblock** | Auf großen Bildschirmen schwebt der Ziffernblock neben dem Blatt, auf dem Tablet liegt er am unteren Rand. |
+| **Gruppen-Builder** | Aufgabentypen in 5 Übergruppen, seltene Optionen unter „Mehr Optionen“. |
+| **✅ Fertig / 📁 Abgeschlossen** | Endgültiger Abschluss (zwei Tipps): Blatt gesperrt, in `tabbi_historie_v1` verschoben, nicht löschbar. Dort *Ansehen* und *Nochmal neu*. |
+| **Auswertung (nur Lehrkraft)** | 3-Sekunden-Halten plus Einmaleins-Aufgabe. Rote Markierungen mit Sollwert, „nicht bearbeitet“, Zusammenfassung je Gruppe, `Mit Korrektur drucken`. Sperrt beim Verlassen wieder. Der normale Druck zeigt nie Korrekturen, das Kind sieht nie Richtig/Falsch. |
 
 ---
 
@@ -142,11 +146,27 @@ TABBI basiert auf einem strikten **Vanilla-Web-Stack**:
 * Direktes Hosting auf **GitHub Pages**.
 * **Zentrale Komponenten:**
   * `js/tabbi-core.js`: Universeller Controller für alle Blätter (Numpad, Navigation, Fokus, Persistenz, Event-Handling).
+  * `js/tabbi-gruppen.js`: Aufgabengruppen des Builders und Zuordnung Typ -> Gruppe.
+  * `js/tabbi-historie.js`: Verwaltung der abgeschlossenen Blätter (`tabbi_historie_v1`).
+  * `js/tabbi-auswertung.js`: Lösungen aus gedruckten Vorgaben ableiten und vergleichen (nur Lehrkraft-Ansicht, schreibt nie ins DOM).
   * `js/blaetter-katalog.js`: Zentrale Metadaten aller Arbeitsblätter und Filterkategorien.
   * `css/tabbi.css`: Globales Designsystem, responsive Breakpoints und Drucklayouts.
 * **Datenspeicherung:**
   * Jeder Zustand wird in `localStorage` unter `tabbi_daten_<blattId>` als JSON persistiert.
+  * Abgeschlossene Blätter unter `tabbi_historie_v1`, optionaler Druckname unter `tabbi_druckname`.
   * Fehlerresistente Speicherung über `try/catch`.
+
+### Auswertung – Grenzen
+
+Die Auswertung wertet nur Lücken, deren Lösung eindeutig aus gedruckten Vorgaben im selben Baustein folgt (Regeln nach Struktur, nicht nach Blatt). Alles andere zählt als „nicht ausgewertet“ und nie als falsch:
+
+* **Punkte bis 20, Stellenwerttafel bei genau 20:** Zehner/Einer sind aus dem Bild nicht eindeutig (1 Zehner + 10 Einzelpunkte). Die Gleichung `10 + 10 = 20` wird gewertet.
+* **Strichlisten im Katalogblatt 004:** Zahlenfelder (`zahl_*`) und Striche haben keine gedruckte Zählvorlage (Tiere nur als Bild).
+* **Zahlenreihen mit nur einer gedruckten Zahl** oder Schrittweite ungleich ±1, sowie Ordnen mit doppelten Zahlen.
+* **Halbieren mit ungeradem n** und `n = _ + _` ohne „Halbieren“-Kennzeichnung (mehrere Zerlegungen möglich).
+* **Kreise, Plättchen, Anmalen, Einkreisen, Bündeln:** reine Markierungen, werden nicht bewertet.
+* **Deutsch-Demo-Lücken** im Builder.
+* **Zahlenhaus/Zahlenfreunde mit zwei leeren Lücken:** gewertet wird nur, ob die Summe stimmt, wenn beide gefüllt sind.
 
 ---
 
@@ -180,6 +200,9 @@ tabbi/
 │   └── tabbi.css                 # Gesamtes Designsystem, Komponenten & Print-Styles
 ├── js/
 │   ├── tabbi-core.js             # Kernlogik (Numpad, Lücken, Fokus-Modus, Storage)
+│   ├── tabbi-gruppen.js          # Aufgabengruppen des Builders
+│   ├── tabbi-historie.js         # Abgeschlossene Blätter
+│   ├── tabbi-auswertung.js       # Lösungen & Auswertung (nur Lehrkraft)
 │   └── blaetter-katalog.js       # Katalog aller Blätter & Metadaten
 ├── blaetter/                     # Alle interaktiven Arbeitsblätter
 │   ├── 001_zahlenhaeuser_und_freunde.html

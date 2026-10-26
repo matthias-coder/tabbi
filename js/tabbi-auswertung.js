@@ -323,6 +323,84 @@
       setze(loesung.el, loesung.wert, typ);
     });
 
+    // 11b. Schreibstreifen / Zahlenstrahl-Reihen (.schreib-reihe)
+    alle(rootEl, '.schreib-reihe').forEach(function (reihe) {
+      var zellen = alle(reihe, '.schreib-zelle').map(function (z) {
+        var v = z.querySelector('.vorgabe');
+        var l = z.querySelector('.luecke');
+        return { luecke: l, wert: v ? zahl(v.textContent) : null, spur: !!(v && v.classList.contains('spur')) };
+      });
+      if (zellen.some(function (z) { return z.spur; })) {
+        // Schreibstreifen: die Ziffer der Reihe wird wiederholt
+        var ziffer = null;
+        zellen.forEach(function (z) { if (ziffer === null && z.wert !== null && !z.spur) ziffer = z.wert; });
+        zellen.forEach(function (z) { if (z.luecke && ziffer !== null) setze(z.luecke, ziffer, 'schreibstreifen'); });
+        return;
+      }
+      // Zahlenstrahl-Reihe: Schritt +1 oder -1 aus zwei gedruckten Zahlen
+      var bekannt = [];
+      zellen.forEach(function (z, i) { if (z.wert !== null) bekannt.push({ i: i, w: z.wert }); });
+      if (bekannt.length < 2) return;
+      var schritt = (bekannt[1].w - bekannt[0].w) / (bekannt[1].i - bekannt[0].i);
+      if (Math.abs(schritt) !== 1) return;
+      var konsistent = bekannt.every(function (b) { return b.w === bekannt[0].w + schritt * (b.i - bekannt[0].i); });
+      if (!konsistent) return;
+      zellen.forEach(function (z, i) {
+        if (z.luecke) setze(z.luecke, bekannt[0].w + schritt * (i - bekannt[0].i), 'nachbarn');
+      });
+    });
+
+    // 11c. Ordnen: gedruckte Zahlen aufsteigend in die Luecken (a < b < c ...)
+    alle(rootEl, '.zwanziger-aufgabe-zeile').forEach(function (zeile) {
+      if (zeile.querySelector('.kreis-vorgabe')) return;
+      var gz = zeile.querySelector('.gleichung-zeile');
+      if (!gz) return;
+      var luecken = alle(gz, '.luecke');
+      var quelle = Array.prototype.slice.call(zeile.children || []).filter(function (k) {
+        return !k.classList.contains('gleichung-zeile');
+      });
+      if (quelle.length !== 1 || !luecken.length) return;
+      var zahlen = (String(quelle[0].textContent).match(/\d+/g) || []).map(function (s) { return parseInt(s, 10); });
+      var eindeutig = zahlen.every(function (n, i) { return zahlen.indexOf(n) === i; });
+      if (!eindeutig || zahlen.length !== luecken.length) return;
+      zahlen.sort(function (a, b) { return a - b; });
+      luecken.forEach(function (l, i) { setze(l, zahlen[i], 'nachbarn'); });
+    });
+
+    // 11d. Halbieren: "n = _ + _" unter einem Halbieren-Label -> zwei gleiche Haelften
+    alle(rootEl, '.gleichung-zeile').forEach(function (gz) {
+      if (!gz.closest('.zwerg-riese-karte')) return;
+      var t = gleichungTokens(gz);
+      if (!t || t.length !== 5 || t[0].art !== 'zahl' || t[1].op !== '=' || t[2].art !== 'luecke' ||
+          t[3].op !== '+' || t[4].art !== 'luecke' || t[0].wert % 2 !== 0) return;
+      var label = null;
+      Array.prototype.slice.call((gz.parentNode && gz.parentNode.children) || []).some(function (k) {
+        if (k === gz) return true;
+        if (k.classList.contains('zwerg-riese-label')) label = k;
+        return false;
+      });
+      if (!label || String(label.textContent).indexOf('Halbieren') === -1) return;
+      setze(t[2].el, t[0].wert / 2, 'zwerg_riese');
+      setze(t[4].el, t[0].wert / 2, 'zwerg_riese');
+    });
+
+    // 11e. Zehnerstopp: Hauptaufgabe "a + b = _" legt Schritt 2 "10 + _ = _" fest
+    alle(rootEl, '.schritt-box').forEach(function (box) {
+      var haupt = null, s2 = null;
+      alle(box, '.gleichung-zeile').forEach(function (gz) {
+        var t = gleichungTokens(gz);
+        if (!t || t.length !== 5) return;
+        var arten = t.map(function (x) { return x.art; }).join(',');
+        if (arten === 'zahl,op,zahl,op,luecke' && t[1].op === '+' && t[3].op === '=' && !haupt) haupt = t;
+        else if (arten === 'zahl,op,luecke,op,luecke' && t[0].wert === 10 && t[1].op === '+' && t[3].op === '=' && !s2) s2 = t;
+      });
+      if (!haupt || !s2) return;
+      var summe = haupt[0].wert + haupt[2].wert;
+      if (summe < 10) return;
+      setze(s2[2].el, summe - 10, 'rechnen');
+      setze(s2[4].el, summe, 'rechnen');
+    });
+
     // 12. Alle uebrigen Luecken: nicht ausgewertet
     alle(rootEl, '.luecke').forEach(function (l) { setze(l, null, null); });
 
