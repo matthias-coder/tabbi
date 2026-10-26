@@ -68,11 +68,14 @@
         <button type="button" class="bib-subfilter-btn" data-status="angefangen">
           ✏️ Angefangen / Fertig
         </button>
+        <button type="button" class="bib-subfilter-btn" data-status="abgeschlossen">
+          📁 Abgeschlossen
+        </button>
       </nav>
     </div>
 
     <!-- Kachel-Grid der gespeicherten Arbeitsblätter / Tests -->
-    <h2 class="bib-abschnitt-titel">✏️ Erstellte Arbeitsblätter</h2>
+    <h2 id="erstellt-titel" class="bib-abschnitt-titel">✏️ Erstellte Arbeitsblätter</h2>
     <div id="kachel-grid" class="bib-kachel-grid" role="list">
       <!-- Wird dynamisch aus TabbiTestbibliothek gerendert -->
     </div>
@@ -85,10 +88,17 @@
       </div>
     </section>
 
+    <!-- Abgeschlossene Blätter (Historie) -->
+    <section id="abgeschlossen-bereich" aria-labelledby="abgeschlossen-titel" style="display:none;">
+      <h2 id="abgeschlossen-titel" class="bib-abschnitt-titel">📁 Abgeschlossen</h2>
+      <div id="abgeschlossen-grid" class="bib-kachel-grid" role="list"></div>
+    </section>
+
   </main>
 
   <script src="js/tabbi-core.js"></script>
   <script src="js/tabbi-gruppen.js"></script>
+  <script src="js/tabbi-historie.js"></script>
   <script src="js/blaetter-katalog.js"></script>
   <script>
     (function () {
@@ -194,8 +204,72 @@
         return kachel;
       }
 
+      /** Rendert den Bereich "Abgeschlossen": nur Icon, Titel, Datum, Knöpfe (kein Ergebnis, keine Zähler). */
+      function rendereAbgeschlossen() {
+        const bereich = document.getElementById('abgeschlossen-bereich');
+        const agrid = document.getElementById('abgeschlossen-grid');
+        agrid.innerHTML = '';
+        let eintraege = [];
+        try {
+          eintraege = window.TabbiHistorie.erzeuge(window.localStorage).holeAlle();
+        } catch (e) {
+          eintraege = [];
+        }
+        eintraege = eintraege.filter(
+          (e) => e && e.id && (aktuellesFach === 'alle' || (e.fach || 'mathe') === aktuellesFach)
+        );
+        bereich.style.display = eintraege.length > 0 ? '' : 'none';
+        eintraege.forEach((e) => {
+          const kachel = document.createElement('div');
+          kachel.className = 'bib-kachel bib-kachel-abgeschlossen';
+          kachel.setAttribute('role', 'listitem');
+          const icon = document.createElement('div');
+          icon.className = 'bib-kachel-icon';
+          icon.setAttribute('aria-hidden', 'true');
+          icon.textContent = '📁';
+          const titel = document.createElement('h2');
+          titel.className = 'bib-kachel-titel';
+          titel.textContent = e.titel || 'Arbeitsblatt';
+          const datum = document.createElement('span');
+          datum.className = 'bib-datum-badge';
+          datum.textContent = 'Abgeschlossen am ' + window.TabbiHistorie.formatiereDatum(e.abgeschlossenAm);
+          const aktionen = document.createElement('div');
+          aktionen.className = 'bib-kachel-aktionen';
+          const ansehen = document.createElement('a');
+          ansehen.className = 'bib-aktion-btn oeffnen';
+          ansehen.href = window.TabbiHistorie.ansichtsUrl(e);
+          ansehen.textContent = '👁️ Ansehen';
+          const nochmal = document.createElement('a');
+          nochmal.className = 'bib-aktion-btn wuerfeln';
+          nochmal.href =
+            e.quelle === 'katalog' ? e.url : 'blaetter/011_click_und_mix.html?neuAus=' + encodeURIComponent(e.id);
+          nochmal.textContent = '🔁 Nochmal neu';
+          const ausw = document.createElement('button');
+          ausw.type = 'button';
+          ausw.className = 'bib-aktion-btn lehrkraft';
+          ausw.setAttribute('data-auswertung-id', e.id);
+          ausw.textContent = '🔒 Auswertung (3 Sek. halten)';
+          aktionen.append(ansehen, nochmal, ausw);
+          const kopf = document.createElement('div');
+          kopf.className = 'bib-kachel-top';
+          kopf.append(icon);
+          kachel.append(kopf, titel, datum, aktionen);
+          agrid.appendChild(kachel);
+        });
+      }
+
       function rendereTestbibliothek() {
         grid.innerHTML = '';
+        rendereAbgeschlossen();
+
+        // Filter "Abgeschlossen": nur dieser Bereich
+        const nurAbgeschlossen = aktuellerStatus === 'abgeschlossen';
+        document.getElementById('erstellt-titel').style.display = nurAbgeschlossen ? 'none' : '';
+        grid.style.display = nurAbgeschlossen ? 'none' : '';
+        if (nurAbgeschlossen) {
+          document.getElementById('katalog-bereich').style.display = 'none';
+          return;
+        }
 
         const alleTests = window.TabbiTestbibliothek
           ? window.TabbiTestbibliothek.holeAlleTests()

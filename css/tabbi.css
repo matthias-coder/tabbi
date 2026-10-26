@@ -2262,8 +2262,20 @@ button {
   border-radius: 12px;
 }
 
-#katalog-bereich {
+#katalog-bereich,
+#abgeschlossen-bereich {
   margin-top: 36px;
+}
+
+/* Abgeschlossene Blätter: neutrale Kachel, kein Ergebnis-Farbcode */
+.bib-kachel-abgeschlossen {
+  gap: var(--space-3);
+}
+
+.bib-aktion-btn.lehrkraft {
+  color: var(--ui-teacher);
+  background: var(--ui-teacher-soft);
+  border: 2px solid var(--ui-teacher);
 }
 
 /* Katalog nach Übergruppen gegliedert (js/tabbi-gruppen.js) */

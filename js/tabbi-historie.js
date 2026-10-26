@@ -127,7 +127,28 @@
     return seite + '?historie=' + encodeURIComponent(eintrag.id);
   }
 
+  // einstellungen eines Builder-Eintrags -> Generator-Zustand fuer "Nochmal neu".
+  // gueltigeTypen: Liste erlaubter Typ-Ids. Ungueltig/leer -> null.
+  function zustandAusEinstellungen(e, gueltigeTypen) {
+    if (!e || typeof e !== 'object') return null;
+    var erlaubt = Array.isArray(gueltigeTypen) ? gueltigeTypen : null;
+    var typen = (Array.isArray(e.typen) ? e.typen : []).filter(function (t) {
+      return typeof t === 'string' && (!erlaubt || erlaubt.indexOf(t) !== -1);
+    });
+    if (typen.length === 0) return null;
+    var bereich = ['1-5', '1-10', '1-20'].indexOf(e.bereich) !== -1 ? e.bereich : '1-10';
+    var zahlen = null;
+    if (Array.isArray(e.zahlen)) {
+      zahlen = e.zahlen.filter(function (z) { return typeof z === 'number' && z >= 1 && z <= 20 && z % 1 === 0; });
+      if (zahlen.length === 0) zahlen = null;
+    }
+    var anzahl = ['wenig', 'mittel', 'viel'].indexOf(e.anzahl) !== -1 ? e.anzahl : 'mittel';
+    var praefix = typeof e.praefix === 'string' ? e.praefix : '';
+    return { typen: typen, bereich: bereich, zahlen: zahlen, anzahl: anzahl, praefix: praefix };
+  }
+
   return {
+    zustandAusEinstellungen: zustandAusEinstellungen,
     erzeuge: erzeuge,
     gruppenAusLoesungen: gruppenAusLoesungen,
     formatiereDatum: formatiereDatum,

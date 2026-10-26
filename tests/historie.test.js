@@ -194,3 +194,14 @@ test('ansichtsUrl: haengt historie-Parameter korrekt an', () => {
   assert.strictEqual(H.ansichtsUrl({ id: 'h_2', url: 'blaetter/001_a.html?bereich=1-5&zahlen=2,3&tab=freunde' }), 'blaetter/001_a.html?historie=h_2');
   assert.strictEqual(H.ansichtsUrl(null), '');
 });
+
+test('zustandAusEinstellungen: uebernimmt gueltige Werte, validiert, null bei leer', () => {
+  const ok = ['zahlenhaus', 'rechnen'];
+  const z = H.zustandAusEinstellungen({ typen: ['zahlenhaus', 'xx'], bereich: '1-5', zahlen: null, anzahl: 'viel', praefix: 'Test: ' }, ok);
+  assert.deepStrictEqual(z, { typen: ['zahlenhaus'], bereich: '1-5', zahlen: null, anzahl: 'viel', praefix: 'Test: ' });
+  const z2 = H.zustandAusEinstellungen({ typen: ['rechnen'], bereich: 'x', zahlen: [2, 4, 99], anzahl: '?' }, ok);
+  assert.deepStrictEqual(z2, { typen: ['rechnen'], bereich: '1-10', zahlen: [2, 4], anzahl: 'mittel', praefix: '' });
+  assert.strictEqual(H.zustandAusEinstellungen({ typen: ['xx'] }, ok), null);
+  assert.strictEqual(H.zustandAusEinstellungen(null, ok), null);
+  assert.strictEqual(H.zustandAusEinstellungen(undefined, ok), null);
+});

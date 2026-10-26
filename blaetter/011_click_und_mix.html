@@ -191,6 +191,7 @@
       const params = new URLSearchParams(window.location.search);
       const gespeicherteTestId = params.get('testId');
       const sollDirektDrucken = params.get('print') === '1';
+      const neuAusId = params.get('neuAus'); // "Nochmal neu" aus der Historie (Wiederholung, keine Lehrkraft-Sperre)
 
       let aktuellesFach = 'mathe';
       let bereich = '1-10';
@@ -297,7 +298,7 @@
       // ======================================================================
       // MODUS B: NEUES ARBEITSBLATT ERSTELLEN (MIT LIVE-VORSCHAU)
       // ======================================================================
-      if (window.TabbiLehrerGate && !window.TabbiLehrerGate.istFreigeschaltet()) {
+      if (!neuAusId && window.TabbiLehrerGate && !window.TabbiLehrerGate.istFreigeschaltet()) {
         window.TabbiLehrerGate.oeffneMatheGate(
           () => {},
           () => {
@@ -1153,19 +1154,58 @@
         }
       }
 
+      // "Nochmal neu": Einstellungen eines abgeschlossenen Blatts uebernehmen, frisch wuerfeln, speichern.
+      let neuAusAktiv = false;
+      function wendeNeuAusAn() {
+        const konfigEl = document.getElementById('erstellen-konfigurator');
+        const vorschauEl = document.getElementById('vorschau-aktionen-leiste');
+        if (konfigEl) konfigEl.style.display = 'none';
+        if (vorschauEl) vorschauEl.style.display = 'none';
+        const eintrag = window.TabbiHistorie
+          ? window.TabbiHistorie.erzeuge(window.localStorage).hole(neuAusId)
+          : null;
+        const z = eintrag
+          ? window.TabbiHistorie.zustandAusEinstellungen(eintrag.einstellungen, Object.keys(TYP_META))
+          : null;
+        if (!z) {
+          document.getElementById('mix-seiten-container').innerHTML =
+            '<div class="bib-leer-box" style="margin:24px auto;max-width:560px;text-align:center;">' +
+            '<p>Dieses Blatt kann nicht neu erstellt werden.</p>' +
+            '<p><a href="../index.html">Zurück zur Bibliothek</a></p></div>';
+          return false;
+        }
+        ausgewaehlteTypen = z.typen;
+        aktuelleGruppe = G.gruppeFuerTyp(z.typen[0]) || STANDARD_GRUPPE;
+        if (new Set(z.typen.map((t) => G.gruppeFuerTyp(t))).size > 1) setzeMischen(true);
+        bereich = z.bereich;
+        if (z.zahlen) {
+          ausgewaehlteZahlen = new Set(z.zahlen);
+          zahlenAngepasst = true;
+        } else {
+          setzeZahlenAusBereich(z.bereich);
+        }
+        titelPraefix = z.praefix;
+        setzeAnzahlStufe(z.anzahl);
+        return true;
+      }
+
       baueEinzelzahlenChips();
-      wendeStartParameterAn();
+      if (neuAusId) neuAusAktiv = wendeNeuAusAn();
+      else wendeStartParameterAn();
       setzeAnzahlStufe(anzahlStufe);
       markiereChip('mix-praefix-wahl', 'data-mix-praefix', titelPraefix);
       markiereChip('mix-bereich-wahl', 'data-mix-bereich', zahlenAngepasst ? null : bereich);
       aktualisiereBauUI();
 
-      if (window.tabbiApp) {
+      function startGenerierung() {
+        if (neuAusId && !neuAusAktiv) return; // unbekannte Id: nur Hinweis zeigen
         generiereZufallsBlatt();
+        if (neuAusAktiv) document.getElementById('btn-in-bibliothek-speichern').click();
+      }
+      if (window.tabbiApp) {
+        startGenerierung();
       } else {
-        document.addEventListener('DOMContentLoaded', () => {
-          generiereZufallsBlatt();
-        });
+        document.addEventListener('DOMContentLoaded', startGenerierung);
       }
     })();
   </script>
