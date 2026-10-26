@@ -995,6 +995,9 @@
 
       // Prüfen, ob alle Aufgaben bereits ausgefüllt sind -> Fertigstellen-Button einblenden
       this.aktualisiereFertigstellenButton(false);
+
+      // Lehrkraft-Auswertung: nur ?historie=<id>&auswertung=1 UND aktive Freigabe (sonst reine Kind-Ansicht)
+      if (this.istGesperrt && this.historieEintrag) this.pruefeAuswertungsModus();
     }
 
     registrierePWA() {
@@ -1846,6 +1849,8 @@
               return;
             }
             if (t.closest('a[href]')) return;
+            // Lehrkraft-Auswertung: eigene Knöpfe (Drucken / Schließen) bleiben bedienbar
+            if (t.closest('#ausw-kopf')) return;
             e.stopPropagation();
             e.preventDefault();
           },
@@ -2499,6 +2504,137 @@
       banner.textContent = datum ? `Abgeschlossen am ${datum}` : 'Abgeschlossen';
       if (ziel === main) main.insertBefore(banner, main.firstChild);
       else ziel.parentNode.insertBefore(banner, ziel);
+    }
+
+    /**
+     * Auswertung (nur Lehrkraft): Overlay erscheint ausschließlich bei ?auswertung=1 UND aktiver
+     * TabbiLehrerGate-Freigabe. Die normale ?historie=<id>-Ansicht bleibt immer markierungsfrei.
+     */
+    pruefeAuswertungsModus() {
+      let gewuenscht = false;
+      try {
+        gewuenscht = new URLSearchParams(window.location.search).get('auswertung') === '1';
+      } catch (e) {}
+      if (!gewuenscht || !window.TabbiLehrerGate || !window.TabbiLehrerGate.istFreigeschaltet()) return;
+      this.zeigeAuswertung();
+
+      const id = this.historieEintrag.id;
+      const zurKindAnsicht = () => {
+        window.location.replace('?historie=' + encodeURIComponent(id));
+      };
+      // Ablauf der Freigabe: Auswertung verschwindet (Prüfung alle 30 s)
+      this.auswertungsTimer = setInterval(() => {
+        if (!window.TabbiLehrerGate.istFreigeschaltet()) {
+          clearInterval(this.auswertungsTimer);
+          zurKindAnsicht();
+        }
+      }, 30 * 1000);
+      // Zurück-Navigation aus dem Seiten-Cache: Freigabe erneut prüfen
+      window.addEventListener('pageshow', (ev) => {
+        if (ev.persisted && !window.TabbiLehrerGate.istFreigeschaltet()) zurKindAnsicht();
+      });
+    }
+
+    /** Baut Kopf + Markierungen der Auswertung (DOM nur in diesem Modus). */
+    zeigeAuswertung() {
+      const main = document.querySelector('main.blatt-inhalt');
+      if (!main) return;
+      const eintrag = this.historieEintrag;
+      const A = window.TabbiAuswertung;
+      const gruppenListe = window.TabbiGruppen ? window.TabbiGruppen.GRUPPEN : [];
+
+      const kopf = document.createElement('section');
+      kopf.id = 'ausw-kopf';
+      kopf.setAttribute('aria-label', 'Auswertung für die Lehrkraft');
+      const titel = document.createElement('h2');
+      titel.className = 'ausw-kopf-titel';
+      const datum = window.TabbiHistorie ? window.TabbiHistorie.formatiereDatum(eintrag.abgeschlossenAm) : '';
+      titel.textContent = '🔒 Auswertung' + (datum ? ` · abgeschlossen am ${datum}` : '');
+      kopf.appendChild(titel);
+
+      const hatLoesungen = Boolean(A && eintrag.loesungen && typeof eintrag.loesungen === 'object');
+      if (!hatLoesungen) {
+        const p = document.createElement('p');
+        p.className = 'ausw-kopf-summe';
+        p.textContent = 'Für dieses Blatt sind keine Lösungen hinterlegt';
+        kopf.appendChild(p);
+      } else {
+        const erg = A.werteAus(eintrag.loesungen, eintrag.eingaben);
+        const summe = document.createElement('p');
+        summe.className = 'ausw-kopf-summe';
+        summe.textContent = A.zusammenfassungsText(erg);
+        kopf.appendChild(summe);
+        const zeilen = A.gruppenAufteilung(erg.proGruppe, gruppenListe);
+        if (zeilen.length) {
+          const ul = document.createElement('ul');
+          ul.className = 'ausw-kopf-gruppen';
+          zeilen.forEach((z) => {
+            const li = document.createElement('li');
+            li.textContent = `${z.titel}: ${z.text}`;
+            ul.appendChild(li);
+          });
+          kopf.appendChild(ul);
+        }
+        this.markiereAuswertung(main, erg);
+      }
+
+      const leiste = document.createElement('div');
+      leiste.className = 'ausw-kopf-aktionen print-hide';
+      const druck = document.createElement('button');
+      druck.type = 'button';
+      druck.className = 'ui-btn ausw-btn-drucken';
+      druck.textContent = '🖨️ Mit Korrektur drucken';
+      druck.addEventListener('click', () => window.print());
+      const schliessen = document.createElement('button');
+      schliessen.type = 'button';
+      schliessen.className = 'ui-btn ausw-btn-schliessen';
+      schliessen.textContent = 'Schließen';
+      schliessen.addEventListener('click', () => {
+        if (this.auswertungsTimer) clearInterval(this.auswertungsTimer);
+        window.TabbiLehrerGate.sperreLehrerbereich();
+        window.location.replace('../index.html');
+      });
+      leiste.append(druck, schliessen);
+      kopf.appendChild(leiste);
+
+      main.insertBefore(kopf, main.firstChild);
+      document.body.classList.add('auswertung-aktiv');
+    }
+
+    /** Setzt .ausw-falsch / .ausw-leer und .ausw-soll an die bewerteten Elemente. */
+    markiereAuswertung(main, erg) {
+      const A = window.TabbiAuswertung;
+      const finde = (id) => {
+        const sel = ['.luecke', '.striche-anzeige', '.zuordnung-container'];
+        for (const s of sel) {
+          const el = Array.from(main.querySelectorAll(`${s}[data-id]`)).find((n) => n.getAttribute('data-id') === id);
+          if (el) return el;
+        }
+        return null;
+      };
+      Object.entries(erg.details || {}).forEach(([id, status]) => {
+        if (status !== 'falsch' && status !== 'leer') return; // richtig / nicht ausgewertet: keine Markierung
+        const el = finde(id);
+        if (!el) return;
+        el.classList.add(status === 'falsch' ? 'ausw-falsch' : 'ausw-leer');
+        if (status !== 'falsch') return;
+        const soll = document.createElement('span');
+        soll.className = 'ausw-soll';
+        let text = erg.soll ? erg.soll[id] : '';
+        if (el.classList.contains('zuordnung-container')) {
+          const werte = [];
+          el.querySelectorAll('.zuordnung-knoten.rechts').forEach((k) => {
+            const z = k.querySelector('.zuordnung-zahl');
+            werte[parseInt(k.getAttribute('data-zo-index'), 10)] = z ? z.textContent : '';
+          });
+          text = A.zuordnungSollText(text, werte);
+          soll.classList.add('ausw-soll-block');
+        } else if (el.classList.contains('striche-anzeige')) {
+          el.classList.add('ausw-ziel');
+        }
+        soll.textContent = text || '';
+        el.appendChild(soll);
+      });
     }
 
     /** Neutraler Hinweis im Fertig-Bereich (z. B. Speicher voll). */

@@ -351,3 +351,33 @@ test('ermittleLoesungen: ohne root oder ohne gruppeFuerTyp keine Exception', () 
   const l = A.ermittleLoesungen(main(gleichung('2 + 2 = _', 'q'))).luecken;
   assert.deepStrictEqual(l.q_l1, { soll: 4, gruppe: null });
 });
+
+/* ------------------- Texte der Lehrkraft-Auswertung (Task 10) ------------------- */
+
+test('zusammenfassungsText: x von y falsch · z nicht bearbeitet', () => {
+  assert.strictEqual(A.zusammenfassungsText({ gesamt: 12, falsch: 2, leer: 1 }), '2 von 12 falsch · 1 nicht bearbeitet');
+  assert.strictEqual(A.zusammenfassungsText(null), '0 von 0 falsch · 0 nicht bearbeitet');
+});
+
+test('gruppenAufteilung: feste Gruppen-Reihenfolge, Titel aus TabbiGruppen, unbekannte hinten', () => {
+  const zeilen = A.gruppenAufteilung(
+    {
+      rechnen: { gesamt: 4, falsch: 1, leer: 0 },
+      xyz: { gesamt: 1, falsch: 0, leer: 1 },
+      mengen: { gesamt: 3, falsch: 0, leer: 0 }
+    },
+    G.GRUPPEN
+  );
+  assert.deepStrictEqual(zeilen.map((z) => z.id), ['mengen', 'rechnen', 'xyz']);
+  assert.strictEqual(zeilen[0].titel, 'Mengen erfassen & zählen');
+  assert.strictEqual(zeilen[1].text, '1 von 4 falsch · 0 nicht bearbeitet');
+  assert.strictEqual(zeilen[2].titel, 'xyz');
+  assert.deepStrictEqual(A.gruppenAufteilung(null, G.GRUPPEN), []);
+});
+
+test('zuordnungSollText: Indizes auf angezeigte Zahlen abbilden, sortiert nach Bild', () => {
+  assert.strictEqual(A.zuordnungSollText('1:0,0:2', ['3', '5', '7']), 'Bild 1 – 7 · Bild 2 – 3');
+  assert.strictEqual(A.zuordnungSollText('0:4', []), 'Bild 1 – 5');
+  assert.strictEqual(A.zuordnungSollText('', ['1']), 'Verbindungen');
+  assert.strictEqual(A.zuordnungSollText(null), 'Verbindungen');
+});

@@ -406,5 +406,52 @@
     return erg;
   }
 
-  return { ermittleLoesungen: ermittleLoesungen, werteAus: werteAus };
+  /* --------------------- Texte fuer die Lehrkraft-Auswertung --------------------- */
+
+  // "x von y falsch · z nicht bearbeitet" (nur Lehrkraft-Ansicht)
+  function zusammenfassungsText(erg) {
+    var e = erg || {};
+    return (e.falsch || 0) + ' von ' + (e.gesamt || 0) + ' falsch · ' + (e.leer || 0) + ' nicht bearbeitet';
+  }
+
+  // proGruppe -> [{ id, titel, text }] in der festen Reihenfolge der Gruppen;
+  // unbekannte Gruppen-Ids hinten mit ihrer Id als Titel.
+  function gruppenAufteilung(proGruppe, gruppenListe) {
+    var pg = proGruppe || {};
+    var liste = gruppenListe || [];
+    var ids = [];
+    liste.forEach(function (g) { if (pg[g.id]) ids.push(g.id); });
+    Object.keys(pg).forEach(function (id) { if (ids.indexOf(id) === -1) ids.push(id); });
+    return ids.map(function (id) {
+      var g = null;
+      for (var i = 0; i < liste.length; i++) if (liste[i].id === id) g = liste[i];
+      return { id: id, titel: g ? g.titel : id, text: zusammenfassungsText(pg[id]) };
+    });
+  }
+
+  // Zuordnungs-Soll "0:2,1:0" -> "Bild 1 – 7 · Bild 2 – 3" (rechtsWerte: angezeigte Zahlen je Index)
+  function zuordnungSollText(soll, rechtsWerte) {
+    var werte = rechtsWerte || [];
+    var teile = String(soll || '').split(',').map(function (p) { return p.trim(); }).filter(Boolean)
+      .map(function (p) {
+        var t = p.split(':');
+        var i = parseInt(t[0], 10), j = parseInt(t[1], 10);
+        if (isNaN(i) || isNaN(j)) return null;
+        var roh = werte[j];
+        var w = roh !== undefined && roh !== null && String(roh).trim() !== '' ? String(roh).trim() : String(j + 1);
+        return { i: i, text: 'Bild ' + (i + 1) + ' – ' + w };
+      })
+      .filter(Boolean)
+      .sort(function (a, b) { return a.i - b.i; })
+      .map(function (x) { return x.text; });
+    return teile.length ? teile.join(' · ') : 'Verbindungen';
+  }
+
+  return {
+    ermittleLoesungen: ermittleLoesungen,
+    werteAus: werteAus,
+    zusammenfassungsText: zusammenfassungsText,
+    gruppenAufteilung: gruppenAufteilung,
+    zuordnungSollText: zuordnungSollText
+  };
 });

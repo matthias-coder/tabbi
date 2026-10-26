@@ -249,6 +249,12 @@
           ausw.className = 'bib-aktion-btn lehrkraft';
           ausw.setAttribute('data-auswertung-id', e.id);
           ausw.textContent = '🔒 Auswertung (3 Sek. halten)';
+          if (window.TabbiLehrerGate) {
+            const auswUrl = window.TabbiHistorie.ansichtsUrl(e) + '&auswertung=1';
+            window.TabbiLehrerGate.bindeDreiSekundenButton(ausw, () => {
+              window.location.href = auswUrl;
+            });
+          }
           aktionen.append(ansehen, nochmal, ausw);
           const kopf = document.createElement('div');
           kopf.className = 'bib-kachel-top';
