@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
+  <title>TABBI – Leseblatt & Lese-Karten</title>
+  <link rel="stylesheet" href="../css/tabbi.css">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/figuren/tabbi-favicon-32.png">
+  <meta name="theme-color" content="#0f766e">
+</head>
+<body data-blatt-id="012_leseblatt_silben_und_woerter">
+
+  <!-- =======================================================================
+       STEUERUNGSLEISTE (am oberen Bildschirmrand, im Druck ausgeblendet)
+       ======================================================================= -->
+  <header class="blatt-header print-hide">
+    <div class="header-links">
+      <a href="../index.html" class="nav-btn-zurueck" id="btn-zurueck-bib" title="Zurück zur Bibliothek">
+        ◀ Bibliothek
+      </a>
+      <span class="header-titel" id="header-blatt-titel">📖 Leseblatt</span>
+    </div>
+    <div class="header-rechts">
+      <button type="button" class="btn-sekundaer" id="btn-generator-oeffnen" title="Leseblatt anpassen">
+        ⚙️ Eigenes Blatt
+      </button>
+      <button type="button" class="btn-sekundaer btn-karten-start" id="btn-karten-starten" title="Lese-Karten groß anzeigen">
+        🔍 Lese-Karten starten
+      </button>
+      <button type="button" class="btn-sekundaer" id="btn-drucken" title="Arbeitsblatt als PDF drucken">
+        🖨️ PDF / Drucken
+      </button>
+    </div>
+  </header>
+
+  <!-- =======================================================================
+       HAUPTINHALT: Kompaktes A4-Leseblatt (mit 25 mm Heftrand im Druck)
+       ======================================================================= -->
+  <main class="blatt-inhalt leseblatt-druck">
+    <!-- Einheitlicher Druck-Kopf -->
+    <div class="druck-kopf">
+      <span class="druck-name" id="druck-schueler-name">Name: ________</span>
+      <span class="druck-titel" id="druck-blatt-titel">Leseblatt – Silben & Wörter</span>
+      <span class="druck-datum" id="druck-heute-datum">Datum: --.--.----</span>
+    </div>
+
+    <!-- 1. Silben-Tabelle -->
+    <section class="leseblatt-abschnitt" id="abschnitt-silben">
+      <h2 class="leseblatt-ueberschrift">
+        <span>①</span> Lies die Silben:
+      </h2>
+      <div class="silben-raster" id="silben-raster">
+        <!-- Wird dynamisch befüllt -->
+      </div>
+    </section>
+
+    <!-- 2. Wörter-Liste -->
+    <section class="leseblatt-abschnitt" id="abschnitt-woerter">
+      <h2 class="leseblatt-ueberschrift">
+        <span>②</span> Lies die Wörter:
+      </h2>
+      <div class="lese-woerter-grid" id="woerter-grid">
+        <!-- Wird dynamisch befüllt -->
+      </div>
+    </section>
+  </main>
+
+  <!-- =======================================================================
+       VOLLBILD LESE-KARTEN-MODUS (Riesige Einzeldarstellung)
+       ======================================================================= -->
+  <div class="lese-karten-overlay" id="lese-karten-overlay" aria-hidden="true">
+    <div class="lese-karten-kopf">
+      <span class="lese-karten-status" id="lese-karten-zaehler">Karte 1 von 20</span>
+      <button type="button" class="lese-karten-schliessen" id="btn-karten-schliessen">
+        ✕ Blatt-Ansicht
+      </button>
+    </div>
+
+    <div class="lese-karte-zentrum">
+      <div class="lese-karte-wort" id="lese-karte-anzeige">
+        <!-- Dynamisches Wort/Silbe -->
+      </div>
+      <div class="lese-karte-art" id="lese-karte-typ-label">Silbe</div>
+    </div>
+
+    <div class="lese-karten-nav">
+      <button type="button" class="lese-nav-btn zurueck" id="btn-karte-prev" aria-label="Vorherige Karte">
+        ◀ Zurück
+      </button>
+      <button type="button" class="lese-nav-btn weiter" id="btn-karte-next" aria-label="Nächste Karte">
+        Weiter ▶
+      </button>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       GENERATOR-OVERLAY: Eigene Buchstaben & Schwierigkeit wählen
+       ======================================================================= -->
+  <div class="lese-generator-overlay" id="lese-generator-modal" aria-hidden="true">
+    <div class="lese-generator-dialog">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="margin:0; font-size:1.3rem; color:var(--ink-print);">⚙️ Leseblatt anpassen</h3>
+        <button type="button" class="btn-sekundaer" id="btn-generator-schliessen" style="padding:4px 10px;">✕</button>
+      </div>
+
+      <!-- Schnellwahl Stufe 1–5 -->
+      <div style="margin-bottom:12px; font-weight:700; font-size:0.95rem; color:var(--ui-text);">
+        Schnellauswahl nach Lesestufe:
+      </div>
+      <div class="lese-gen-stufen" id="generator-stufen-chips">
+        <button type="button" class="lese-stufe-chip" data-gen-stufe="1">Stufe 1 (M, L, S)</button>
+        <button type="button" class="lese-stufe-chip" data-gen-stufe="2">Stufe 2 (+ R, N, T)</button>
+        <button type="button" class="lese-stufe-chip" data-gen-stufe="3">Stufe 3 (+ D, B, P, W)</button>
+        <button type="button" class="lese-stufe-chip" data-gen-stufe="4">Stufe 4 (+ F, K, G, Z)</button>
+        <button type="button" class="lese-stufe-chip" data-gen-stufe="5">Stufe 5 (+ Zwielaute)</button>
+      </div>
+
+      <!-- Buchstaben-Kacheln -->
+      <div style="margin-bottom:8px; font-weight:700; font-size:0.95rem; color:var(--ui-text);">
+        Freigegebene Buchstaben:
+      </div>
+      <div class="lese-buchstaben-grid" id="generator-buchstaben-grid">
+        <!-- A-Z Kacheln -->
+      </div>
+
+      <!-- Optionen -->
+      <div style="margin-bottom:18px; display:flex; flex-direction:column; gap:10px;">
+        <label style="font-weight:700; font-size:0.95rem; color:var(--ui-text);">
+          Schwierigkeitsgrad:
+          <select id="generator-schwierigkeit-select" style="margin-top:4px; width:100%; padding:8px; border-radius:8px; border:1.5px solid var(--ui-border); font-size:1rem;">
+            <option value="1">Grad 1: Nur Silben</option>
+            <option value="2" selected>Grad 2: Silben &amp; einfache Wörter (2 Silben)</option>
+            <option value="3">Grad 3: Silben &amp; längere Wörter (bis 3 Silben)</option>
+          </select>
+        </label>
+
+        <div style="display:flex; align-items:center; gap:10px; margin-top:4px;">
+          <button type="button" id="btn-toggle-faerbung" class="lese-stufe-chip" style="flex:1;">
+            Silben zweifarbig (blau/rot): <strong id="lbl-faerbung-status">Aus</strong>
+          </button>
+        </div>
+      </div>
+
+      <!-- Aktionen -->
+      <div style="display:flex; gap:12px; justify-content:flex-end;">
+        <button type="button" class="btn-sekundaer" id="btn-generator-abbrechen">Abbrechen</button>
+        <button type="button" class="btn-primaer" id="btn-generator-anwenden" style="background:var(--ui-accent); color:#ffffff; border:none; padding:10px 20px; border-radius:10px; font-weight:700; cursor:pointer;">
+          Leseblatt erstellen ▶
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       LOGIK & MODUL-INTEGRATION
+       ======================================================================= -->
+  <script src="../js/tabbi-lesekorpus.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      // 1. Zustand
+      let aktuellerPool = ['A', 'E', 'I', 'O', 'U', 'M', 'L', 'S'];
+      let aktuelleStufe = 1;
+      let aktuellerGrad = 2;
+      let zweifarbigAktiv = false;
+
+      // Deck für den Vollbild-Lese-Karten-Modus
+      let kartenDeck = []; // Array von { text, silben, typ: 'Silbe'|'Wort' }
+      let kartenIndex = 0;
+
+      // DOM-Elemente
+      const silbenRaster = document.getElementById('silben-raster');
+      const woerterGrid = document.getElementById('woerter-grid');
+      const kartenOverlay = document.getElementById('lese-karten-overlay');
+      const kartenZaehler = document.getElementById('lese-karten-zaehler');
+      const kartenWort = document.getElementById('lese-karte-wort');
+      const kartenTypLabel = document.getElementById('lese-karte-typ-label');
+      const btnKartePrev = document.getElementById('btn-karte-prev');
+      const btnKarteNext = document.getElementById('btn-karte-next');
+
+      // 2. Initialisierung aus URL-Parametern
+      function initialisiereAusURL() {
+        const params = new URLSearchParams(window.location.search);
+
+        if (params.has('stufe')) {
+          const stufeNr = parseInt(params.get('stufe'), 10) || 1;
+          setzeStufe(stufeNr);
+        } else if (params.has('buchstaben')) {
+          const bs = params.get('buchstaben').split(',').map(b => b.trim().toUpperCase()).filter(Boolean);
+          if (bs.length > 0) {
+            aktuellerPool = bs;
+            aktuelleStufe = TabbiLesekorpus.ermittleStufe(aktuellerPool);
+          }
+        }
+
+        if (params.has('grad')) {
+          aktuellerGrad = parseInt(params.get('grad'), 10) || 2;
+        }
+
+        if (params.has('faerbung')) {
+          zweifarbigAktiv = params.get('faerbung') === '1' || params.get('faerbung') === 'true';
+        }
+
+        // Druckdatum setzen
+        const datumEl = document.getElementById('druck-heute-datum');
+        if (datumEl) {
+          const heute = new Date();
+          const d = String(heute.getDate()).padStart(2, '0');
+          const m = String(heute.getMonth() + 1).padStart(2, '0');
+          const y = heute.getFullYear();
+          datumEl.textContent = 'Datum: ' + d + '.' + m + '.' + y;
+        }
+
+        // Druckname aus localStorage
+        const nameEl = document.getElementById('druck-schueler-name');
+        if (nameEl) {
+          try {
+            const druckName = localStorage.getItem('tabbi_druckname');
+            if (druckName && druckName.trim().length > 0) {
+              nameEl.textContent = 'Name: ' + druckName.trim();
+            }
+          } catch (e) {}
+        }
+
+        rendereBlatt();
+      }
+
+      function setzeStufe(stufeNr) {
+        aktuelleStufe = Math.max(1, Math.min(5, stufeNr));
+        const stufeObj = TabbiLesekorpus.STUFEN.find(s => s.id === aktuelleStufe) || TabbiLesekorpus.STUFEN[0];
+        
+        // Alle Buchstaben bis einschließlich dieser Stufe sammeln
+        const poolSet = new Set(['A', 'E', 'I', 'O', 'U']);
+        for (let s = 1; s <= aktuelleStufe; s++) {
+          const st = TabbiLesekorpus.STUFEN.find(item => item.id === s);
+          if (st) {
+            st.konsonanten.forEach(k => poolSet.add(k));
+            st.vokale.forEach(v => poolSet.add(v));
+          }
+        }
+        aktuellerPool = Array.from(poolSet);
+      }
+
+      // 3. Blatt rendern (Druck & Übersicht)
+      function rendereBlatt() {
+        const titelText = 'Leseblatt – Stufe ' + aktuelleStufe;
+        document.title = 'TABBI – ' + titelText;
+        document.getElementById('header-blatt-titel').textContent = '📖 ' + titelText;
+        document.getElementById('druck-blatt-titel').textContent = titelText;
+
+        // Silben generieren
+        const silbenListe = TabbiLesekorpus.erzeugeSilben(aktuellerPool);
+        silbenRaster.innerHTML = '';
+        
+        // Begrenze auf maximal 18 prägnante Silben für das A4-Format
+        const silbenAuswahl = silbenListe.slice(0, 18);
+        silbenAuswahl.forEach(s => {
+          const zelle = document.createElement('div');
+          zelle.className = 'silben-zelle';
+          zelle.textContent = s;
+          silbenRaster.appendChild(zelle);
+        });
+
+        // Wörter filtern
+        woerterGrid.innerHTML = '';
+        const woerterListe = TabbiLesekorpus.filtereWoerter(aktuellerPool, aktuellerGrad);
+        
+        // Maximal 12 Wörter für übersichtlichen Druck
+        const woerterAuswahl = woerterListe.slice(0, 12);
+        
+        if (aktuellerGrad === 1 || woerterAuswahl.length === 0) {
+          document.getElementById('abschnitt-woerter').style.display = 'none';
+        } else {
+          document.getElementById('abschnitt-woerter').style.display = 'block';
+          woerterAuswahl.forEach(w => {
+            const eintrag = document.createElement('div');
+            eintrag.className = 'lese-wort-eintrag';
+            eintrag.innerHTML = TabbiLesekorpus.silbiereWortHTML(w, zweifarbigAktiv);
+            woerterGrid.appendChild(eintrag);
+          });
+        }
+
+        // Karten-Deck für Vollbildmodus vorbereiten
+        baueKartenDeck(silbenAuswahl, woerterAuswahl);
+      }
+
+      // 4. Lese-Karten-Deck aufbauen
+      function baueKartenDeck(silben, woerter) {
+        kartenDeck = [];
+        
+        // Zuerst die Silben
+        silben.forEach(s => {
+          kartenDeck.push({
+            text: s,
+            silben: [s],
+            typ: 'Silbe'
+          });
+        });
+
+        // Danach die Wörter (falls vorhanden)
+        if (aktuellerGrad > 1) {
+          woerter.forEach(w => {
+            kartenDeck.push({
+              text: w.text,
+              silben: w.silben,
+              typ: 'Wort'
+            });
+          });
+        }
+      }
+
+      // 5. Vollbild Lese-Karten-Navigation
+      function oeffneKartenModus() {
+        kartenIndex = 0;
+        kartenOverlay.classList.add('aktiv');
+        kartenOverlay.setAttribute('aria-hidden', 'false');
+        zeigeAktuelleKarte();
+      }
+
+      function schliesseKartenModus() {
+        kartenOverlay.classList.remove('aktiv');
+        kartenOverlay.setAttribute('aria-hidden', 'true');
+      }
+
+      function zeigeAktuelleKarte() {
+        if (kartenDeck.length === 0) {
+          kartenWort.textContent = '–';
+          kartenZaehler.textContent = 'Keine Karten vorhanden';
+          return;
+        }
+
+        // Ende erreicht?
+        if (kartenIndex >= kartenDeck.length) {
+          kartenWort.innerHTML = 'Fertig gelesen! 👍';
+          kartenTypLabel.textContent = 'Klasse gemacht!';
+          kartenZaehler.textContent = 'Alle ' + kartenDeck.length + ' Karten gelesen';
+          btnKartePrev.disabled = false;
+          btnKarteNext.textContent = 'Zur Übersicht ✔';
+          btnKarteNext.className = 'lese-nav-btn fertig';
+          return;
+        }
+
+        const karte = kartenDeck[kartenIndex];
+        kartenZaehler.textContent = 'Karte ' + (kartenIndex + 1) + ' von ' + kartenDeck.length;
+        kartenTypLabel.textContent = karte.typ;
+
+        if (zweifarbigAktiv && karte.silben && karte.silben.length > 1) {
+          kartenWort.innerHTML = TabbiLesekorpus.silbiereWortHTML(karte, true);
+        } else {
+          kartenWort.textContent = karte.text;
+        }
+
+        // Buttons anpassen
+        btnKartePrev.disabled = (kartenIndex === 0);
+        btnKarteNext.textContent = 'Weiter ▶';
+        btnKarteNext.className = 'lese-nav-btn weiter';
+      }
+
+      function blattereKarte(richtung) {
+        if (richtung > 0) {
+          if (kartenIndex >= kartenDeck.length) {
+            schliesseKartenModus();
+            return;
+          }
+          kartenIndex++;
+        } else {
+          if (kartenIndex > 0) {
+            kartenIndex--;
+          }
+        }
+        zeigeAktuelleKarte();
+      }
+
+      // 6. Tastatur-Steuerung für Desktop
+      window.addEventListener('keydown', function (e) {
+        if (!kartenOverlay.classList.contains('aktiv')) return;
+
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+          e.preventDefault();
+          blattereKarte(1);
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          blattereKarte(-1);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          schliesseKartenModus();
+        }
+      });
+
+      // 7. Event-Listener
+      document.getElementById('btn-karten-starten').addEventListener('click', oeffneKartenModus);
+      document.getElementById('btn-karten-schliessen').addEventListener('click', schliesseKartenModus);
+      btnKartePrev.addEventListener('click', () => blattereKarte(-1));
+      btnKarteNext.addEventListener('click', () => blattereKarte(1));
+
+      document.getElementById('btn-drucken').addEventListener('click', () => {
+        window.print();
+      });
+
+      // 8. Generator-Modal Steuerung
+      const modal = document.getElementById('lese-generator-modal');
+      const buchstabenGrid = document.getElementById('generator-buchstaben-grid');
+      const stufenChipsContainer = document.getElementById('generator-stufen-chips');
+      const selectGrad = document.getElementById('generator-schwierigkeit-select');
+      const btnToggleFaerbung = document.getElementById('btn-toggle-faerbung');
+      const lblFaerbung = document.getElementById('lbl-faerbung-status');
+
+      let genPool = [];
+      let genZweifarbig = false;
+
+      function initialisiereGenerator() {
+        // Alle Buchstaben A-Z + Mehrfachlaute
+        const alleBuchstaben = [
+          'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+          'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+          'Ä', 'Ö', 'Ü', 'SCH', 'ST', 'SP', 'CH', 'EI', 'AU', 'EU'
+        ];
+
+        buchstabenGrid.innerHTML = '';
+        alleBuchstaben.forEach(b => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'lese-buchstabe-btn';
+          btn.textContent = b;
+          btn.dataset.buchstabe = b;
+          btn.addEventListener('click', () => {
+            if (genPool.includes(b)) {
+              genPool = genPool.filter(x => x !== b);
+              btn.classList.remove('gewaehlt');
+            } else {
+              genPool.push(b);
+              btn.classList.add('gewaehlt');
+            }
+          });
+          buchstabenGrid.appendChild(btn);
+        });
+
+        // Stufen-Chips Handler
+        stufenChipsContainer.querySelectorAll('.lese-stufe-chip').forEach(chip => {
+          chip.addEventListener('click', () => {
+            const stufeNr = parseInt(chip.dataset.genStufe, 10);
+            stufenChipsContainer.querySelectorAll('.lese-stufe-chip').forEach(c => c.classList.remove('aktiv'));
+            chip.classList.add('aktiv');
+
+            // Pool auf diese Stufe setzen
+            const poolSet = new Set(['A', 'E', 'I', 'O', 'U']);
+            for (let s = 1; s <= stufeNr; s++) {
+              const st = TabbiLesekorpus.STUFEN.find(item => item.id === s);
+              if (st) {
+                st.konsonanten.forEach(k => poolSet.add(k));
+                st.vokale.forEach(v => poolSet.add(v));
+              }
+            }
+            genPool = Array.from(poolSet);
+            synchronisiereBuchstabenButtons();
+          });
+        });
+
+        btnToggleFaerbung.addEventListener('click', () => {
+          genZweifarbig = !genZweifarbig;
+          lblFaerbung.textContent = genZweifarbig ? 'An' : 'Aus';
+          btnToggleFaerbung.style.borderColor = genZweifarbig ? 'var(--ui-accent)' : 'var(--ui-border)';
+        });
+      }
+
+      function synchronisiereBuchstabenButtons() {
+        buchstabenGrid.querySelectorAll('.lese-buchstabe-btn').forEach(btn => {
+          const b = btn.dataset.buchstabe;
+          btn.classList.toggle('gewaehlt', genPool.includes(b));
+        });
+      }
+
+      function oeffneGenerator() {
+        genPool = [...aktuellerPool];
+        genZweifarbig = zweifarbigAktiv;
+        lblFaerbung.textContent = genZweifarbig ? 'An' : 'Aus';
+        selectGrad.value = String(aktuellerGrad);
+        synchronisiereBuchstabenButtons();
+
+        // Aktiven Stufen-Chip markieren
+        stufenChipsContainer.querySelectorAll('.lese-stufe-chip').forEach(chip => {
+          chip.classList.toggle('aktiv', parseInt(chip.dataset.genStufe, 10) === aktuelleStufe);
+        });
+
+        modal.classList.add('aktiv');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+
+      function schliesseGenerator() {
+        modal.classList.remove('aktiv');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+
+      document.getElementById('btn-generator-oeffnen').addEventListener('click', oeffneGenerator);
+      document.getElementById('btn-generator-schliessen').addEventListener('click', schliesseGenerator);
+      document.getElementById('btn-generator-abbrechen').addEventListener('click', schliesseGenerator);
+
+      document.getElementById('btn-generator-anwenden').addEventListener('click', () => {
+        aktuellerPool = genPool.length > 0 ? [...genPool] : ['A', 'E', 'I', 'O', 'U', 'M', 'L', 'S'];
+        aktuellerGrad = parseInt(selectGrad.value, 10) || 2;
+        zweifarbigAktiv = genZweifarbig;
+        aktuelleStufe = TabbiLesekorpus.ermittleStufe(aktuellerPool);
+
+        schliesseGenerator();
+        rendereBlatt();
+      });
+
+      // Start
+      initialisiereGenerator();
+      initialisiereAusURL();
+    })();
+  </script>
+</body>
+</html>
