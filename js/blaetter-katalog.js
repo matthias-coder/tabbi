@@ -296,4 +296,82 @@ window.TABBI_KATALOG = [
     beschreibung: 'Schrittweise über die 10 rechnen („Erst bis zur 10, dann weiter“) mit Zwanzigerfeld sowie Zahlenmauern.',
     tags: ['Zahlen bis 20', 'Zehnerübergang', 'Zahlenmauern']
   }
+,
+
+  // ========================================================================
+  // FACH DEUTSCH: 📖 LESEN & SILBEN (Klasse 1 Grundschule Hessen)
+  // ========================================================================
+  {
+    id: '012_leseblatt_generator',
+    blattId: '012_leseblatt_silben_und_woerter',
+    istClickMix: true,
+    istLeseblatt: true,
+    fach: 'deutsch',
+    gruppe: 'lesen',
+    url: 'blaetter/012_leseblatt_silben_und_woerter.html',
+    icon: '⚙️📖',
+    titel: 'Eigenes Leseblatt zusammenstellen',
+    beschreibung: 'Freie Auswahl aller bekannten Buchstaben, Schwierigkeitsgrad (Silben / Wörter) und zweifarbige Silben (blau/rot).',
+    tags: ['Leseblatt', 'Generator', 'Buchstaben frei wählbar']
+  },
+  {
+    id: '012_leseblatt_stufe_1',
+    blattId: '012_leseblatt_silben_und_woerter',
+    istLeseblatt: true,
+    fach: 'deutsch',
+    gruppe: 'lesen',
+    url: 'blaetter/012_leseblatt_silben_und_woerter.html?stufe=1',
+    icon: '📖🌱',
+    titel: 'Lesestufe 1: Erste Laute (M, L, S + Vokale)',
+    beschreibung: 'Silben wie Ma, Mo, Sa, Se, el, am und erste Wörter (Mama, Lama, Limo, Lela, Mimi, Oma).',
+    tags: ['Lesestufe 1', 'M L S', 'Vokale A E I O U']
+  },
+  {
+    id: '012_leseblatt_stufe_2',
+    blattId: '012_leseblatt_silben_und_woerter',
+    istLeseblatt: true,
+    fach: 'deutsch',
+    gruppe: 'lesen',
+    url: 'blaetter/012_leseblatt_silben_und_woerter.html?stufe=2',
+    icon: '📖🌿',
+    titel: 'Lesestufe 2: Konsonanten (+ R, N, T)',
+    beschreibung: 'Silben mit R, N, T und Wörter wie Name, Nase, Tanne, Rabe, Tomate, Salat, Rente.',
+    tags: ['Lesestufe 2', 'R N T', 'Wortlesen']
+  },
+  {
+    id: '012_leseblatt_stufe_3',
+    blattId: '012_leseblatt_silben_und_woerter',
+    istLeseblatt: true,
+    fach: 'deutsch',
+    gruppe: 'lesen',
+    url: 'blaetter/012_leseblatt_silben_und_woerter.html?stufe=3',
+    icon: '📖🌳',
+    titel: 'Lesestufe 3: Plosive & Weichlaute (+ D, B, P, W)',
+    beschreibung: 'Silben und Wörter mit D, B, P, W wie Dose, Dame, Blume, Baum, Wal, Post, Butter.',
+    tags: ['Lesestufe 3', 'D B P W', 'Wortschatz']
+  },
+  {
+    id: '012_leseblatt_stufe_4',
+    blattId: '012_leseblatt_silben_und_woerter',
+    istLeseblatt: true,
+    fach: 'deutsch',
+    gruppe: 'lesen',
+    url: 'blaetter/012_leseblatt_silben_und_woerter.html?stufe=4',
+    icon: '📖⭐',
+    titel: 'Lesestufe 4: Reibe- & Zischlaute (+ F, K, G, Z)',
+    beschreibung: 'Silben und Wörter mit F, K, G, Z wie Fisch, Frosch, Kiste, Katze, Gans, Garten, Zelt.',
+    tags: ['Lesestufe 4', 'F K G Z', 'Wortlesen']
+  },
+  {
+    id: '012_leseblatt_stufe_5',
+    blattId: '012_leseblatt_silben_und_woerter',
+    istLeseblatt: true,
+    fach: 'deutsch',
+    gruppe: 'lesen',
+    url: 'blaetter/012_leseblatt_silben_und_woerter.html?stufe=5',
+    icon: '📖🏆',
+    titel: 'Lesestufe 5: Zwielaute (+ EI, AU, EU, CH, SCH)',
+    beschreibung: 'Wörter mit Zwielauten und Lautverbindungen wie Eimer, Auto, Eule, Buch, Milch, Schule, Stern.',
+    tags: ['Lesestufe 5', 'Zwielaute', 'Schule']
+  }
 ];

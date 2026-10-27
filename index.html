@@ -53,7 +53,7 @@
           🔢 Mathematik
         </button>
         <button type="button" class="bib-filter-btn" data-fach="deutsch" id="tab-fach-deutsch">
-          🔤 Deutsch <span class="bib-bald-badge">🔜 Bald</span>
+          📖 Deutsch (Lesen)
         </button>
       </nav>
 
@@ -146,7 +146,7 @@
 
         const gruppen = window.TabbiGruppen.GRUPPEN;
         gruppen.forEach((gruppe) => {
-          const blaetter = gefiltert.filter((b) => b.gruppe === gruppe.id);
+          const blaetter = gefiltert.filter((b) => b.gruppe === gruppe.id && (b.fach || 'mathe') !== 'deutsch');
           if (blaetter.length === 0) return;
 
           const abschnitt = document.createElement('section');
@@ -165,19 +165,46 @@
           abschnitt.appendChild(gruppenGrid);
           katalogGrid.appendChild(abschnitt);
         });
+
+        // Deutsch / Lesen Blätter
+        const deutschBlaetter = gefiltert.filter((b) => b.fach === 'deutsch' || b.gruppe === 'lesen');
+        if (deutschBlaetter.length > 0) {
+          const abschnitt = document.createElement('section');
+          abschnitt.className = 'bib-gruppe';
+          abschnitt.setAttribute('aria-labelledby', 'gruppe-titel-lesen');
+          const ueberschrift = document.createElement('h3');
+          ueberschrift.className = 'bib-gruppe-titel';
+          ueberschrift.id = 'gruppe-titel-lesen';
+          ueberschrift.textContent = '📖 Silben & Wörter lesen (Hessen Grundschule)';
+          abschnitt.appendChild(ueberschrift);
+
+          const gruppenGrid = document.createElement('div');
+          gruppenGrid.className = 'bib-kachel-grid';
+          gruppenGrid.setAttribute('role', 'list');
+          deutschBlaetter.forEach((blatt) => gruppenGrid.appendChild(baueKatalogKachel(blatt)));
+          abschnitt.appendChild(gruppenGrid);
+          katalogGrid.appendChild(abschnitt);
+        }
       }
 
       function baueKatalogKachel(blatt) {
-        const status = window.TabbiBibliothek.holeBlattStatus(blatt.blattId, blatt.zahlenFilter, blatt.url);
-
         let statusText = '⚪ Neu';
         let statusKlasse = 'bib-status-badge';
-        if (status.angefangen) {
-          statusText =
-            status.gesamt > 0
-              ? `✏️ ${status.anzahl} / ${status.gesamt} ausgefüllt`
-              : '✏️ Angefangen';
-          statusKlasse = 'bib-status-badge angefangen';
+        let istAngefangen = false;
+
+        if (blatt.istLeseblatt) {
+          statusText = '📖 Leseblatt';
+          statusKlasse = 'bib-status-badge';
+        } else {
+          const status = window.TabbiBibliothek.holeBlattStatus(blatt.blattId, blatt.zahlenFilter, blatt.url);
+          istAngefangen = status.angefangen;
+          if (status.angefangen) {
+            statusText =
+              status.gesamt > 0
+                ? `✏️ ${status.anzahl} / ${status.gesamt} ausgefüllt`
+                : '✏️ Angefangen';
+            statusKlasse = 'bib-status-badge angefangen';
+          }
         }
 
         const tagsHTML = (blatt.tags || [])
@@ -198,7 +225,7 @@
           `</a>` +
           `<div class="bib-kachel-aktionen">` +
             `<a href="${blatt.url}" class="bib-aktion-btn oeffnen">${
-              status.angefangen ? '▶️ Weiterarbeiten' : '▶️ Öffnen'
+              istAngefangen ? '▶️ Weiterarbeiten' : '▶️ Öffnen'
             }</a>` +
           `</div>`;
         return kachel;
