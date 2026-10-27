@@ -58,6 +58,7 @@ Die Korrektur erfolgt analog durch die Lehrkraft auf Papier oder im exportierten
   - `js/tabbi-gruppen.js` (5 Aufgabengruppen des Builders und Zuordnung Typ -> Gruppe, auch für die Auswertung).
   - `js/tabbi-historie.js` (Liste der abgeschlossenen Blätter: speichern, lesen, Ansichts-URL).
   - `js/tabbi-auswertung.js` (nur Lehrkraft: leitet Lösungen aus den gedruckten Vorgaben ab und vergleicht; schreibt nie ins DOM).
+  - `js/tabbi-lesekorpus.js` (Deutsch: didaktischer Fibel-Wortschatz & Silbenlogik für Hessen Klasse 1).
   - `blaetter/*.html` (Einzelne Arbeitsblätter, eindeutig identifiziert über `data-blatt-id`).
 - **Speicherung (`localStorage`):**
   - Schlüssel-Format: `tabbi_daten_<blatt_id>` (mit `try/catch` abgesichert).
@@ -78,6 +79,7 @@ Die Korrektur erfolgt analog durch die Lehrkraft auf Papier oder im exportierten
    - **3-State-Toggle pro Kreis:** 1. Tipp = Blau (`#2563eb`), 2. Tipp = Rot (`#dc2626`), 3. Tipp = Leer (transparent).
 3. **Rechenpäckchen / Gleichungen:** `3 + [Lücke] = [Lücke]`.
 4. **Wörter / Buchstaben (Deutsch):** Statt Ziffernblock wird unten eine vollständige Buchstaben-Tastatur (A–Z + ÄÖÜ als große Kacheln) eingeblendet.
+5. **Leseblatt & Lese-Karten (Deutsch):** Silben und Wörter nach dem hessischen Fibel-Verlauf (Stufen 1–5). Entweder als druckbare A4-Übersicht (mit 25 mm Heftrand) oder im Vollbild-Lese-Karten-Modus (Großschrift 'Andika').
 
 ---
 

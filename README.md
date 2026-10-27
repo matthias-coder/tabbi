@@ -208,6 +208,7 @@ tabbi/
 │   ├── tabbi-gruppen.js          # Aufgabengruppen des Builders
 │   ├── tabbi-historie.js         # Abgeschlossene Blätter
 │   ├── tabbi-auswertung.js       # Lösungen & Auswertung (nur Lehrkraft)
+│   ├── tabbi-lesekorpus.js       # Deutsch-Lesekorpus (Fibel-Wortschatz & Silben)
 │   └── blaetter-katalog.js       # Katalog aller Blätter & Metadaten
 ├── blaetter/                     # Alle interaktiven Arbeitsblätter
 │   ├── 001_zahlenhaeuser_und_freunde.html
@@ -221,6 +222,7 @@ tabbi/
 │   ├── 008_nachbarzahlen_und_zahlenstrahl_20.html
 │   ├── 009_zwergen_und_riesenaufgaben.html
 │   ├── 010_zehneruebergang_und_zahlenmauern_20.html
-│   └── 011_click_und_mix.html    # Generator & Test-Ersteller
+│   ├── 011_click_und_mix.html    # Generator & Test-Ersteller
+│   └── 012_leseblatt_silben_und_woerter.html # Leseblätter & Lese-Karten (Stufe 1–5)
 └── gitignore/                    # Lokale Vorlagen & Rohdateien (nicht im Git-Repo)
 ```
