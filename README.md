@@ -5,6 +5,25 @@
 
 ---
 
+<div align="center">
+
+> 🌐 **Live-Version auf GitHub Pages:** [**https://matthias-coder.github.io/tabbi/**](https://matthias-coder.github.io/tabbi/)
+
+[![Live auf GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Bibliothek-0284c7?style=for-the-badge&logo=github&logoColor=white)](https://matthias-coder.github.io/tabbi/)
+
+### 📱 QR-Code zum Scannen (Tablet / iPad):
+*Mit der Kamera scannen, um TABBI direkt auf dem Tablet zu öffnen:*
+
+<a href="https://matthias-coder.github.io/tabbi/">
+  <img src="docs/qr-code.png" width="180" height="180" alt="QR-Code zu TABBI auf GitHub Pages" />
+</a>
+
+👉 [**matthias-coder.github.io/tabbi**](https://matthias-coder.github.io/tabbi/)
+
+</div>
+
+---
+
 ## 📌 Inhaltsverzeichnis
 1. [Projektvision & Eiserne Grundregel](#-projektvision--eiserne-grundregel)
 2. [Aktueller Entwicklungsstand](#-aktueller-entwicklungsstand)
